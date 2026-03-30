@@ -1,17 +1,8 @@
 import PublicLayout from "@/components/layout/PublicLayout";
-import { motion } from "framer-motion";
 import {
   FileCheck, Shield, Zap, Globe, Lock, Smartphone,
   Bell, BarChart3, Users, RefreshCw, Database, Eye
 } from "lucide-react";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" }
-  }),
-};
 
 const vendorFeatures = [
   { icon: FileCheck, title: "One-Time KYC Upload", desc: "Upload GST certificate, PAN card, and bank details once. Never fill the same forms again." },
@@ -31,68 +22,54 @@ const platformFeatures = [
   { icon: Database, title: "Bulk Operations", desc: "Import vendor lists, trigger batch verifications, and export data at scale." },
 ];
 
+const FeatureCard = ({ icon: Icon, title, desc, accent = "primary" }: { icon: any; title: string; desc: string; accent?: string }) => (
+  <div className="rounded-xl border border-border bg-card p-5 shadow-xs hover:shadow-card transition-shadow duration-200">
+    <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg border ${
+      accent === "primary" ? "bg-primary/8 border-primary/10" : "bg-secondary/8 border-secondary/10"
+    }`}>
+      <Icon className={`h-4 w-4 ${accent === "primary" ? "text-primary" : "text-secondary"}`} />
+    </div>
+    <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+    <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{desc}</p>
+  </div>
+);
+
 const Features = () => (
   <PublicLayout>
-    <section className="bg-gradient-hero py-20">
+    <section className="border-b border-border py-16">
       <div className="container text-center">
-        <motion.h1
-          initial="hidden" animate="visible" custom={0} variants={fadeUp}
-          className="text-4xl font-extrabold text-foreground md:text-5xl"
-        >
-          Powerful Features for{" "}
-          <span className="text-gradient-primary">Every Stakeholder</span>
-        </motion.h1>
-        <motion.p
-          initial="hidden" animate="visible" custom={1} variants={fadeUp}
-          className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto"
-        >
-          Whether you're a vendor getting verified or a platform managing thousands of sellers,
-          VendorFlow has the tools you need.
-        </motion.p>
+        <h1 className="text-3xl font-semibold text-foreground md:text-4xl">
+          Powerful features for <span className="text-primary">every stakeholder</span>
+        </h1>
+        <p className="mt-3 text-sm text-muted-foreground max-w-xl mx-auto">
+          Whether you're a vendor getting verified or a platform managing thousands of sellers, VendorFlow has the tools you need.
+        </p>
       </div>
     </section>
 
     {/* Vendor Features */}
-    <section className="container py-20">
-      <h2 className="text-2xl font-bold text-foreground mb-2">For Vendors</h2>
-      <p className="text-muted-foreground mb-10">Verify once, onboard everywhere. No more repetitive paperwork.</p>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {vendorFeatures.map((f, i) => (
-          <motion.div
-            key={f.title}
-            initial="hidden" whileInView="visible" viewport={{ once: true }}
-            custom={i} variants={fadeUp}
-            className="rounded-xl border border-border bg-card p-6 shadow-card hover:shadow-elevated transition-shadow"
-          >
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
-              <f.icon className="h-5 w-5 text-primary" />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground">{f.title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-          </motion.div>
+    <section className="container py-16">
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-foreground">For Vendors</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Verify once, onboard everywhere. No more repetitive paperwork.</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {vendorFeatures.map((f) => (
+          <FeatureCard key={f.title} {...f} accent="primary" />
         ))}
       </div>
     </section>
 
     {/* Platform Features */}
-    <section className="bg-muted/50 py-20">
+    <section className="border-t border-border bg-muted/30 py-16">
       <div className="container">
-        <h2 className="text-2xl font-bold text-foreground mb-2">For Platforms</h2>
-        <p className="text-muted-foreground mb-10">API-first infrastructure to verify and onboard vendors at scale.</p>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {platformFeatures.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial="hidden" whileInView="visible" viewport={{ once: true }}
-              custom={i} variants={fadeUp}
-              className="rounded-xl border border-border bg-card p-6 shadow-card hover:shadow-elevated transition-shadow"
-            >
-              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary/10">
-                <f.icon className="h-5 w-5 text-secondary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground">{f.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-            </motion.div>
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-foreground">For Platforms</h2>
+          <p className="mt-1 text-sm text-muted-foreground">API-first infrastructure to verify and onboard vendors at scale.</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {platformFeatures.map((f) => (
+            <FeatureCard key={f.title} {...f} accent="secondary" />
           ))}
         </div>
       </div>

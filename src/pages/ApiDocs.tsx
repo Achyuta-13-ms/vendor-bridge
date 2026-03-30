@@ -1,15 +1,6 @@
 import PublicLayout from "@/components/layout/PublicLayout";
-import { motion } from "framer-motion";
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" }
-  }),
-};
 
 const endpoints = [
   {
@@ -83,11 +74,6 @@ const endpoints = [
   },
 ];
 
-const methodColors: Record<string, string> = {
-  GET: "bg-secondary/10 text-secondary",
-  POST: "bg-primary/10 text-primary",
-};
-
 const CodeBlock = ({ code, label }: { code: string; label: string }) => {
   const [copied, setCopied] = useState(false);
   const copy = () => {
@@ -97,14 +83,14 @@ const CodeBlock = ({ code, label }: { code: string; label: string }) => {
   };
 
   return (
-    <div className="relative">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
         <button onClick={copy} className="text-muted-foreground hover:text-foreground transition-colors">
-          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
         </button>
       </div>
-      <pre className="rounded-lg bg-foreground/5 p-4 text-xs text-foreground overflow-x-auto">
+      <pre className="rounded-lg border border-border bg-muted/50 p-3.5 text-xs text-foreground overflow-x-auto leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>
@@ -113,63 +99,52 @@ const CodeBlock = ({ code, label }: { code: string; label: string }) => {
 
 const ApiDocs = () => (
   <PublicLayout>
-    <section className="bg-gradient-hero py-20">
+    <section className="border-b border-border py-16">
       <div className="container text-center">
-        <motion.h1
-          initial="hidden" animate="visible" custom={0} variants={fadeUp}
-          className="text-4xl font-extrabold text-foreground md:text-5xl"
-        >
-          API <span className="text-gradient-primary">Documentation</span>
-        </motion.h1>
-        <motion.p
-          initial="hidden" animate="visible" custom={1} variants={fadeUp}
-          className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto"
-        >
+        <h1 className="text-3xl font-semibold text-foreground md:text-4xl">
+          API <span className="text-primary">Documentation</span>
+        </h1>
+        <p className="mt-3 text-sm text-muted-foreground max-w-lg mx-auto">
           Integrate VendorFlow into your platform with our simple REST API.
-        </motion.p>
+        </p>
       </div>
     </section>
 
-    <section className="container py-20">
-      <div className="max-w-4xl mx-auto">
+    <section className="container py-16">
+      <div className="max-w-3xl mx-auto">
         {/* Auth */}
-        <motion.div
-          initial="hidden" whileInView="visible" viewport={{ once: true }}
-          custom={0} variants={fadeUp}
-          className="mb-12 rounded-xl border border-border bg-card p-6 shadow-card"
-        >
-          <h2 className="text-xl font-bold text-foreground mb-3">Authentication</h2>
-          <p className="text-sm text-muted-foreground mb-4">
+        <div className="mb-10 rounded-xl border border-border bg-card p-5 shadow-xs">
+          <h2 className="text-base font-semibold text-foreground mb-2">Authentication</h2>
+          <p className="text-xs text-muted-foreground mb-3">
             Include your API key in the Authorization header for all requests.
           </p>
-          <CodeBlock
-            label="Header"
-            code={`Authorization: Bearer YOUR_API_KEY`}
-          />
-        </motion.div>
+          <CodeBlock label="Header" code="Authorization: Bearer YOUR_API_KEY" />
+        </div>
 
         {/* Endpoints */}
-        <h2 className="text-2xl font-bold text-foreground mb-6">Endpoints</h2>
-        <div className="space-y-8">
-          {endpoints.map((ep, i) => (
-            <motion.div
+        <h2 className="text-lg font-semibold text-foreground mb-5">Endpoints</h2>
+        <div className="space-y-5">
+          {endpoints.map((ep) => (
+            <div
               key={ep.path}
-              initial="hidden" whileInView="visible" viewport={{ once: true }}
-              custom={i} variants={fadeUp}
-              className="rounded-xl border border-border bg-card p-6 shadow-card"
+              className="rounded-xl border border-border bg-card p-5 shadow-xs"
             >
-              <div className="flex items-center gap-3 mb-2">
-                <span className={`rounded-md px-2.5 py-1 text-xs font-bold ${methodColors[ep.method]}`}>
+              <div className="flex items-center gap-2.5 mb-2">
+                <span className={`rounded-md px-2 py-0.5 text-[11px] font-semibold ${
+                  ep.method === "GET"
+                    ? "bg-secondary/10 text-secondary"
+                    : "bg-primary/10 text-primary"
+                }`}>
                   {ep.method}
                 </span>
-                <code className="text-sm font-semibold text-foreground">{ep.path}</code>
+                <code className="text-sm font-medium text-foreground">{ep.path}</code>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">{ep.desc}</p>
-              <div className="space-y-4">
+              <p className="text-xs text-muted-foreground mb-4">{ep.desc}</p>
+              <div className="space-y-3">
                 {ep.body && <CodeBlock label="Request Body" code={ep.body} />}
                 <CodeBlock label="Response" code={ep.response} />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

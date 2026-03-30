@@ -1,16 +1,7 @@
 import PublicLayout from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" }
-  }),
-};
 
 const plans = [
   {
@@ -25,7 +16,6 @@ const plans = [
       "Email support",
     ],
     cta: "Get Started",
-    variant: "hero-outline" as const,
     highlight: false,
   },
   {
@@ -41,7 +31,6 @@ const plans = [
       "Priority support",
     ],
     cta: "Start Free Trial",
-    variant: "hero" as const,
     highlight: true,
   },
   {
@@ -58,76 +47,69 @@ const plans = [
       "On-premise deployment",
     ],
     cta: "Contact Sales",
-    variant: "hero-outline" as const,
     highlight: false,
   },
 ];
 
 const Pricing = () => (
   <PublicLayout>
-    <section className="bg-gradient-hero py-20">
+    <section className="border-b border-border py-16">
       <div className="container text-center">
-        <motion.h1
-          initial="hidden" animate="visible" custom={0} variants={fadeUp}
-          className="text-4xl font-extrabold text-foreground md:text-5xl"
-        >
-          Simple, Transparent{" "}
-          <span className="text-gradient-primary">Pricing</span>
-        </motion.h1>
-        <motion.p
-          initial="hidden" animate="visible" custom={1} variants={fadeUp}
-          className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto"
-        >
+        <h1 className="text-3xl font-semibold text-foreground md:text-4xl">
+          Simple, transparent <span className="text-primary">pricing</span>
+        </h1>
+        <p className="mt-3 text-sm text-muted-foreground max-w-lg mx-auto">
           Start free. Scale as you grow. Pay only for what you use.
-        </motion.p>
+        </p>
       </div>
     </section>
 
-    <section className="container py-20">
-      <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
-        {plans.map((plan, i) => (
-          <motion.div
+    <section className="container py-16">
+      <div className="grid gap-6 md:grid-cols-3 max-w-4xl mx-auto">
+        {plans.map((plan) => (
+          <div
             key={plan.name}
-            initial="hidden" whileInView="visible" viewport={{ once: true }}
-            custom={i} variants={fadeUp}
-            className={`rounded-2xl border p-8 flex flex-col ${
+            className={`rounded-xl border p-6 flex flex-col ${
               plan.highlight
-                ? "border-primary shadow-elevated bg-card relative"
-                : "border-border bg-card shadow-card"
+                ? "border-primary shadow-card bg-card relative"
+                : "border-border bg-card shadow-xs"
             }`}
           >
             {plan.highlight && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-primary px-4 py-1 text-xs font-semibold text-primary-foreground">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-[11px] font-medium text-primary-foreground">
                 Most Popular
               </div>
             )}
-            <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
-            <div className="mt-4 flex items-baseline gap-1">
-              <span className="text-4xl font-extrabold text-foreground">{plan.price}</span>
-              {plan.period && <span className="text-muted-foreground">{plan.period}</span>}
+            <h3 className="text-base font-semibold text-foreground">{plan.name}</h3>
+            <div className="mt-3 flex items-baseline gap-1">
+              <span className="text-3xl font-semibold text-foreground">{plan.price}</span>
+              {plan.period && <span className="text-sm text-muted-foreground">{plan.period}</span>}
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">{plan.desc}</p>
+            <p className="mt-2 text-xs text-muted-foreground">{plan.desc}</p>
 
-            <ul className="mt-6 flex-1 space-y-3">
+            <ul className="mt-5 flex-1 space-y-2.5">
               {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm text-foreground">
-                  <Check className="h-4 w-4 text-secondary mt-0.5 shrink-0" />
+                <li key={f} className="flex items-start gap-2 text-xs text-foreground">
+                  <Check className="h-3.5 w-3.5 text-success mt-0.5 shrink-0" />
                   {f}
                 </li>
               ))}
             </ul>
 
-            <Link to="/signup" className="mt-8">
-              <Button variant={plan.variant} className="w-full gap-2">
-                {plan.cta} <ArrowRight className="h-4 w-4" />
+            <Link to={plan.name === "Enterprise" ? "/contact" : "/signup"} className="mt-6">
+              <Button
+                variant={plan.highlight ? "default" : "outline"}
+                className="w-full gap-2"
+              >
+                {plan.cta} <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </Link>
-          </motion.div>
+          </div>
         ))}
       </div>
 
-      <div className="mt-16 text-center">
-        <p className="text-muted-foreground">
+      <div className="mt-12 text-center">
+        <p className="text-xs text-muted-foreground">
           Need custom pricing?{" "}
           <Link to="/contact" className="text-primary font-medium hover:underline">
             Talk to our sales team
