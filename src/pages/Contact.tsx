@@ -44,7 +44,7 @@ const Contact = () => {
                 { icon: MapPin, label: "Office", value: "Bengaluru, Karnataka, India" },
               ].map((item) => (
                 <div key={item.label} className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/8 border border-primary/10 shrink-0">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/15 shrink-0">
                     <item.icon className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -56,7 +56,7 @@ const Contact = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-xs">
+          <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-xs">
             <div>
               <label className="text-xs font-medium text-foreground">Name</label>
               <Input placeholder="Your name" required className="mt-1" />

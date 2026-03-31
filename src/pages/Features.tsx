@@ -22,12 +22,10 @@ const platformFeatures = [
   { icon: Database, title: "Bulk Operations", desc: "Import vendor lists, trigger batch verifications, and export data at scale." },
 ];
 
-const FeatureCard = ({ icon: Icon, title, desc, accent = "primary" }: { icon: any; title: string; desc: string; accent?: string }) => (
-  <div className="rounded-xl border border-border bg-card p-5 shadow-xs hover:shadow-card transition-shadow duration-200">
-    <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg border ${
-      accent === "primary" ? "bg-primary/8 border-primary/10" : "bg-secondary/8 border-secondary/10"
-    }`}>
-      <Icon className={`h-4 w-4 ${accent === "primary" ? "text-primary" : "text-secondary"}`} />
+const FeatureCard = ({ icon: Icon, title, desc }: { icon: any; title: string; desc: string }) => (
+  <div className="rounded-2xl border border-border bg-card p-5 shadow-xs hover:shadow-card transition-shadow duration-200">
+    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/15">
+      <Icon className="h-4 w-4 text-primary" />
     </div>
     <h3 className="text-sm font-semibold text-foreground">{title}</h3>
     <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{desc}</p>
@@ -47,7 +45,6 @@ const Features = () => (
       </div>
     </section>
 
-    {/* Vendor Features */}
     <section className="container py-16">
       <div className="mb-8">
         <h2 className="text-xl font-semibold text-foreground">For Vendors</h2>
@@ -55,13 +52,12 @@ const Features = () => (
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {vendorFeatures.map((f) => (
-          <FeatureCard key={f.title} {...f} accent="primary" />
+          <FeatureCard key={f.title} {...f} />
         ))}
       </div>
     </section>
 
-    {/* Platform Features */}
-    <section className="border-t border-border bg-muted/30 py-16">
+    <section className="border-t border-border bg-secondary py-16">
       <div className="container">
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-foreground">For Platforms</h2>
@@ -69,7 +65,7 @@ const Features = () => (
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {platformFeatures.map((f) => (
-            <FeatureCard key={f.title} {...f} accent="secondary" />
+            <FeatureCard key={f.title} {...f} />
           ))}
         </div>
       </div>

@@ -33,7 +33,7 @@ const workflowSteps = [
 const Index = () => (
   <PublicLayout>
     {/* Hero */}
-    <section className="border-b border-border">
+    <section className="bg-gradient-to-br from-[hsl(152,60%,97%)] to-[hsl(40,40%,97%)]">
       <div className="container py-20 md:py-28">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-xs">
@@ -67,29 +67,29 @@ const Index = () => (
           </div>
 
           <div className="mt-5 flex items-center justify-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-success" /> Free to start</span>
-            <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-success" /> No credit card</span>
-            <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-success" /> API included</span>
+            <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-primary" /> Free to start</span>
+            <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-primary" /> No credit card</span>
+            <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-primary" /> API included</span>
           </div>
         </div>
       </div>
     </section>
 
     {/* Workflow Diagram */}
-    <section className="border-b border-border bg-card">
+    <section className="border-y border-border bg-secondary">
       <div className="container py-12">
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
           {workflowSteps.map((step, i) => (
             <div key={step.label} className="flex items-center gap-4">
               <div className="flex flex-col items-center text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-background shadow-xs">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card shadow-xs">
                   <step.icon className="h-5 w-5 text-primary" />
                 </div>
                 <span className="mt-2 text-sm font-medium text-foreground">{step.label}</span>
                 <span className="text-xs text-muted-foreground">{step.desc}</span>
               </div>
               {i < workflowSteps.length - 1 && (
-                <ArrowRight className="hidden md:block h-4 w-4 text-border mx-4" />
+                <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground/40 mx-4" />
               )}
             </div>
           ))}
@@ -124,9 +124,9 @@ const Index = () => (
           {features.map((f) => (
             <div
               key={f.title}
-              className="rounded-xl border border-border bg-card p-5 shadow-xs hover:shadow-card transition-shadow duration-200"
+              className="rounded-2xl border border-border bg-card p-5 shadow-xs hover:shadow-card transition-shadow duration-200"
             >
-              <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/8 border border-primary/10">
+              <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/15">
                 <f.icon className="h-4 w-4 text-primary" />
               </div>
               <h3 className="text-sm font-semibold text-foreground">{f.title}</h3>
@@ -138,10 +138,10 @@ const Index = () => (
     </section>
 
     {/* Platform CTA */}
-    <section className="border-y border-border bg-muted/50 py-16">
+    <section className="border-y border-border bg-secondary py-16">
       <div className="container">
-        <div className="rounded-xl border border-border bg-card p-8 md:p-12 shadow-card max-w-3xl mx-auto text-center">
-          <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/8 border border-primary/10">
+        <div className="rounded-2xl border border-border bg-card p-8 md:p-12 shadow-card max-w-3xl mx-auto text-center">
+          <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/15">
             <Users className="h-5 w-5 text-primary" />
           </div>
           <h2 className="text-xl font-semibold text-foreground">For Marketplace Platforms</h2>
@@ -190,7 +190,7 @@ const Index = () => (
         <p className="text-xs text-muted-foreground uppercase tracking-wider mb-6">Trusted by leading platforms</p>
         <div className="flex flex-wrap items-center justify-center gap-8">
           {["FlipMart", "ShopEase", "BazaarHub", "TradeNet", "VendorX"].map((name) => (
-            <span key={name} className="text-sm font-semibold text-muted-foreground/50">{name}</span>
+            <span key={name} className="text-sm font-semibold text-muted-foreground/40">{name}</span>
           ))}
         </div>
       </div>
