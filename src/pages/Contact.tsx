@@ -56,7 +56,7 @@ const Contact = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-xs">
+          <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-xs">
             <div>
               <label className="text-xs font-medium text-foreground">Name</label>
               <Input placeholder="Your name" required className="mt-1" />

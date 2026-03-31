@@ -7,7 +7,7 @@ const Footer = () => (
       <div className="grid gap-8 md:grid-cols-4">
         <div>
           <Link to="/" className="flex items-center gap-2 mb-4">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
+            <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary">
               <Shield className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
             <span className="text-base font-semibold text-foreground">VendorFlow</span>
