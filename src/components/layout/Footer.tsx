@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Shield, Lock } from "lucide-react";
 
 const Footer = () => (
@@ -6,7 +6,7 @@ const Footer = () => (
     <div className="container py-12">
       <div className="grid gap-8 md:grid-cols-4">
         <div>
-          <Link to="/" className="flex items-center gap-2 mb-4">
+          <Link href="/" className="flex items-center gap-2 mb-4">
             <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary">
               <Shield className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
@@ -24,16 +24,16 @@ const Footer = () => (
         <div>
           <h4 className="mb-3 text-sm font-semibold text-foreground">Product</h4>
           <div className="flex flex-col gap-2">
-            <Link to="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</Link>
-            <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
-            <Link to="/api-docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">API Docs</Link>
+            <Link href="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</Link>
+            <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
+            <Link href="/api-docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">API Docs</Link>
           </div>
         </div>
 
         <div>
           <h4 className="mb-3 text-sm font-semibold text-foreground">Company</h4>
           <div className="flex flex-col gap-2">
-            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+            <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
             <span className="text-sm text-muted-foreground">Privacy Policy</span>
             <span className="text-sm text-muted-foreground">Terms of Service</span>
           </div>

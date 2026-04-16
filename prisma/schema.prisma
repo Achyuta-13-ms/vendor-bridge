@@ -1,0 +1,259 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  name        String?
+  phone       String?  @unique
+  email       String?  @unique
+  firebaseUid String?  @unique
+  role        String   @default("VENDOR") // ADMIN, VENDOR, MODERATOR
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vendor      Vendor?
+  apiKeys     ApiKey[]
+}
+
+model Vendor {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  businessName  String?
+  businessType  String?
+  description   String?
+  
+  // Split Address Fields
+  addressLine1  String?
+  addressLine2  String?
+  city          String?
+  state         String?
+  postalCode    String?
+  country       String   @default("India")
+  
+  phone         String?
+  email         String?
+  website       String?
+  logoUrl       String?
+  
+  status        String   @default("PENDING") // PENDING, ACTIVE, REJECTED, SUSPENDED
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id])
+  documents     Document[]
+  connections   PlatformConnection[]
+  orders        Order[]
+  products      Product[]
+  webhooks      WebhookConfig[]
+}
+
+model Document {
+  id            String   @id @default(uuid())
+  vendorId      String
+  type          String   // GST, PAN, BANK, AADHAR
+  url           String
+  
+  // Metadata
+  originalName  String?
+  mimeType      String?
+  size          Int?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  vendor        Vendor   @relation(fields: [vendorId], references: [id])
+  verification  Verification?
+}
+
+model Verification {
+  id              String   @id @default(uuid())
+  documentId      String   @unique
+  status          String   @default("PENDING") // PENDING, VERIFIED, REJECTED
+  response        String?
+  rejectionReason String?
+  
+  verifiedBy      String?
+  verifiedAt      DateTime?
+  
+  updatedAt       DateTime @updatedAt
+
+  document        Document @relation(fields: [documentId], references: [id])
+}
+
+model ApiKey {
+  id        String   @id @default(uuid())
+  userId    String
+  key       String   @unique
+  name      String
+  lastUsed  DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Platform {
+  id          String   @id @default(uuid())
+  name        String   @unique // swiggy, zomato, amazon, generic
+  displayName String
+  logoUrl     String?
+  
+  connections PlatformConnection[]
+  orders      Order[]
+  platformProducts PlatformProduct[]
+}
+
+model PlatformConnection {
+  id          String   @id @default(uuid())
+  vendorId    String
+  platformId  String
+  
+  status      String   @default("LINKED") // LINKED, ACTIVE, FAILED
+  externalId  String?  // ID on the external platform
+  
+  // Credentials (should be encrypted in production)
+  accessToken String?
+  apiKey      String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vendor    Vendor   @relation(fields: [vendorId], references: [id])
+  platform  Platform @relation(fields: [platformId], references: [id])
+
+  @@unique([vendorId, platformId])
+}
+
+model OtpSession {
+  id         String   @id @default(uuid())
+  identifier String   @unique // email or phone
+  code       String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  vendorId        String
+  platformId      String
+  externalOrderId String      @unique
+  status          String      @default("NEW") // NEW, CONFIRMED, PREPARING, READY, PICKED_UP, DELIVERED, CANCELLED
+  orderType       String?     // DELIVERY, DINEOUT, PICKUP
+  
+  currency        String      @default("INR")
+  subtotal        Float
+  tax             Float
+  deliveryFee     Float       @default(0)
+  total           Float
+  
+  specialInstructions String?
+  placedAt        DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  vendor          Vendor      @relation(fields: [vendorId], references: [id])
+  platform        Platform    @relation(fields: [platformId], references: [id])
+  customer        Customer?   @relation(fields: [customerId], references: [id])
+  customerId      String?
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  name      String
+  quantity  Int
+  price     Float
+  options   String?  // JSON string for extra toppings etc.
+  
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+}
+
+model Customer {
+  id              String   @id @default(uuid())
+  name            String?
+  phone           String?
+  deliveryAddress String?
+  
+  orders          Order[]
+}
+
+model Product {
+  id              String      @id @default(uuid())
+  vendorId        String
+  name            String
+  sku             String?
+  description     String?
+  price           Float
+  stock           Int         @default(0)
+  lowStockLevel   Int         @default(5)
+  isActive        Boolean     @default(true)
+  imageUrl        String?
+  category        String?
+  
+  vendor          Vendor      @relation(fields: [vendorId], references: [id])
+  orderItems      OrderItem[]
+  platformMappings PlatformProduct[]
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([vendorId, name])
+}
+
+model PlatformProduct {
+  id              String      @id @default(uuid())
+  productId       String
+  platformId      String
+  externalId      String      // ID on the marketplace (e.g., Swiggy Item ID)
+  externalName    String?     // Name on the marketplace
+  isActive        Boolean     @default(true)
+  
+  product         Product     @relation(fields: [productId], references: [id])
+  platform        Platform    @relation(fields: [platformId], references: [id])
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([platformId, externalId])
+}
+
+model WebhookConfig {
+  id          String   @id @default(uuid())
+  vendorId    String
+  url         String   // Destination URL
+  secret      String?  // For HMAC signing
+  isActive    Boolean  @default(true)
+  events      String   @default("ORDER_UPDATED,ITEM_OUT_OF_STOCK") // Comma separated events
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vendor      Vendor   @relation(fields: [vendorId], references: [id])
+  logs        WebhookLog[]
+}
+
+model WebhookLog {
+  id              String   @id @default(uuid())
+  webhookConfigId String
+  event           String
+  payload         String   // JSON string
+  statusCode      Int?
+  responseBody    String?
+  attempt         Int      @default(1)
+  status          String   @default("SUCCESS") // SUCCESS, FAILED
+  
+  createdAt       DateTime @default(now())
+
+  config          WebhookConfig @relation(fields: [webhookConfigId], references: [id])
+}
