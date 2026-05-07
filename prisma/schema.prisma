@@ -93,6 +93,9 @@ model ApiKey {
   userId    String
   key       String   @unique
   name      String
+  plan      String   @default("free")
+  usage     Int      @default(0)
+  limit     Int      @default(50)
   lastUsed  DateTime?
   
   createdAt DateTime @default(now())
@@ -257,3 +260,18 @@ model WebhookLog {
 
   config          WebhookConfig @relation(fields: [webhookConfigId], references: [id])
 }
+
+model Webhook {
+  id        String   @id @default(uuid())
+  url       String
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  orderId   String
+  paymentId String
+  plan      String
+  createdAt DateTime @default(now())
+}
+

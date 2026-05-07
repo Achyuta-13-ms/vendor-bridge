@@ -1,8 +1,13 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+
+export interface User {
+  id: string;
+  email: string;
+  user_metadata?: { full_name?: string };
+}
+export interface Session { user: User; access_token: string; }
 
 interface AuthContextType {
   user: User | null;
@@ -23,56 +28,89 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    // Check local storage for session
+    const storedSession = localStorage.getItem('vypaar_session');
+    if (storedSession) {
+      try {
+        const parsed = JSON.parse(storedSession);
+        setSession(parsed);
+        setUser(parsed.user);
+      } catch (e) {
+        localStorage.removeItem('vypaar_session');
+      }
+    }
+    setLoading(false);
   }, []);
 
+  const setLocalSession = (newSession: Session | null) => {
+    setSession(newSession);
+    setUser(newSession?.user ?? null);
+    if (newSession) {
+      localStorage.setItem('vypaar_session', JSON.stringify(newSession));
+      // Polyfill backwards compat vendorSession for dashboard routing dependency
+      localStorage.setItem('vendorSession', JSON.stringify({
+        id: newSession.user.id,
+        email: newSession.user.email
+      }));
+    } else {
+      localStorage.removeItem('vypaar_session');
+      localStorage.removeItem('vendorSession');
+    }
+  };
+
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName } },
-    });
-    return { error };
+    // Mock implementation for sign up
+    return { error: null };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+    return { error: new Error("Password sign in is disabled. Please use OTP.") };
   };
 
   const signInWithOtp = async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({ 
-      email,
-      options: {
-        emailRedirectTo: window.location.origin,
-      }
-    });
-    return { error };
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      return { error: null };
+    } catch (error: any) {
+      return { error };
+    }
   };
 
   const verifyOtp = async (email: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'email',
-    });
-    return { error };
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp: token })
+      });
+      
+      const data = await res.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'OTP verification failed');
+      }
+      
+      // ✅ USE REAL BACKEND RESPONSE
+      setLocalSession({
+        user: data.user,
+        access_token: data.token
+      });
+      
+      return { error: null };
+      
+    } catch (error: any) {
+      return { error };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    setLocalSession(null);
   };
 
   return (

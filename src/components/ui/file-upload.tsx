@@ -2,10 +2,9 @@
 
 import React, { useState, useCallback } from 'react';
 import { cn } from "@/lib/utils";
+import axios from 'axios';
 import { UploadCloud, CheckCircle2, XCircle, File as FileIcon, X, Loader2 } from "lucide-react";
 import { Button } from "./button";
-import { storage } from "@/lib/firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 
 interface FileUploadProps {
@@ -24,32 +23,40 @@ export function FileUpload({ onUpload, accept = ".pdf,.jpg,.png", className, lab
   const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">(initialUrl ? "success" : "idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const processFile = useCallback((file: File) => {
+  const processFile = useCallback(async (file: File) => {
     setFile(file);
     setStatus("uploading");
     setProgress(0);
     setErrorMessage(null);
 
-    const storageRef = ref(storage, `documents/${path}/${Date.now()}_${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("path", path);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(Math.round(p));
-      },
-      (error) => {
-        console.error("Upload error:", error);
-        setStatus("error");
-        setErrorMessage(error.message || "Failed to upload file");
-      },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+    try {
+      const res = await axios.post("/api/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setProgress(percentCompleted);
+          }
+        },
+      });
+
+      if (res.data.success) {
+        setProgress(100);
         setStatus("success");
-        onUpload(downloadURL);
+        onUpload(res.data.url);
+      } else {
+        throw new Error(res.data.message || "Upload failed");
       }
-    );
+    } catch (err: any) {
+      console.error("Upload error", err);
+      setStatus("error");
+      setErrorMessage(err?.response?.data?.message || err.message || "File upload failed");
+      setFile(null);
+    }
   }, [onUpload, path]);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {

@@ -12,6 +12,7 @@ import {
   CheckCircle2, Building2, FileText,
   User as UserIcon, BadgeCheck, RefreshCw
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,7 @@ const BUSINESS_TYPES = [
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { verifyOtp: verifyOtpAuth } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -126,15 +128,18 @@ export default function SignupPage() {
     try {
       const email = form.getValues("email");
       const otp = form.getValues("otp");
-      const res = await axios.post("/api/auth/verify-otp", { email, otp });
-      if (res.data.success) {
-        localStorage.setItem("vendorSession", JSON.stringify(res.data.user));
+      
+      const { error } = await verifyOtpAuth(email, otp);
+      
+      if (!error) {
         setStep(3);
+      } else {
+        throw error;
       }
     } catch (e: any) {
       toast({
         title: "Invalid Code",
-        description: e?.response?.data?.message || "The code is incorrect or has expired.",
+        description: e?.message || "The code is incorrect or has expired.",
         variant: "destructive",
       });
     } finally {
@@ -145,9 +150,23 @@ export default function SignupPage() {
   const onSubmit = async (values: SignupFormValues) => {
     setLoading(true);
     try {
-      const res = await axios.post("/api/vendor/create", {
-        ...values,
-        email: values.email,
+      // Get the locally stored session for the userId
+      const sessionStr = localStorage.getItem("vendorSession");
+      let userId = form.getValues("email"); // fallback
+      if (sessionStr) {
+        try {
+          const parsed = JSON.parse(sessionStr);
+          if (parsed.id) userId = parsed.id;
+        } catch (e) {}
+      }
+
+      const res = await axios.post("/api/vendor", {
+        businessName: values.businessName,
+        address: values.address,
+        city: values.city,
+        // The businessType and description could be passed but /api/vendor handles address mostly right now
+        documents: values.documents,
+        userId: userId,
       });
       if (res.data.success) {
         toast({ title: "Account Created!", description: "Your vendor profile is ready for review." });

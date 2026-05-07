@@ -69,9 +69,11 @@ export default function OnboardingPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     try {
-      const res = await axios.post("/api/vendor/create", {
-        ...values,
-        email: session?.email ?? "unknown",
+      const res = await axios.post("/api/vendor", {
+        businessName: values.businessName,
+        address: values.address,
+        city: values.city,
+        documents: values.documents,
         userId: session?.id,
       });
       if (res.data.success) {

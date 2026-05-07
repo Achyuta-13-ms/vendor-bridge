@@ -237,7 +237,7 @@ export default function VendorDashboard() {
             </Badge>
             {refreshing && <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />}
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight">Bonjour, {vendor.businessName}</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight">Bonjour, {vendor.businessName || "Partner"}</h1>
           <p className="text-muted-foreground font-medium">Here's an overview of your bridge status and compliance.</p>
         </div>
         
@@ -317,14 +317,6 @@ export default function VendorDashboard() {
                 <Globe className="h-5 w-5 text-primary" />
                 Marketplace Bridge
               </h3>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" className="text-xs font-bold" onClick={() => simulateOrder('swiggy')}>
-                  Simulate Swiggy
-                </Button>
-                <Button variant="ghost" size="sm" className="text-xs font-bold" onClick={() => simulateOrder('zomato')}>
-                  Simulate Zomato
-                </Button>
-              </div>
             </div>
             
             <div className="grid sm:grid-cols-2 gap-4">
@@ -449,8 +441,8 @@ export default function VendorDashboard() {
             <CardHeader>
               <CardTitle className="text-xl opacity-80 font-bold tracking-widest uppercase text-xs">Business Profile</CardTitle>
               <div className="mt-4">
-                <h2 className="text-3xl font-black truncate">{vendor.businessName}</h2>
-                <p className="text-primary-foreground/70 font-medium">{vendor.businessType}</p>
+                <h2 className="text-3xl font-black truncate">{vendor.businessName || "Profile Setup Required"}</h2>
+                <p className="text-primary-foreground/70 font-medium">{vendor.businessType || "Retail Business"}</p>
               </div>
             </CardHeader>
             
@@ -464,7 +456,7 @@ export default function VendorDashboard() {
               <div className="space-y-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">HQ Location</p>
                 <p className="text-sm leading-snug font-medium line-clamp-2">
-                  {vendor.addressLine1}, {vendor.city}
+                  {vendor.addressLine1 || "Address pending verification"}, {vendor.city}
                 </p>
               </div>
             </CardContent>

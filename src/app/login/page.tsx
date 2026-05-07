@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, verifyOtp, signInWithOtp } = useAuth();
   
   const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
@@ -98,26 +98,25 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await axios.post("/api/auth/verify-otp", { email, otp });
+      const { error } = await verifyOtp(email, otp);
       setLoading(false);
 
-      if (res.data.success) {
-        // Correct behavior: Persist the vendor session manually for simulation
-        localStorage.setItem("vendorSession", JSON.stringify(res.data.user));
-        
+      if (!error) {
         toast({
           title: "Success!",
           description: "You have been successfully verified.",
         });
         
         router.push("/dashboard");
+      } else {
+        throw new Error(error.message || "Invalid or expired code.");
       }
     } catch (e: any) {
       setLoading(false);
       setOtp(""); // Clear OTP input on failure
       toast({
         title: "Verification Failed",
-        description: e?.response?.data?.message || "Invalid or expired code.",
+        description: e?.message || "Invalid or expired code.",
         variant: "destructive",
       });
     }

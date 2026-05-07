@@ -83,13 +83,16 @@ export function DashboardSidebar() {
     { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
     { icon: Package, label: "Inventory Control", href: "/dashboard/inventory" },
     { icon: ArrowLeftRight, label: "Catalog Mapping", href: "/dashboard/mapping" },
+    { icon: ShieldCheck, label: "KYC Verification", href: "/dashboard/kyc" },
+    // Inactive for now as part of Phase 16 refactor
+    /*
     { icon: TrendingUp, label: "Analytics & BI", href: "/dashboard/analytics" },
     { icon: Zap, label: "Bridge Simulator", href: "/dashboard/simulator" },
     { icon: Radio, label: "Sync Simulator", href: "/dashboard/simulator/outbound" },
     { icon: Code2, label: "Developer Central", href: "/dashboard/developer/webhooks" },
     { icon: Briefcase, label: "Marketplace Bridge", href: "/dashboard/integration" },
-    { icon: ShieldCheck, label: "KYC Verification", href: "/dashboard/kyc" },
     { icon: Layers, label: "Connected APIs", href: "/dashboard/developer/api" },
+    */
   ];
 
   const bottomItems = [

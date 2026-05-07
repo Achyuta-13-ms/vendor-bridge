@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Users, CheckCircle2, Activity, Zap, Search, Bell, Settings, LayoutDashboard, FileText, Webhook } from "lucide-react";
+import { Users, CheckCircle2, Activity, Zap, Search, Bell, Settings, LayoutDashboard, FileText, Webhook, Key, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -51,7 +51,9 @@ export default function PlatformDashboard() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [webhookLogs, setWebhookLogs] = useState<{ id: string; event: string; payload: string; time: string }[]>([]);
-  const [activeTab, setActiveTab] = useState<"vendors" | "webhooks">("vendors");
+  const [activeTab, setActiveTab] = useState<"vendors" | "webhooks" | "api-keys">("vendors");
+  const [apiKeys, setApiKeys] = useState<any[]>([]);
+  const [generatingKey, setGeneratingKey] = useState(false);
 
   const fetchVendors = async () => {
     setLoading(true);
@@ -70,7 +72,38 @@ export default function PlatformDashboard() {
 
   useEffect(() => {
     fetchVendors();
+    fetchApiKeys();
   }, []);
+
+  const fetchApiKeys = async () => {
+    try {
+      const raw = localStorage.getItem("vendorSession");
+      if (!raw) return;
+      const session = JSON.parse(raw);
+      const res = await axios.get(`/api/platform/api-key?userId=${session.id}`);
+      if (res.data.success) setApiKeys(res.data.apiKeys);
+    } catch {
+      toast.error("Failed to load API Keys.");
+    }
+  };
+
+  const handleGenerateKey = async () => {
+    setGeneratingKey(true);
+    try {
+      const raw = localStorage.getItem("vendorSession");
+      if (!raw) return toast.error("Not logged in");
+      const session = JSON.parse(raw);
+      const res = await axios.post("/api/platform/api-key", { userId: session.id, name: "Production Key" });
+      if (res.data.success) {
+        toast.success("API Key Generated Successfully");
+        fetchApiKeys();
+      }
+    } catch {
+      toast.error("Failed to generate API Key");
+    } finally {
+      setGeneratingKey(false);
+    }
+  };
 
   useEffect(() => {
     if (!query.trim()) {
@@ -161,6 +194,13 @@ export default function PlatformDashboard() {
             className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition-colors ${activeTab === 'webhooks' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
           >
             <Webhook className="h-4 w-4" /> Webhook Simulator
+          </a>
+          <a 
+            href="#" 
+            onClick={(e) => { e.preventDefault(); setActiveTab("api-keys"); }} 
+            className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition-colors ${activeTab === 'api-keys' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+          >
+            <Key className="h-4 w-4" /> API Keys
           </a>
           <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground text-sm transition-colors">
             <Activity className="h-4 w-4" /> API Usage
@@ -296,6 +336,64 @@ export default function PlatformDashboard() {
                 </Table>
               </CardContent>
             </Card>
+          )}
+
+          {/* API Keys Tab */}
+          {activeTab === "api-keys" && (
+            <div className="space-y-6">
+              <Card className="shadow-xs border-muted">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                       <Key className="h-5 w-5 text-primary" /> API Keys
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">Manage API keys to access the public Vendor data endpoints.</p>
+                  </div>
+                  <Button onClick={handleGenerateKey} disabled={generatingKey}>
+                    {generatingKey ? "Generating..." : "Generate New Key"}
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Key Name</TableHead>
+                        <TableHead>Secret Key</TableHead>
+                        <TableHead>Created At</TableHead>
+                        <TableHead>Last Used</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {apiKeys.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                            No API Keys generated yet. Create one to begin integrating.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        apiKeys.map(key => (
+                          <TableRow key={key.id}>
+                            <TableCell className="font-medium">{key.name}</TableCell>
+                            <TableCell className="font-mono text-xs">{key.key}</TableCell>
+                            <TableCell className="text-xs text-muted-foreground">{new Date(key.createdAt).toLocaleDateString()}</TableCell>
+                            <TableCell className="text-xs text-muted-foreground">{key.lastUsed ? new Date(key.lastUsed).toLocaleDateString() : "Never"}</TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm" onClick={() => {
+                                navigator.clipboard.writeText(key.key);
+                                toast.success("API Key copied to clipboard!");
+                              }}>
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {/* Webhook History */}
