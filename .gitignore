@@ -36,3 +36,5 @@ dev.db-journal
 .planning/
 scratch/
 nul
+playwright-report/
+test-results/
