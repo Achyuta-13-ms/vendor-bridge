@@ -67,32 +67,23 @@ const SidebarItem = ({ icon: Icon, label, href, active, collapsed }: SidebarItem
   );
 };
 
-export function DashboardSidebar() {
+import { signOut, useSession } from "next-auth/react";
+
+export function DashboardSidebar({ isMobile }: { isMobile?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session } = useSession();
   const [collapsed, setCollapsed] = React.useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("vendorSession");
-    localStorage.removeItem("vendorId");
-    router.push("/login");
+    signOut({ callbackUrl: "/login" });
   };
 
   const navItems = [
-    { icon: Home, label: "Platform Home", href: "/" },
     { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-    { icon: Package, label: "Inventory Control", href: "/dashboard/inventory" },
+    { icon: Package, label: "Inventory", href: "/dashboard/inventory" },
     { icon: ArrowLeftRight, label: "Catalog Mapping", href: "/dashboard/mapping" },
-    { icon: ShieldCheck, label: "KYC Verification", href: "/dashboard/kyc" },
-    // Inactive for now as part of Phase 16 refactor
-    /*
-    { icon: TrendingUp, label: "Analytics & BI", href: "/dashboard/analytics" },
-    { icon: Zap, label: "Bridge Simulator", href: "/dashboard/simulator" },
-    { icon: Radio, label: "Sync Simulator", href: "/dashboard/simulator/outbound" },
-    { icon: Code2, label: "Developer Central", href: "/dashboard/developer/webhooks" },
-    { icon: Briefcase, label: "Marketplace Bridge", href: "/dashboard/integration" },
-    { icon: Layers, label: "Connected APIs", href: "/dashboard/developer/api" },
-    */
+    { icon: ShieldCheck, label: "Verifications", href: "/dashboard/kyc" },
   ];
 
   const bottomItems = [
@@ -104,32 +95,37 @@ export function DashboardSidebar() {
   return (
     <motion.aside
       initial={false}
-      animate={{ width: collapsed ? 80 : 260 }}
-      className="hidden md:flex flex-col h-screen bg-background border-r border-border/50 sticky top-0 overflow-hidden group/sidebar"
+      animate={{ width: isMobile ? "100%" : collapsed ? 80 : 260 }}
+      className={cn(
+        "flex flex-col h-screen bg-background border-r border-border/50 sticky top-0 overflow-hidden group/sidebar",
+        !isMobile && "hidden md:flex"
+      )}
     >
       <div className="p-6 flex items-center justify-between">
-        {!collapsed && (
+        {(!collapsed || isMobile) && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex items-center gap-2"
           >
-            <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">V</span>
+            <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center">
+              <ShieldCheck className="h-5 w-5 text-primary" />
             </div>
-            <span className="font-bold text-lg tracking-tight">VendorBridge</span>
+            <span className="font-bold text-lg tracking-tight">VendorFlow</span>
           </motion.div>
         )}
         <div className="flex items-center gap-2">
-          {!collapsed && <ModeToggle />}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCollapsed(!collapsed)}
-            className="h-8 w-8 hover:bg-muted"
-          >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </Button>
+          {(!collapsed || isMobile) && <ModeToggle />}
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCollapsed(!collapsed)}
+              className="h-8 w-8 hover:bg-muted"
+            >
+              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -142,13 +138,13 @@ export function DashboardSidebar() {
               label={item.label}
               href={item.href}
               active={pathname === item.href}
-              collapsed={collapsed}
+              collapsed={!isMobile && collapsed}
             />
           ))}
         </nav>
 
         <div className="pt-4 border-t border-border/50 space-y-1.5">
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <p className="px-3 mb-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
               System
             </p>
@@ -160,7 +156,7 @@ export function DashboardSidebar() {
               label={item.label}
               href={item.href}
               active={pathname === item.href}
-              collapsed={collapsed}
+              collapsed={!isMobile && collapsed}
             />
           ))}
         </div>
@@ -171,12 +167,12 @@ export function DashboardSidebar() {
           variant="ghost"
           className={cn(
             "w-full justify-start gap-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10",
-            collapsed && "px-2"
+            !isMobile && collapsed && "px-2"
           )}
           onClick={handleLogout}
         >
           <LogOut className="h-5 w-5" />
-          {!collapsed && <span>Sign Out</span>}
+          {(!collapsed || isMobile) && <span>Sign Out</span>}
         </Button>
       </div>
     </motion.aside>

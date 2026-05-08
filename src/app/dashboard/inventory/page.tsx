@@ -337,7 +337,7 @@ export default function InventoryPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex -space-x-1.5">
-                          {product.platformMappings?.length > 0 ? product.platformMappings.map((m: any) => (
+                          {(product.platformMappings?.length ?? 0) > 0 ? product.platformMappings?.map((m: any) => (
                             <div key={m.id} className="h-5 w-5 rounded-full border border-background bg-muted flex items-center justify-center overflow-hidden" title={m.platform.displayName}>
                                <Globe className="h-2.5 w-2.5 text-muted-foreground opacity-70" />
                             </div>

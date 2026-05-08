@@ -1,0 +1,85 @@
+
+> vite_react_shadcn_ts@0.0.0 build
+> next build
+
+▲ Next.js 16.2.2 (Turbopack)
+- Environments: .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ Compiled successfully in 32.2s
+  Running TypeScript ...
+  Finished TypeScript in 19.3s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/51) ...
+  Generating static pages using 3 workers (12/51) 
+  Generating static pages using 3 workers (25/51) 
+  Generating static pages using 3 workers (38/51) 
+✓ Generating static pages using 3 workers (51/51) in 1830ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin/dashboard
+├ ○ /admin/verifications
+├ ○ /api-docs
+├ ƒ /api/admin/verifications
+├ ƒ /api/admin/verifications/[id]/approve
+├ ƒ /api/admin/verifications/[id]/reject
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/auth/send-otp
+├ ƒ /api/bridge/orders
+├ ƒ /api/mock/platform
+├ ƒ /api/onboarding/submit
+├ ƒ /api/payment/create-order
+├ ƒ /api/payment/verify
+├ ƒ /api/platform/api-key
+├ ƒ /api/platform/upgrade
+├ ƒ /api/platform/usage
+├ ƒ /api/platforms
+├ ƒ /api/public/vendor/[id]
+├ ƒ /api/test-db
+├ ƒ /api/test/incoming-order
+├ ƒ /api/upload
+├ ƒ /api/vendor
+├ ƒ /api/vendor/analytics
+├ ƒ /api/vendor/create
+├ ƒ /api/vendor/mapping
+├ ƒ /api/vendor/me
+├ ƒ /api/vendor/orders/status
+├ ƒ /api/vendor/products
+├ ƒ /api/vendor/reset
+├ ƒ /api/vendor/verify
+├ ƒ /api/vendor/webhooks
+├ ƒ /api/vendors
+├ ƒ /api/webhook/register
+├ ○ /dashboard
+├ ○ /dashboard/analytics
+├ ○ /dashboard/developer/api
+├ ○ /dashboard/developer/webhooks
+├ ○ /dashboard/integration
+├ ○ /dashboard/inventory
+├ ○ /dashboard/kyc
+├ ○ /dashboard/mapping
+├ ○ /dashboard/platform
+├ ○ /dashboard/profile
+├ ○ /dashboard/settings
+├ ○ /dashboard/simulator
+├ ○ /dashboard/simulator/outbound
+├ ○ /features
+├ ○ /login
+├ ○ /onboarding
+├ ○ /platform/dashboard
+├ ○ /pricing
+└ ○ /signup
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

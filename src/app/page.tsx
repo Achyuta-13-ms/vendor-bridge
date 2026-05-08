@@ -3,13 +3,22 @@
 import PublicLayout from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, FileCheck, Zap, Globe, ArrowRight,
   CheckCircle, Upload, Search, BadgeCheck,
   BarChart3, Lock, Smartphone, Users, ChevronRight,
-  Check, Star, CreditCard, Sparkles
+  Check, Star, CreditCard, Sparkles, Building2,
+  Clock, ShieldAlert, Rocket, MessageSquare,
+  HelpCircle, ExternalLink, Play, LayoutDashboard
 } from "lucide-react";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { useState } from "react";
 
 /**
  * ANIMATION VARIANTS
@@ -34,313 +43,456 @@ const stats = [
   { value: "200+", label: "Platforms Integrated" },
 ];
 
-const features = [
-  { icon: FileCheck, title: "Auto KYC Verification", desc: "GST, PAN, and bank details verified instantly via government APIs." },
-  { icon: Shield, title: "Reusable Vendor Profile", desc: "Vendors verify once, onboard everywhere. No repeated paperwork." },
-  { icon: Zap, title: "API-First Architecture", desc: "Plug VendorFlow into any marketplace with simple REST APIs." },
-  { icon: Globe, title: "Multi-Tenant Ready", desc: "One platform powering verification for hundreds of marketplaces." },
-  { icon: Lock, title: "Bank-Grade Security", desc: "End-to-end encryption. HTTPS everywhere. Full audit logs." },
-  { icon: Smartphone, title: "Mobile-First", desc: "Built for India. Works flawlessly on any device, any network." },
-];
-
-const workflowSteps = [
-  { icon: Upload, label: "Upload", desc: "GST, PAN, Bank" },
-  { icon: Search, label: "Verify", desc: "Auto-validated" },
-  { icon: BadgeCheck, label: "Share", desc: "Profile ID ready" },
-  { icon: Globe, label: "Sell", desc: "Onboard anywhere" },
-];
-
-const pricingPlans = [
+const useCases = [
   {
-    name: "Sandbox",
-    price: "Free",
-    desc: "For testing and development",
-    features: ["100 Verifications / mo", "Standard Support", "API Access", "Webhook Testing"],
-    cta: "Start Free",
-    popular: false
+    title: "Hyperlocal Delivery",
+    desc: "Verify and onboard thousands of local dark stores and restaurants in hours, not weeks.",
+    icon: Smartphone,
+    color: "bg-blue-500/10 text-blue-600"
   },
   {
-    name: "Growth",
-    price: "₹4,999",
-    period: "/mo",
-    desc: "For scaling marketplaces",
-    features: ["5,000 Verifications / mo", "Priority Support", "Custom Webhooks", "Analytics Dashboard"],
-    cta: "Get Started",
-    popular: true
+    title: "Grocery Marketplaces",
+    desc: "Automate FSSAI and GST validation for thousands of kirana partners across India.",
+    icon: Building2,
+    color: "bg-emerald-500/10 text-emerald-600"
   },
   {
-    name: "Enterprise",
-    price: "Custom",
-    desc: "For high-volume platforms",
-    features: ["Unlimited Verifications", "24/7 Dedicated Rep", "SLA Guarantee", "On-premise Options"],
-    cta: "Contact Sales",
-    popular: false
+    title: "ONDC Sellers",
+    desc: "Enable instant seller registration for the ONDC ecosystem with pre-verified profiles.",
+    icon: Globe,
+    color: "bg-orange-500/10 text-orange-600"
+  },
+  {
+    title: "Pharmacy Apps",
+    desc: "Securely verify medical licenses and drug certifications with automated document audit.",
+    icon: Shield,
+    color: "bg-purple-500/10 text-purple-600"
   }
 ];
 
-const Index = () => (
-  <PublicLayout>
-    {/* Hero */}
-    <section className="relative overflow-hidden bg-gradient-to-br from-background via-muted/50 to-primary/5 border-b">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl opacity-30 pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-      </div>
+const faqs = [
+  {
+    q: "How does the 'reusable profile' work?",
+    a: "Once a vendor completes verification on VendorFlow, they receive a unique Profile ID. They can use this ID to instantly share their verified credentials with any other marketplace in our network, skipping the entire document upload process."
+  },
+  {
+    q: "Is it compliant with Indian data regulations?",
+    a: "Yes, we are fully compliant with the latest DPDP guidelines. Data is encrypted at rest and in transit, and vendors have full control over who they share their documents with."
+  },
+  {
+    q: "Which documents can you auto-verify?",
+    a: "We currently support automated verification for GSTIN, PAN (Individual & Business), Bank Account (via penny drop or cancelled cheque), FSSAI, and Aadhar (via DigiLocker/UIDAI)."
+  },
+  {
+    q: "How long does integration take?",
+    a: "Our API-first architecture allows for integration in less than a day. We provide comprehensive documentation, SDKs, and pre-built onboarding components."
+  }
+];
 
-      <div className="container relative mx-auto py-24 md:py-32 px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="mx-auto max-w-3xl text-center"
-        >
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary shadow-sm backdrop-blur-sm">
-            <Sparkles className="h-3.5 w-3.5" />
-            Seamless Onboarding Platform v2.0
-            <ChevronRight className="h-3 w-3" />
-          </div>
+const Index = () => {
+  const [activeTab, setActiveTab] = useState('before');
 
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl leading-[1.1] mb-6">
-            Verify vendors once.
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">onboard instantly.</span>
-          </h1>
-
-          <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            The modern infrastructure for Indian marketplaces. Auto-verify GST, PAN, 
-            and Bank details in seconds. Build trust with a global vendor profile.
-          </p>
-
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link href="/login">
-              <Button size="lg" className="gap-2 h-12 px-8 text-base shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all active:scale-95">
-                Build Your Profile <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/api-docs">
-              <Button variant="outline" size="lg" className="h-12 px-8 text-base bg-background/50 backdrop-blur-sm hover:bg-background transition-all">
-                API Reference
-              </Button>
-            </Link>
-          </div>
-
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground flex-wrap">
-            <span className="flex items-center gap-1.5 font-medium"><Star className="h-4 w-4 text-amber-500 fill-amber-500" /> 4.9/5 Trust Score</span>
-            <span className="flex items-center gap-1.5 font-medium text-emerald-600"><CheckCircle className="h-4 w-4" /> ISO Certified</span>
-            <span className="flex items-center gap-1.5 font-medium text-blue-600"><Users className="h-4 w-4" /> 50k+ Active Vendors</span>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-
-    {/* Workflow Diagram */}
-    <section className="border-y border-border bg-secondary">
-      <div className="container mx-auto py-12 px-4">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
-          {workflowSteps.map((step, i) => (
-            <div key={step.label} className="flex items-center gap-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card shadow-xs">
-                  <step.icon className="h-5 w-5 text-primary" />
-                </div>
-                <span className="mt-2 text-sm font-medium text-foreground">{step.label}</span>
-                <span className="text-xs text-muted-foreground">{step.desc}</span>
-              </div>
-              {i < workflowSteps.length - 1 && (
-                <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground/40 mx-4" />
-              )}
-            </div>
-          ))}
+  return (
+    <PublicLayout>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-background pt-20 pb-32">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl opacity-40 pointer-events-none">
+          <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[20%] left-[-10%] w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]" />
         </div>
-      </div>
-    </section>
 
-    {/* Stats */}
-    <section className="border-b border-border">
-      <div className="container mx-auto py-10 px-4">
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-2xl font-semibold text-foreground">{s.value}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
+        <div className="container relative mx-auto px-4 text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mx-auto max-w-4xl"
+          >
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary shadow-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              Infrastructure for the next 1M Indian Merchants
             </div>
-          ))}
+
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl md:text-7xl leading-[1.05] mb-8">
+              Vendor onboarding that 
+              <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-blue-600">doesn&apos;t hurt.</span>
+            </h1>
+
+            <p className="mt-8 text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              Marketplaces lose 40% of vendors during KYC. VendorFlow automates 
+              verification in seconds, reducing drop-offs and cutting onboarding costs by 70%.
+            </p>
+
+            <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <Link href="/signup">
+                <Button size="lg" className="h-14 px-10 text-lg shadow-2xl shadow-primary/20 hover:shadow-primary/40 transition-all rounded-2xl group">
+                  Start for Free <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Button variant="ghost" size="lg" className="h-14 px-10 text-lg rounded-2xl gap-2 hover:bg-muted/50">
+                <Play className="h-5 w-5 fill-primary text-primary" /> Watch Demo
+              </Button>
+            </div>
+
+            <div className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground opacity-70">
+              <span className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> ISO 27001 Certified</span>
+              <span className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> SOC2 Type II Ready</span>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    {/* Features */}
-    <section id="features" className="py-24 bg-background">
-      <div className="container mx-auto px-4">
-        <motion.div 
-          {...fadeIn}
-          className="text-center mb-16 space-y-4"
-        >
-          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">Platform Infrastructure</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to automate vendor compliance and focus on your core marketplace growth.
-          </p>
-        </motion.div>
-        
-        <motion.div 
-          variants={staggerContainer}
-          initial="initial"
-          whileInView="whileInView"
-          viewport={{ once: true }}
-          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto"
-        >
-          {features.map((f) => (
-            <motion.div
-              key={f.title}
-              variants={fadeIn}
-              className="group rounded-3xl border border-border bg-card p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <f.icon className="h-6 w-6" />
+      {/* Before vs After */}
+      <section className="py-24 bg-muted/30 border-y">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Onboarding Reimagined</h2>
+            <div className="flex justify-center mt-8">
+              <div className="inline-flex p-1 bg-background border rounded-2xl">
+                <button 
+                  onClick={() => setActiveTab('before')}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === 'before' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  Legacy Process
+                </button>
+                <button 
+                  onClick={() => setActiveTab('after')}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === 'after' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  With VendorFlow
+                </button>
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-2">{f.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </section>
-
-    {/* Pricing */}
-    <section id="pricing" className="py-24 border-y bg-muted/30">
-      <div className="container mx-auto px-4">
-        <motion.div 
-          {...fadeIn}
-          className="text-center mb-16 space-y-4"
-        >
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <CreditCard className="h-3.5 w-3.5" /> Pricing Plans
+            </div>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">Simple, Transparent Pricing</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Flexible plans designed to grow with your platform. No hidden fees.
-          </p>
-        </motion.div>
 
-        <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
-          {pricingPlans.map((plan) => (
-            <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className={`relative rounded-3xl p-8 border ${plan.popular ? 'border-primary bg-background shadow-2xl scale-105 z-10' : 'border-border bg-card'}`}
-            >
-              {plan.popular && (
-                <div className="absolute top-0 right-8 -translate-y-1/2 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-                  Most Popular
-                </div>
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+            <AnimatePresence mode="wait">
+              {activeTab === 'before' ? (
+                <motion.div 
+                  key="before"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-6"
+                >
+                  <div className="bg-background border rounded-3xl p-8 border-red-500/20 shadow-xl shadow-red-500/5">
+                    <div className="flex items-center gap-3 mb-6 text-red-600">
+                      <ShieldAlert className="h-6 w-6" />
+                      <h3 className="text-lg font-bold">The Pain Point</h3>
+                    </div>
+                    <ul className="space-y-4">
+                      {[
+                        "Manual document review (3-5 days)",
+                        "High vendor drop-off rate (35-40%)",
+                        "Risk of forged documents/fraud",
+                        "Fragmented data across spreadsheets",
+                        "Manual bank account validation"
+                      ].map(t => (
+                        <li key={t} className="flex items-start gap-3 text-sm text-muted-foreground">
+                          <XCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="text-center p-6 rounded-2xl bg-red-500/5 border border-red-500/10">
+                    <p className="text-2xl font-bold text-red-700">7-10 Days</p>
+                    <p className="text-xs text-red-600 uppercase tracking-widest font-bold">Time to Market</p>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="after"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="bg-background border rounded-3xl p-8 border-emerald-500/20 shadow-xl shadow-emerald-500/5">
+                    <div className="flex items-center gap-3 mb-6 text-emerald-600">
+                      <Rocket className="h-6 w-6" />
+                      <h3 className="text-lg font-bold">The Solution</h3>
+                    </div>
+                    <ul className="space-y-4">
+                      {[
+                        "Instant API-based verification (< 30s)",
+                        "Zero-friction vendor experience",
+                        "Direct government database check",
+                        "Centralized real-time dashboard",
+                        "Automated penny-drop validation"
+                      ].map(t => (
+                        <li key={t} className="flex items-start gap-3 text-sm text-muted-foreground">
+                          <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="text-center p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
+                    <p className="text-2xl font-bold text-emerald-700">Sub-minute</p>
+                    <p className="text-xs text-emerald-600 uppercase tracking-widest font-bold">Time to Market</p>
+                  </div>
+                </motion.div>
               )}
-              <div className="mb-6">
-                <h3 className="text-xl font-bold">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{plan.desc}</p>
+            </AnimatePresence>
+            
+            <div className="relative">
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="aspect-video bg-card border rounded-[32px] shadow-2xl overflow-hidden relative group border-primary/20"
+              >
+                <img 
+                  src="/demo/dashboard-mockup.png" 
+                  alt="VendorFlow Dashboard Mockup" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                  <div className="text-white">
+                    <p className="font-bold text-lg">Real-time Analytics Dashboard</p>
+                    <p className="text-sm text-white/80">Monitor compliance across 100k+ vendors instantly.</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="py-20 border-b">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {stats.map((s, i) => (
+              <motion.div 
+                key={s.label}
+                {...fadeIn}
+                transition={{ delay: i * 0.1 }}
+                className="text-center"
+              >
+                <div className="text-4xl font-extrabold text-foreground mb-2">{s.value}</div>
+                <div className="text-sm font-medium text-muted-foreground uppercase tracking-widest">{s.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Modern Workflow for Modern Platforms</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Engineered to scale with your growth, from the first vendor to the first million.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {[
+              { icon: Upload, title: "Upload Once", desc: "Vendors upload GST, PAN, and Bank proof in a unified experience." },
+              { icon: Search, title: "Instant Verify", desc: "Our engine connects to Govt. nodes to validate data in real-time." },
+              { icon: Shield, title: "Risk Scoring", desc: "Automated fraud checks identify suspicious entities instantly." },
+              { icon: Zap, title: "Live Sync", desc: "Approved vendors are pushed to your marketplace via webhooks." }
+            ].map((step, i) => (
+              <div key={i} className="relative group">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/5 border border-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/20">
+                  <step.icon className="h-8 w-8" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                {i < 3 && (
+                  <div className="hidden lg:block absolute top-8 left-20 w-full h-[2px] bg-gradient-to-r from-primary/20 to-transparent -z-10" />
+                )}
               </div>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">{plan.price}</span>
-                {plan.period && <span className="text-muted-foreground text-sm font-medium">{plan.period}</span>}
-              </div>
-              <div className="space-y-4 mb-8">
-                {plan.features.map((feat) => (
-                  <div key={feat} className="flex items-center gap-3 text-sm">
-                    <Check className="h-4 w-4 text-emerald-500 shrink-0" />
-                    <span>{feat}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Use Cases */}
+      <section id="use-cases" className="py-24 bg-secondary/50 border-y">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Built for Scale</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Trusted by operators across the most demanding Indian digital ecosystems.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+            {useCases.map((uc, i) => (
+              <motion.div
+                key={uc.title}
+                {...fadeIn}
+                transition={{ delay: i * 0.1 }}
+                className="bg-background rounded-3xl p-8 border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl ${uc.color}`}>
+                  <uc.icon className="h-7 w-7" />
+                </div>
+                <h3 className="text-lg font-bold mb-3">{uc.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{uc.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why VendorFlow */}
+      <section className="py-24 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <motion.div {...fadeIn}>
+              <h2 className="text-4xl font-bold tracking-tight mb-8">Why platforms choose VendorFlow</h2>
+              <div className="space-y-8">
+                {[
+                  { 
+                    t: "Reduced Drop-offs", 
+                    d: "Mobile-first, localized UX ensures vendors complete onboarding in one sitting.",
+                    icon: Users
+                  },
+                  { 
+                    t: "Audit-Ready Logs", 
+                    d: "Every verification is timestamped with API response snapshots for compliance audits.",
+                    icon: FileCheck
+                  },
+                  { 
+                    t: "Unified Dashboard", 
+                    d: "Manage verifications for Swiggy, Zomato, and Amazon partners in a single window.",
+                    icon: LayoutDashboard
+                  },
+                  { 
+                    t: "Developer Experience", 
+                    d: "Built by developers, for developers. Simple APIs, webhooks, and exhaustive documentation.",
+                    icon: Zap
+                  }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <item.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg mb-1">{item.t}</h4>
+                      <p className="text-muted-foreground leading-relaxed">{item.d}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-              <Button 
-                variant={plan.popular ? 'default' : 'outline'} 
-                className={`w-full h-11 ${plan.popular ? 'shadow-lg shadow-primary/30' : ''}`}
-                asChild
-              >
-                <Link href="/login">{plan.cta}</Link>
-              </Button>
             </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* Platform CTA */}
-    <section className="border-y border-border bg-secondary py-16">
-      <div className="container mx-auto px-4">
-        <div className="rounded-2xl border border-border bg-card p-8 md:p-12 shadow-card max-w-3xl mx-auto text-center">
-          <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/15">
-            <Users className="h-5 w-5 text-primary" />
+            
+            <div className="relative group">
+              <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full animate-pulse" />
+              <motion.div 
+                initial={{ rotate: -2, y: 0 }}
+                whileInView={{ rotate: 0, y: -10 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="relative bg-background border rounded-[48px] p-2 shadow-3xl overflow-hidden"
+              >
+                <img 
+                  src="/demo/verified-graphic.png" 
+                  alt="Verified Infrastructure" 
+                  className="w-full aspect-square object-cover rounded-[40px]"
+                />
+                <div className="absolute top-8 right-8 bg-white/90 backdrop-blur-md px-6 py-4 rounded-3xl border shadow-2xl flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Check className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Verification Status</p>
+                    <p className="font-extrabold text-foreground">AUTO-VERIFIED</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
-          <h2 className="text-xl font-semibold text-foreground">For Marketplace Platforms</h2>
-          <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-            Integrate VendorFlow's API to auto-verify and onboard vendors. Get dashboards, webhooks, and usage analytics out of the box.
-          </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link href="/login">
-              <Button size="lg" className="gap-2 h-11 px-6">
-                <BarChart3 className="h-4 w-4" /> Platform Sign Up
+        </div>
+      </section>
+
+      {/* Book Demo CTA */}
+      <section id="book-demo" className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-[100px]" />
+        </div>
+        
+        <div className="container mx-auto px-4 relative text-center">
+          <motion.div {...fadeIn} className="max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-8">Ready for a pilot?</h2>
+            <p className="text-xl text-primary-foreground/80 mb-12 leading-relaxed">
+              Join 200+ leading marketplaces scaling with VendorFlow. 
+              Schedule a demo with our founding team to explore a customized pilot for your platform.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button size="lg" variant="secondary" className="h-14 px-10 text-lg rounded-2xl font-bold">
+                Book a Demo
               </Button>
-            </Link>
-            <Link href="/api-docs">
-              <Button variant="outline" size="lg" className="h-11 px-6">
-                Explore API
-              </Button>
-            </Link>
-          </div>
+              <Link href="/signup">
+                <Button size="lg" variant="outline" className="h-14 px-10 text-lg rounded-2xl border-white/20 hover:bg-white/10 text-white font-bold">
+                  Try it Free
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    {/* Trust Elements */}
-    <section className="py-12 border-b border-border">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-center gap-8">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Lock className="h-3.5 w-3.5" /> 256-bit Encryption
+      {/* FAQ */}
+      <section className="py-24 bg-background">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Frequently Asked Questions</h2>
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Shield className="h-3.5 w-3.5" /> KYC Compliant
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <CheckCircle className="h-3.5 w-3.5" /> SOC 2 Ready
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <BadgeCheck className="h-3.5 w-3.5" /> Govt. API Verified
-          </div>
+          
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((faq, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="border-b border-border/50 px-2 py-2">
+                <AccordionTrigger className="text-left font-bold text-lg hover:no-underline hover:text-primary transition-colors">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed text-base pt-2 pb-4">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
-      </div>
-    </section>
+      </section>
 
-    {/* Trusted By */}
-    <section className="py-10 border-b border-border">
-      <div className="container text-center mx-auto px-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-6">Trusted by leading platforms</p>
-        <div className="flex flex-wrap items-center justify-center gap-8">
-          {["FlipMart", "ShopEase", "BazaarHub", "TradeNet", "VendorX"].map((name) => (
-            <span key={name} className="text-sm font-semibold text-muted-foreground/40">{name}</span>
-          ))}
+      {/* Final Footer Trust */}
+      <section className="py-12 border-t border-border bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap items-center justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+            {["FlipMart", "ShopEase", "BazaarHub", "TradeNet", "VendorX"].map((name) => (
+              <span key={name} className="text-xl font-black tracking-tighter text-foreground">{name}</span>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
-
-    {/* Final CTA */}
-    <section className="py-20">
-      <div className="container text-center mx-auto px-4">
-        <h2 className="text-2xl font-semibold text-foreground">Ready to simplify vendor onboarding?</h2>
-        <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-          Join 200+ platforms using VendorFlow to verify and onboard vendors in seconds.
-        </p>
-        <div className="mt-6">
-          <Link href="/login">
-            <Button size="lg" className="gap-2 h-11 px-6">
-              Get Started Free <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </div>
-    </section>
-  </PublicLayout>
-);
+      </section>
+    </PublicLayout>
+  );
+};
 
 export default Index;
+
+function XCircle(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="m15 9-6 6" />
+      <path d="m9 9 6 6" />
+    </svg>
+  )
+}

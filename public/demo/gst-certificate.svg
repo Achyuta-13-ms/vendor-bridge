@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#f8fafc"/>
+  <rect x="20" y="20" width="560" height="760" rx="8" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <!-- Header -->
+  <rect x="20" y="20" width="560" height="100" rx="8" fill="#1e40af"/>
+  <text x="300" y="65" text-anchor="middle" fill="white" font-family="Arial" font-size="18" font-weight="bold">GOVERNMENT OF INDIA</text>
+  <text x="300" y="88" text-anchor="middle" fill="#93c5fd" font-family="Arial" font-size="13">GST REGISTRATION CERTIFICATE</text>
+  <text x="300" y="107" text-anchor="middle" fill="#bfdbfe" font-family="Arial" font-size="11">FORM GST REG-06</text>
+  <!-- Emblem placeholder -->
+  <circle cx="300" cy="155" r="28" fill="none" stroke="#1e40af" stroke-width="2"/>
+  <text x="300" y="161" text-anchor="middle" fill="#1e40af" font-family="Arial" font-size="20">🇮🇳</text>
+  <!-- GSTIN -->
+  <text x="300" y="210" text-anchor="middle" fill="#374151" font-family="Arial" font-size="12" font-weight="bold">GSTIN</text>
+  <rect x="160" y="218" width="280" height="32" rx="4" fill="#f1f5f9"/>
+  <text x="300" y="238" text-anchor="middle" fill="#1e3a8a" font-family="Arial" font-size="15" font-weight="bold">27AABCS1429B1ZB</text>
+  <!-- Business Name -->
+  <text x="50" y="280" fill="#6b7280" font-family="Arial" font-size="11">Legal Name of Business</text>
+  <text x="50" y="298" fill="#111827" font-family="Arial" font-size="14" font-weight="bold">DEMO VENDOR PRIVATE LIMITED</text>
+  <line x1="50" y1="305" x2="550" y2="305" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- Trade Name -->
+  <text x="50" y="325" fill="#6b7280" font-family="Arial" font-size="11">Trade Name</text>
+  <text x="50" y="343" fill="#111827" font-family="Arial" font-size="13">DEMO VENDOR</text>
+  <line x1="50" y1="350" x2="550" y2="350" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- Constitution -->
+  <text x="50" y="370" fill="#6b7280" font-family="Arial" font-size="11">Constitution of Business</text>
+  <text x="50" y="388" fill="#111827" font-family="Arial" font-size="13">Private Limited Company</text>
+  <line x1="50" y1="395" x2="550" y2="395" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- Address -->
+  <text x="50" y="415" fill="#6b7280" font-family="Arial" font-size="11">Address</text>
+  <text x="50" y="433" fill="#111827" font-family="Arial" font-size="12">123, Demo Street, Andheri West</text>
+  <text x="50" y="450" fill="#111827" font-family="Arial" font-size="12">Mumbai, Maharashtra - 400053</text>
+  <line x1="50" y1="460" x2="550" y2="460" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- Date of Registration -->
+  <text x="50" y="480" fill="#6b7280" font-family="Arial" font-size="11">Date of Registration</text>
+  <text x="50" y="498" fill="#111827" font-family="Arial" font-size="13">01/04/2023</text>
+  <!-- Status badge -->
+  <rect x="400" y="472" width="100" height="26" rx="13" fill="#dcfce7"/>
+  <text x="450" y="489" text-anchor="middle" fill="#16a34a" font-family="Arial" font-size="11" font-weight="bold">ACTIVE</text>
+  <!-- Watermark -->
+  <text x="300" y="600" text-anchor="middle" fill="#e5e7eb" font-family="Arial" font-size="48" font-weight="bold" transform="rotate(-30, 300, 600)">DEMO</text>
+  <!-- Signature block -->
+  <line x1="50" y1="700" x2="230" y2="700" stroke="#374151" stroke-width="1"/>
+  <text x="140" y="715" text-anchor="middle" fill="#6b7280" font-family="Arial" font-size="10">Authorized Signatory</text>
+  <line x1="370" y1="700" x2="550" y2="700" stroke="#374151" stroke-width="1"/>
+  <text x="460" y="715" text-anchor="middle" fill="#6b7280" font-family="Arial" font-size="10">Jurisdictional Officer</text>
+  <!-- Footer -->
+  <text x="300" y="758" text-anchor="middle" fill="#9ca3af" font-family="Arial" font-size="9">This is a system generated certificate. Verify at www.gst.gov.in</text>
+  <text x="300" y="772" text-anchor="middle" fill="#9ca3af" font-family="Arial" font-size="9">FOR DEMO PURPOSES ONLY · VendorFlow</text>
+</svg>

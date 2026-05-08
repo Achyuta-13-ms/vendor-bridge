@@ -1,57 +1,86 @@
 import Link from "next/link";
-import { Shield, Lock } from "lucide-react";
+import { Shield, Lock, Twitter, Github, Linkedin, Mail, ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Footer = () => (
   <footer className="border-t border-border bg-card">
-    <div className="container py-12">
-      <div className="grid gap-8 md:grid-cols-4">
-        <div>
-          <Link href="/" className="flex items-center gap-2 mb-4">
-            <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary">
-              <Shield className="h-3.5 w-3.5 text-primary-foreground" />
+    <div className="container py-20 px-4 mx-auto">
+      <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4 mb-16">
+        <div className="space-y-6">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
+              <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-base font-semibold text-foreground">VendorFlow</span>
+            <span className="text-xl font-bold tracking-tight text-foreground">VendorFlow</span>
           </Link>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            India's trusted vendor onboarding and verification infrastructure for modern marketplaces.
+          <p className="text-muted-foreground leading-relaxed">
+            The modern infrastructure for vendor onboarding in India. 
+            Automating compliance so you can focus on scale.
           </p>
-          <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Lock className="h-3 w-3" />
-            <span>256-bit encrypted · KYC compliant</span>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="rounded-xl hover:bg-primary/5 hover:text-primary">
+              <Twitter className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="rounded-xl hover:bg-primary/5 hover:text-primary">
+              <Linkedin className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="rounded-xl hover:bg-primary/5 hover:text-primary">
+              <Github className="h-5 w-5" />
+            </Button>
           </div>
         </div>
 
         <div>
-          <h4 className="mb-3 text-sm font-semibold text-foreground">Product</h4>
-          <div className="flex flex-col gap-2">
-            <Link href="/features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</Link>
-            <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
-            <Link href="/api-docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">API Docs</Link>
-          </div>
+          <h4 className="mb-6 text-sm font-bold uppercase tracking-widest text-foreground">Product</h4>
+          <ul className="space-y-4">
+            <li><Link href="#features" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">Auto KYC <ArrowUpRight className="h-3 w-3" /></Link></li>
+            <li><Link href="#use-cases" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">Use Cases <ArrowUpRight className="h-3 w-3" /></Link></li>
+            <li><Link href="/pricing" className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
+            <li><Link href="/api-docs" className="text-muted-foreground hover:text-primary transition-colors">API Reference</Link></li>
+            <li><Link href="/dashboard/simulator" className="text-muted-foreground hover:text-primary transition-colors">Sandbox</Link></li>
+          </ul>
         </div>
 
         <div>
-          <h4 className="mb-3 text-sm font-semibold text-foreground">Company</h4>
-          <div className="flex flex-col gap-2">
-            <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
-            <span className="text-sm text-muted-foreground">Privacy Policy</span>
-            <span className="text-sm text-muted-foreground">Terms of Service</span>
-          </div>
+          <h4 className="mb-6 text-sm font-bold uppercase tracking-widest text-foreground">Resources</h4>
+          <ul className="space-y-4">
+            <li><Link href="/api-docs" className="text-muted-foreground hover:text-primary transition-colors">Documentation</Link></li>
+            <li><span className="text-muted-foreground cursor-not-allowed opacity-50">Blog (Coming Soon)</span></li>
+            <li><span className="text-muted-foreground cursor-not-allowed opacity-50">Changelog</span></li>
+            <li><span className="text-muted-foreground cursor-not-allowed opacity-50">Status Page</span></li>
+            <li><Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">Integration Guide</Link></li>
+          </ul>
         </div>
 
         <div>
-          <h4 className="mb-3 text-sm font-semibold text-foreground">Support</h4>
-          <div className="flex flex-col gap-2">
-            <span className="text-sm text-muted-foreground">help@vendorflow.in</span>
-            <span className="text-sm text-muted-foreground">+91 98765 43210</span>
+          <h4 className="mb-6 text-sm font-bold uppercase tracking-widest text-foreground">Contact</h4>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Mail className="h-4 w-4" />
+              <span>founders@vendorflow.in</span>
+            </div>
+            <div className="pt-4 border-t border-border/50">
+              <p className="text-sm font-bold text-foreground mb-2">Build in India 🇮🇳</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                HSR Layout, Sector 7<br />
+                Bangalore, KA 560102
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-10 border-t border-border pt-6 text-center">
-        <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} VendorFlow. All rights reserved. Built in India 🇮🇳
+      <div className="pt-10 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
+        <p className="text-xs text-muted-foreground order-2 md:order-1">
+          © {new Date().getFullYear()} VendorFlow Technologies Pvt. Ltd. All rights reserved.
         </p>
+        <div className="flex items-center gap-8 order-1 md:order-2">
+          <Link href="/privacy" className="text-xs text-muted-foreground hover:text-primary">Privacy Policy</Link>
+          <Link href="/terms" className="text-xs text-muted-foreground hover:text-primary">Terms of Service</Link>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium border border-border px-2.5 py-1 rounded-full bg-muted/30">
+            <Lock className="h-3 w-3" /> 256-bit Secure
+          </div>
+        </div>
       </div>
     </div>
   </footer>

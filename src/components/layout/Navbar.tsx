@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Shield, LayoutDashboard, LogOut } from "lucide-react";
 
 const navLinks = [
-  { label: "Features", href: "/features" },
+  { label: "Features", href: "#features" },
+  { label: "Use Cases", href: "#use-cases" },
   { label: "Pricing", href: "/pricing" },
   { label: "API Docs", href: "/api-docs" },
-  { label: "Contact", href: "/contact" },
 ];
 
 const Navbar = () => {
@@ -22,7 +22,7 @@ const Navbar = () => {
   useEffect(() => {
     const raw = localStorage.getItem("vendorSession");
     setSession(raw ? JSON.parse(raw) : null);
-  }, [pathname]); // re-check on route change
+  }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("vendorSession");
@@ -33,13 +33,13 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between mx-auto px-4">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary">
-            <Shield className="h-4 w-4 text-primary-foreground" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/10">
+            <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-semibold text-foreground">VendorFlow</span>
+          <span className="text-xl font-bold tracking-tight text-foreground">VendorFlow</span>
         </Link>
 
         {/* Desktop nav links */}
@@ -49,11 +49,11 @@ const Navbar = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className={
+                className={`px-4 font-semibold ${
                   pathname === link.href
-                    ? "text-primary font-medium"
-                    : "text-muted-foreground"
-                }
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 {link.label}
               </Button>
@@ -66,21 +66,21 @@ const Navbar = () => {
           {session ? (
             <>
               <Link href="/dashboard">
-                <Button variant="ghost" size="sm" className="gap-1.5">
+                <Button variant="ghost" size="sm" className="gap-1.5 font-semibold">
                   <LayoutDashboard className="h-4 w-4" /> Dashboard
                 </Button>
               </Link>
-              <Button variant="outline" size="sm" className="gap-1.5" onClick={handleLogout}>
+              <Button variant="outline" size="sm" className="gap-1.5 font-semibold" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" /> Sign Out
               </Button>
             </>
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm">Log in</Button>
+                <Button variant="ghost" size="sm" className="font-semibold">Log in</Button>
               </Link>
-              <Link href="/signup">
-                <Button size="sm">Get Started</Button>
+              <Link href="#book-demo">
+                <Button size="sm" className="rounded-xl font-bold px-5">Book Demo</Button>
               </Link>
             </>
           )}
@@ -110,21 +110,21 @@ const Navbar = () => {
               {session ? (
                 <>
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full gap-2">
+                    <Button className="w-full gap-2 rounded-xl font-bold">
                       <LayoutDashboard className="h-4 w-4" /> Dashboard
                     </Button>
                   </Link>
-                  <Button variant="outline" className="w-full gap-2" onClick={handleLogout}>
+                  <Button variant="outline" className="w-full gap-2 rounded-xl font-bold" onClick={handleLogout}>
                     <LogOut className="h-4 w-4" /> Sign Out
                   </Button>
                 </>
               ) : (
                 <>
                   <Link href="/login" onClick={() => setMobileOpen(false)}>
-                    <Button variant="outline" className="w-full">Log in</Button>
+                    <Button variant="outline" className="w-full rounded-xl font-bold">Log in</Button>
                   </Link>
-                  <Link href="/signup" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full">Get Started</Button>
+                  <Link href="#book-demo" onClick={() => setMobileOpen(false)}>
+                    <Button className="w-full rounded-xl font-bold">Book Demo</Button>
                   </Link>
                 </>
               )}

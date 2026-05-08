@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="420" viewBox="0 0 600 420">
+  <rect width="600" height="420" fill="#f8fafc"/>
+  <rect x="20" y="20" width="560" height="380" rx="8" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <!-- Header strip -->
+  <rect x="20" y="20" width="560" height="70" rx="8" fill="#1d4ed8"/>
+  <text x="300" y="50" text-anchor="middle" fill="white" font-family="Arial" font-size="16" font-weight="bold">INCOME TAX DEPARTMENT</text>
+  <text x="300" y="70" text-anchor="middle" fill="#93c5fd" font-family="Arial" font-size="12">GOVERNMENT OF INDIA — PERMANENT ACCOUNT NUMBER CARD</text>
+  <!-- PAN number box -->
+  <rect x="50" y="110" width="300" height="50" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="70" y="130" fill="#6b7280" font-family="Arial" font-size="10">PAN Number</text>
+  <text x="70" y="150" fill="#1e3a8a" font-family="Arial" font-size="22" font-weight="bold" letter-spacing="4">ABCDE1234F</text>
+  <!-- Emblem -->
+  <circle cx="510" cy="138" r="30" fill="#eff6ff" stroke="#3b82f6" stroke-width="1"/>
+  <text x="510" y="145" text-anchor="middle" fill="#1d4ed8" font-family="Arial" font-size="22">🏛️</text>
+  <!-- Name -->
+  <text x="50" y="195" fill="#9ca3af" font-family="Arial" font-size="10" font-weight="bold">NAME</text>
+  <text x="50" y="212" fill="#111827" font-family="Arial" font-size="15" font-weight="bold">DEMO VENDOR PVT LTD</text>
+  <line x1="50" y1="220" x2="550" y2="220" stroke="#f1f5f9" stroke-width="1.5"/>
+  <!-- Father's Name -->
+  <text x="50" y="240" fill="#9ca3af" font-family="Arial" font-size="10" font-weight="bold">FATHER'S NAME / COMPANY NAME</text>
+  <text x="50" y="257" fill="#374151" font-family="Arial" font-size="13">DEMO HOLDINGS LIMITED</text>
+  <line x1="50" y1="265" x2="550" y2="265" stroke="#f1f5f9" stroke-width="1.5"/>
+  <!-- DOB / Incorporation -->
+  <text x="50" y="285" fill="#9ca3af" font-family="Arial" font-size="10" font-weight="bold">DATE OF INCORPORATION</text>
+  <text x="50" y="302" fill="#374151" font-family="Arial" font-size="13">15 / 06 / 2018</text>
+  <!-- Signature area -->
+  <text x="380" y="285" fill="#9ca3af" font-family="Arial" font-size="10" font-weight="bold">SIGNATURE</text>
+  <line x1="380" y1="315" x2="540" y2="315" stroke="#374151" stroke-width="1"/>
+  <text x="460" y="330" text-anchor="middle" fill="#6b7280" font-family="Arial" font-size="9">Authorized Signatory</text>
+  <!-- Watermark -->
+  <text x="300" y="360" text-anchor="middle" fill="#f1f5f9" font-family="Arial" font-size="40" font-weight="bold" transform="rotate(-20, 300, 360)">DEMO</text>
+  <!-- Footer -->
+  <text x="300" y="385" text-anchor="middle" fill="#9ca3af" font-family="Arial" font-size="9">FOR DEMO PURPOSES ONLY · VendorFlow Platform</text>
+</svg>

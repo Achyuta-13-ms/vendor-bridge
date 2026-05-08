@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export default function KYCPage() {
   const [vendor, setVendor] = useState<any>(null);

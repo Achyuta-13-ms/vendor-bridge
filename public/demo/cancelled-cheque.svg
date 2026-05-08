@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="500" viewBox="0 0 600 500">
+  <rect width="600" height="500" fill="#f8fafc"/>
+  <rect x="20" y="20" width="560" height="460" rx="8" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+  <!-- Header -->
+  <rect x="20" y="20" width="560" height="80" rx="8" fill="#065f46"/>
+  <text x="300" y="52" text-anchor="middle" fill="white" font-family="Arial" font-size="17" font-weight="bold">STATE BANK OF INDIA</text>
+  <text x="300" y="72" text-anchor="middle" fill="#6ee7b7" font-family="Arial" font-size="11">A GOVERNMENT OF INDIA ENTERPRISE</text>
+  <text x="300" y="90" text-anchor="middle" fill="#a7f3d0" font-family="Arial" font-size="10">CANCELLED CHEQUE — FOR VERIFICATION PURPOSES</text>
+  <!-- Cheque number -->
+  <text x="50" y="125" fill="#6b7280" font-family="Arial" font-size="10">Cheque No.</text>
+  <text x="50" y="142" fill="#111827" font-family="Arial" font-size="14" font-weight="bold">000456</text>
+  <text x="470" y="125" fill="#6b7280" font-family="Arial" font-size="10">Date</text>
+  <text x="470" y="142" fill="#111827" font-family="Arial" font-size="13">__ / __ / ____</text>
+  <line x1="50" y1="155" x2="550" y2="155" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- Pay line -->
+  <text x="50" y="185" fill="#374151" font-family="Arial" font-size="13">PAY _____________________________ OR BEARER</text>
+  <line x1="50" y1="195" x2="550" y2="195" stroke="#d1d5db" stroke-width="1"/>
+  <!-- Amount words -->
+  <text x="50" y="220" fill="#374151" font-family="Arial" font-size="12">RUPEES ________________________________________</text>
+  <!-- Amount box -->
+  <rect x="450" y="205" width="100" height="30" rx="4" fill="#f9fafb" stroke="#d1d5db" stroke-width="1"/>
+  <text x="500" y="224" text-anchor="middle" fill="#374151" font-family="Arial" font-size="14">₹ ___.__</text>
+  <line x1="50" y1="235" x2="550" y2="235" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- Account details -->
+  <text x="50" y="265" fill="#6b7280" font-family="Arial" font-size="10">Account Holder Name</text>
+  <text x="50" y="282" fill="#111827" font-family="Arial" font-size="14" font-weight="bold">DEMO VENDOR PRIVATE LIMITED</text>
+  <!-- MICR band -->
+  <rect x="20" y="350" width="560" height="55" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="50" y="370" fill="#6b7280" font-family="Arial" font-size="10">MICR Code</text>
+  <text x="50" y="392" fill="#111827" font-family="Arial" font-size="16" font-weight="bold" letter-spacing="3">400002086  1234567890  000456</text>
+  <!-- Account & IFSC -->
+  <text x="50" y="315" fill="#6b7280" font-family="Arial" font-size="10">Account Number</text>
+  <text x="50" y="332" fill="#111827" font-family="Arial" font-size="13" font-weight="bold">XXXX XXXX 8901</text>
+  <text x="300" y="315" fill="#6b7280" font-family="Arial" font-size="10">IFSC Code</text>
+  <text x="300" y="332" fill="#111827" font-family="Arial" font-size="13" font-weight="bold">SBIN0001234</text>
+  <!-- CANCELLED stamp -->
+  <text x="300" y="280" text-anchor="middle" fill="#fee2e2" font-family="Arial" font-size="52" font-weight="bold" transform="rotate(-15, 300, 280)" stroke="#ef4444" stroke-width="1" fill="none">CANCELLED</text>
+  <!-- Watermark -->
+  <text x="300" y="450" text-anchor="middle" fill="#f3f4f6" font-family="Arial" font-size="32" font-weight="bold" transform="rotate(-10, 300, 450)">DEMO</text>
+  <text x="300" y="478" text-anchor="middle" fill="#9ca3af" font-family="Arial" font-size="9">FOR DEMO PURPOSES ONLY · VendorFlow Platform</text>
+</svg>

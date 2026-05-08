@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@/components/ui/input-otp";
 import { useAuth } from "@/hooks/useAuth";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,14 +66,19 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await axios.post("/api/auth/send-otp", { email });
+      const res = await fetch("/api/auth/send-otp", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
       setLoading(false);
 
-      if (res.data.success) {
-        if (res.data.mock) {
+      if (data.success) {
+        if (data.mock) {
           toast({
             title: "Simulated Login",
-            description: `Dev Mode — Verification code: ${res.data.otp}`,
+            description: `Dev Mode — Verification code: ${data.otp}`,
           });
         } else {
           toast({
@@ -87,7 +93,7 @@ export default function LoginPage() {
       setLoading(false);
       toast({
         title: "Error",
-        description: e?.response?.data?.message || "Failed to send code.",
+        description: e?.message || "Failed to send code.",
         variant: "destructive",
       });
     }
@@ -98,19 +104,24 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const { error } = await verifyOtp(email, otp);
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        otp,
+      });
+
       setLoading(false);
 
-      if (!error) {
-        toast({
-          title: "Success!",
-          description: "You have been successfully verified.",
-        });
-        
-        router.push("/dashboard");
-      } else {
-        throw new Error(error.message || "Invalid or expired code.");
+      if (result?.error) {
+        throw new Error(result.error);
       }
+
+      toast({
+        title: "Success!",
+        description: "You have been successfully verified.",
+      });
+      
+      router.push("/dashboard");
     } catch (e: any) {
       setLoading(false);
       setOtp(""); // Clear OTP input on failure
@@ -228,6 +239,32 @@ export default function LoginPage() {
                           Send Secure Code <ArrowRight className="h-4 w-4" />
                         </span>
                       )}
+                    </Button>
+
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-muted" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">
+                          Or continue with
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                      className="w-full h-12 bg-card hover:bg-muted/50 transition-colors"
+                      disabled={loading}
+                    >
+                      <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2" aria-hidden="true">
+                        <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335"></path>
+                        <path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4"></path>
+                        <path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05"></path>
+                        <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26538 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853"></path>
+                      </svg>
+                      Google
                     </Button>
                   </div>
                 ) : (

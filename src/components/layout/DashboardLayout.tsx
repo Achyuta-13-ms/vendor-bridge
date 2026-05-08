@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +19,13 @@ const sidebarLinks = [
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    router.push("/");
   };
 
   const Sidebar = ({ mobile = false }: { mobile?: boolean }) => (
@@ -38,11 +39,11 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
 
       <nav className="flex-1 p-3 space-y-0.5">
         {sidebarLinks.map((link) => {
-          const isActive = location.pathname === link.href;
+          const isActive = pathname === link.href;
           return (
             <Link
               key={link.href}
-              to={link.href}
+              href={link.href}
               onClick={() => mobile && setSidebarOpen(false)}
               className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition-colors ${
                 isActive
@@ -95,7 +96,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
             <Menu className="h-5 w-5" />
           </button>
           <h1 className="text-sm font-medium text-foreground">
-            {sidebarLinks.find((l) => l.href === location.pathname)?.label || "Dashboard"}
+            {sidebarLinks.find((l) => l.href === pathname)?.label || "Dashboard"}
           </h1>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>

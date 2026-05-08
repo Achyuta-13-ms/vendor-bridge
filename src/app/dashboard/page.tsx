@@ -2,600 +2,386 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import { 
-  Copy, 
-  FileText, 
-  CheckCircle2, 
-  Clock, 
-  ArrowRight, 
-  LogOut, 
-  RefreshCw, 
-  ExternalLink, 
-  ShieldCheck, 
-  Globe,
-  Plus
+import { useSession } from "next-auth/react";
+import { motion } from "framer-motion";
+import {
+  CheckCircle2, Clock, AlertCircle, ArrowRight, LogOut,
+  RefreshCw, ShieldCheck, FileText, Building2, ChevronRight,
+  Upload, Eye, Sparkles, FileCheck, BadgeCheck, Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
-import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { useBridgeNotifications } from "@/hooks/use-bridge-notifications";
-import { OrderDetailsSheet } from "@/components/order-details-sheet";
-import { TrendingUp, Package, AlertTriangle } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface Platform {
-  id: string;
-  name: string;
-  displayName: string;
-  logoUrl?: string;
-}
+// ─── Types ───────────────────────────────────────────────────────────────────
 
-interface Connection {
-  id: string;
-  platformId: string;
-  status: string;
-  platform: Platform;
-}
-
-interface Document {
+interface DocRecord {
   id: string;
   type: string;
   url: string;
-  verification?: { status: string; response?: string | null; rejectionReason?: string | null } | null;
+  originalName?: string | null;
+  verification?: { status: string; rejectionReason?: string | null } | null;
 }
 
-interface Order {
-  id: string;
-  externalOrderId: string;
-  status: string;
-  total: number;
-  placedAt: string;
-  platform: Platform;
-  items: { name: string; quantity: number }[];
-  customer?: { name: string; phone: string } | null;
-}
-
-interface VendorData {
+interface VendorProfile {
   id: string;
   businessName: string | null;
   businessType: string | null;
-  addressLine1: string | null;
   city: string | null;
+  state: string | null;
   status: string;
+  phone: string | null;
+  email: string | null;
   createdAt: string;
-  user: { email: string; phone: string };
-  documents: Document[];
-  connections: Connection[];
-  orders: Order[];
+  documents: DocRecord[];
 }
 
-const statusColor = (status: string) => {
-  switch (status.toLowerCase()) {
-    case "verified": return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
-    case "pending": return "text-amber-500 bg-amber-500/10 border-amber-500/20";
-    case "rejected": return "text-red-500 bg-red-500/10 border-red-500/20";
-    default: return "text-muted-foreground bg-muted border-transparent";
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function computeProgress(vendor: VendorProfile | null): number {
+  if (!vendor) return 0;
+  let score = 0;
+  if (vendor.businessName) score += 20;
+  if (vendor.businessType) score += 10;
+  if (vendor.city) score += 10;
+  const docTypes = vendor.documents.map((d) => d.type);
+  if (docTypes.includes("GST")) score += 20;
+  if (docTypes.includes("PAN")) score += 20;
+  if (docTypes.includes("BANK")) score += 20;
+  return score;
+}
+
+function getDocStatus(vendor: VendorProfile | null, type: string) {
+  const doc = vendor?.documents.find((d) => d.type === type);
+  if (!doc) return "not_uploaded";
+  return (doc.verification?.status ?? "PENDING").toLowerCase();
+}
+
+function getNextAction(vendor: VendorProfile | null): { label: string; href: string; icon: any } | null {
+  if (!vendor) return { label: "Complete onboarding to get started", href: "/onboarding", icon: Building2 };
+  const missing = ["GST", "PAN", "BANK"].filter((t) => !vendor.documents.find((d) => d.type === t));
+  if (missing.length > 0) return { label: `Upload missing documents: ${missing.join(", ")}`, href: "/onboarding", icon: Upload };
+  const pending = vendor.documents.filter((d) => (d.verification?.status ?? "PENDING") === "PENDING");
+  if (pending.length > 0) return { label: "Awaiting document verification by our team", href: "#", icon: Clock };
+  const rejected = vendor.documents.filter((d) => d.verification?.status === "REJECTED");
+  if (rejected.length > 0) return { label: "Some documents were rejected — re-upload required", href: "/onboarding", icon: AlertCircle };
+  return null;
+}
+
+const statusStyles = (s: string) => {
+  switch (s) {
+    case "verified": return "text-emerald-600 bg-emerald-500/10 border-emerald-500/20";
+    case "pending":  return "text-amber-600 bg-amber-500/10 border-amber-500/20";
+    case "rejected": return "text-red-600 bg-red-500/10 border-red-500/20";
+    default:         return "text-muted-foreground bg-muted border-transparent";
   }
 };
 
-const containerVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: { 
-      duration: 0.4,
-      staggerChildren: 0.1
-    } 
+const statusIcon = (s: string) => {
+  switch (s) {
+    case "verified": return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+    case "pending":  return <Clock className="h-4 w-4 text-amber-500" />;
+    case "rejected": return <AlertCircle className="h-4 w-4 text-red-500" />;
+    default:         return <Upload className="h-4 w-4 text-muted-foreground" />;
   }
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0 }
+const DOC_META: Record<string, { label: string; desc: string }> = {
+  GST:  { label: "GST Certificate", desc: "Goods & Service Tax Registration" },
+  PAN:  { label: "Company PAN",     desc: "Permanent Account Number" },
+  BANK: { label: "Bank Proof",      desc: "Cancelled Cheque / Statement" },
 };
 
-export default function VendorDashboard() {
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default function DashboardHome() {
   const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
   const { toast } = useToast();
-  const [vendor, setVendor] = useState<VendorData | null>(null);
-  const [platforms, setPlatforms] = useState<Platform[]>([]);
+
+  const [vendor, setVendor] = useState<VendorProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [products, setProducts] = useState<any[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isOrderSheetOpen, setIsOrderSheetOpen] = useState(false);
 
-  // Initialize notifications
-  useBridgeNotifications(vendor?.orders);
-
-  useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (!raw) {
-      router.push("/login");
-      return;
-    }
-    const session = JSON.parse(raw);
-    fetchData(session.id);
-
-    // Auto-poll status every 30 seconds
-    const interval = setInterval(() => fetchData(session.id, true), 30000);
-    return () => clearInterval(interval);
-  }, [router]);
-
-  const fetchData = async (userId: string, isSilent = false) => {
-    if (!isSilent) setLoading(true);
-    else setRefreshing(true);
-
+  const fetchVendor = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
-      const [vendorRes, platformRes, analyticsRes, productsRes] = await Promise.all([
-        axios.get(`/api/vendor?userId=${userId}`),
-        axios.get('/api/platforms'),
-        axios.get(`/api/vendor/analytics?userId=${userId}&range=1`),
-        axios.get(`/api/vendor/products?userId=${userId}`)
-      ]);
-
-      if (vendorRes.data.success) setVendor(vendorRes.data.vendor);
-      if (platformRes.data.success) setPlatforms(platformRes.data.platforms);
-      if (analyticsRes.data.success) setAnalytics(analyticsRes.data.analytics);
-      if (productsRes.data.success) setProducts(productsRes.data.products);
-    } catch (err) {
-      console.error("Dashboard error:", err);
+      const res = await fetch("/api/vendor/me");
+      const data = await res.json();
+      if (data.success) {
+        if (!data.vendor) {
+          router.push("/onboarding");
+          return;
+        }
+        setVendor(data.vendor);
+      }
+    } catch {
+      toast({ title: "Error fetching profile", variant: "destructive" });
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   };
 
-  const handleOrderClick = (order: Order) => {
-    setSelectedOrder(order);
-    setIsOrderSheetOpen(true);
-  };
+  useEffect(() => {
+    if (authStatus === "unauthenticated") { router.push("/login"); return; }
+    if (authStatus === "authenticated") fetchVendor();
+  }, [authStatus]);
 
-  const handleStatusUpdate = (updatedOrder: any) => {
-    if (!vendor) return;
-    
-    // Update local state optimistically
-    const updatedOrders = vendor.orders.map(o => 
-      o.id === updatedOrder.id ? { ...o, status: updatedOrder.status } : o
-    );
-    
-    setVendor({ ...vendor, orders: updatedOrders });
-    setIsOrderSheetOpen(false);
-    
-    // Refresh for consistency
-    fetchData(vendor.id, true);
-  };
-
-  const getDocStatus = (type: string) => {
-    const doc = vendor?.documents.find(d => d.type === type);
-    return doc?.verification?.status ?? "Pending Upload";
-  };
-
-  if (loading) return (
-    <div className="flex items-center justify-center h-[80vh]">
-      <div className="flex flex-col items-center gap-4">
-        <RefreshCw className="h-10 w-10 text-primary animate-spin" />
-        <p className="text-muted-foreground animate-pulse font-medium">Syncing Business Data...</p>
+  if (authStatus === "loading" || loading) {
+    return (
+      <div className="p-4 sm:p-8 max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-3">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-8 sm:h-10 w-64" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <Skeleton className="h-9 w-24 rounded-md" />
+        </div>
+        <Skeleton className="h-32 w-full rounded-xl" />
+        <div className="space-y-4">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  if (!vendor) return (
-    <div className="flex items-center justify-center h-[80vh] p-4 text-center">
-      <Card className="max-w-md border-dashed">
-        <CardHeader>
-          <CardTitle>Welcome to VendorBridge</CardTitle>
-          <CardDescription>You haven't completed your profile setup. Let's get your business verified!</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full gap-2 group" onClick={() => router.push("/onboarding")}>
-            Complete Onboarding <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const kycProgress = (vendor.documents.filter(d => d.verification?.status === "Verified").length / 3) * 100;
-
-  const simulateOrder = async (pName: string) => {
-    setRefreshing(true);
-    try {
-      await axios.post('/api/test/incoming-order', { 
-        vendorId: vendor.id,
-        platformName: pName
-      });
-      toast({ title: "Order Bridged!", description: `New mock order from ${pName} ingested.` });
-      fetchData(vendor.id, true);
-    } catch {
-      toast({ title: "Error", description: "Failed to simulate order.", variant: "destructive" });
-    } finally {
-      setRefreshing(false);
-    }
-  };
+  const progress = computeProgress(vendor);
+  const nextAction = getNextAction(vendor);
+  const docTypes = ["GST", "PAN", "BANK"];
 
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="p-6 md:p-10 space-y-8"
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="p-4 sm:p-8 max-w-3xl mx-auto space-y-6"
     >
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
-              <ShieldCheck className="h-3 w-3 mr-1" />
-              {vendor.status} Profile
-            </Badge>
-            {refreshing && <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />}
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">VendorFlow</span>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight">Bonjour, {vendor.businessName || "Partner"}</h1>
-          <p className="text-muted-foreground font-medium">Here's an overview of your bridge status and compliance.</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            {vendor?.businessName ? `Welcome, ${vendor.businessName}` : "Welcome!"}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {session?.user?.email}
+          </p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 bg-background/50 backdrop-blur px-3 py-1.5 rounded-full border border-border shadow-sm">
-            <span className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase">Member ID:</span>
-            <code className="text-xs font-mono">{vendor.id.slice(0, 8)}</code>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
-              navigator.clipboard.writeText(vendor.id);
-              toast({ title: "Copied!", description: "ID ready to bridge." });
-            }}>
-              <Copy className="h-3 w-3" />
-            </Button>
-          </div>
-          <Button variant="outline" size="icon" onClick={() => fetchData(vendor.id, true)} disabled={refreshing}>
-            <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="shrink-0 gap-1.5"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+        >
+          <LogOut className="h-3.5 w-3.5" /> Sign out
+        </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        
-        {/* Left Column: KYC & Business Specs */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* KYC Stepper Card */}
-          <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-background to-muted/30">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-xl">KYC Compliance</CardTitle>
-                  <CardDescription>Authentication for marketplace integration</CardDescription>
-                </div>
-                <div className="text-right">
-                  <span className="text-2xl font-bold">{Math.round(kycProgress)}%</span>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Complete</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Progress value={kycProgress} className="h-2 bg-primary/10" />
-              
-              <div className="grid sm:grid-cols-3 gap-4">
-                {[
-                  { type: "GST", label: "GST Certificate", desc: "Goods & Service Tax" },
-                  { type: "PAN", label: "Company PAN", desc: "Corporate ID" },
-                  { type: "BANK", label: "Bank Proof", desc: "Payout Verification" },
-                ].map((docType) => {
-                  const status = getDocStatus(docType.type);
-                  const isVerified = status === "Verified";
-                  return (
-                    <div key={docType.type} className={cn(
-                      "group p-4 rounded-xl border transition-all duration-300",
-                      isVerified ? "bg-emerald-500/5 border-emerald-500/20" : "bg-card border-border hover:border-primary/30 shadow-sm"
-                    )}>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className={cn("p-2 rounded-lg", isVerified ? "bg-emerald-500/20 text-emerald-600" : "bg-muted text-muted-foreground")}>
-                          {isVerified ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
-                        </div>
-                        <Badge className={cn("text-[10px] font-bold px-1.5", statusColor(status))}>
-                          {status}
-                        </Badge>
-                      </div>
-                      <p className="font-bold text-sm tracking-tight">{docType.label}</p>
-                      <p className="text-[10px] text-muted-foreground font-medium">{docType.desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Marketplace Connections Grid */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <Globe className="h-5 w-5 text-primary" />
-                Marketplace Bridge
-              </h3>
-            </div>
-            
-            <div className="grid sm:grid-cols-2 gap-4">
-              <AnimatePresence mode="popLayout">
-                {platforms.map((platform) => {
-                  const connection = vendor.connections.find(c => c.platformId === platform.id);
-                  const isConnected = !!connection;
-                  return (
-                    <motion.div
-                      key={platform.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                    >
-                      <Card className={cn(
-                        "relative group transition-all duration-300 hover:shadow-lg border-2",
-                        isConnected ? "border-primary/10 bg-primary/5 shadow-primary/5" : "border-border/50 opacity-60 hover:opacity-100"
-                      )}>
-                        <CardContent className="p-5 flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-white border shadow-sm p-2 flex items-center justify-center overflow-hidden shrink-0">
-                              {platform.logoUrl ? (
-                                <img src={platform.logoUrl} alt={platform.displayName} className="w-full object-contain" />
-                              ) : (
-                                <span className="font-bold text-primary">{platform.displayName[0]}</span>
-                              )}
-                            </div>
-                            <div>
-                              <p className="font-bold">{platform.displayName}</p>
-                              <Badge variant="ghost" className={cn("p-0 h-auto text-[10px] font-bold uppercase", isConnected ? "text-primary" : "text-muted-foreground")}>
-                                {isConnected ? "Active Bridge" : "Ready to Link"}
-                              </Badge>
-                            </div>
-                          </div>
-                          
-                          <Button 
-                            variant={isConnected ? "ghost" : "outline"} 
-                            size="sm" 
-                            className={cn("font-bold h-8 transition-all", isConnected ? "text-primary" : "hover:bg-primary hover:text-white")}
-                          >
-                            {isConnected ? <ExternalLink className="h-4 w-4" /> : "Link"}
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-          </div>
-
-          {/* Live Order Feed */}
-          <div className="space-y-4 pt-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <RefreshCw className={cn("h-5 w-5 text-primary", refreshing && "animate-spin")} />
-                Live Order Feed
-              </h3>
-              <Badge variant="outline" className="text-[10px] uppercase tracking-tighter bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-                Listening for Webhooks...
-              </Badge>
-            </div>
-
-            <div className="space-y-3">
-              {vendor.orders && vendor.orders.length > 0 ? (
-                vendor.orders.sort((a, b) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime()).slice(0, 5).map((order) => (
-                  <motion.div
-                    key={order.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                  >
-                    <Card className="hover:shadow-md transition-shadow group">
-                      <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                            <span className="font-bold text-primary group-hover:scale-110 transition-transform">{order.platform.displayName[0]}</span>
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-bold">Order {order.externalOrderId}</p>
-                              <StatusBadge status={order.status} />
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(order.placedAt).toLocaleTimeString()} • {order.items.length} items • ₹{order.total}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 ml-auto sm:ml-0">
-                          <p className="text-xs font-medium text-muted-foreground mr-2 truncate hidden sm:block">
-                            {order.customer?.name || "Guest Customer"}
-                          </p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-8 font-bold text-xs"
-                            onClick={() => handleOrderClick(order)}
-                          >
-                            Manage Order
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="text-center py-10 border-2 border-dashed rounded-xl bg-muted/20">
-                  <p className="text-muted-foreground font-medium">No bridged orders yet. Simulation ready.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Business Profile Card */}
-        <div className="space-y-6">
-          <Card className="shadow-lg border-none bg-primary text-primary-foreground min-h-[300px] flex flex-col justify-between overflow-hidden relative group">
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform">
-              <ShieldCheck className="h-32 w-32" />
-            </div>
-            
-            <CardHeader>
-              <CardTitle className="text-xl opacity-80 font-bold tracking-widest uppercase text-xs">Business Profile</CardTitle>
-              <div className="mt-4">
-                <h2 className="text-3xl font-black truncate">{vendor.businessName || "Profile Setup Required"}</h2>
-                <p className="text-primary-foreground/70 font-medium">{vendor.businessType || "Retail Business"}</p>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-4 relative z-10">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Verified Credentials</p>
-                <p className="text-sm font-medium">{vendor.user.email}</p>
-                <p className="text-sm font-medium">{vendor.user.phone}</p>
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">HQ Location</p>
-                <p className="text-sm leading-snug font-medium line-clamp-2">
-                  {vendor.addressLine1 || "Address pending verification"}, {vendor.city}
-                </p>
-              </div>
-            </CardContent>
-            
-            <CardFooter className="bg-white/10 backdrop-blur-sm border-t border-white/10 p-4">
-              <Button variant="ghost" className="w-full text-primary-foreground hover:bg-white/10 font-bold group">
-                Edit Business Details <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card className="border-none shadow-sm bg-muted/40 p-1">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold">Bridge Activity</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                { label: "Profile Updated", date: "Just Now", status: "System" },
-                { label: "GST Verification", date: "2 hours ago", status: "Success" },
-                { label: "Marketplace Linked", date: "Today", status: "Info" },
-              ].map((log, i) => (
-                <div key={i} className="flex items-center justify-between text-xs p-2 rounded-lg bg-background/50 border border-border/50">
-                  <div>
-                    <p className="font-bold">{log.label}</p>
-                    <p className="text-muted-foreground">{log.date}</p>
-                  </div>
-                  <Badge variant="outline" className="text-[8px] font-black uppercase px-1 h-4">{log.status}</Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Quick Analytics Widget */}
-          <Card className="border-none shadow-sm bg-primary/5">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-primary">Daily Pulse</CardTitle>
-                <TrendingUp className="h-4 w-4 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4 py-2">
-              <div className="space-y-0.5">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">Revenue</p>
-                <p className="text-lg font-black">₹{analytics?.kpis?.totalRevenue?.toLocaleString() || '0'}</p>
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">Events</p>
-                <p className="text-lg font-black">{analytics?.kpis?.orderCount || '0'}</p>
-              </div>
-              <div className="col-span-2 pt-2 border-t border-primary/10">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-medium text-muted-foreground">AOV: ₹{Math.round(analytics?.kpis?.aov || 0)}</span>
-                  <div className="h-1.5 w-16 bg-primary/20 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary w-2/3" />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full text-[10px] font-black uppercase text-primary hover:bg-primary/5"
-                onClick={() => router.push('/dashboard/analytics')}
-              >
-                Full Intel Report →
-              </Button>
-            </CardFooter>
-          </Card>
-
-          {/* Inventory Alert Widget */}
-          {products.some(p => p.stock <= p.lowStockLevel) && (
-            <Card className="border-none shadow-sm bg-amber-500/5 border-amber-500/10">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-600">Inventory Alert</CardTitle>
-                  <Package className="h-4 w-4 text-amber-600" />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4 py-2">
-                <div className="space-y-2">
-                  {products.filter(p => p.stock <= p.lowStockLevel).slice(0, 3).map((p, i) => (
-                    <div key={i} className="flex items-center justify-between text-xs">
-                      <span className="font-medium truncate max-w-[120px]">{p.name}</span>
-                      <div className="flex items-center gap-2">
-                        {p.stock === 0 ? (
-                          <Badge variant="destructive" className="text-[8px] h-4 px-1">OOS</Badge>
-                        ) : (
-                          <span className="text-amber-600 font-bold">{p.stock} left</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {products.filter(p => p.stock <= p.lowStockLevel).length > 3 && (
-                  <p className="text-[10px] text-muted-foreground text-center">+ {products.filter(p => p.stock <= p.lowStockLevel).length - 3} more items low</p>
-                )}
-              </CardContent>
-              <CardFooter className="pt-0">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full text-[10px] font-black uppercase text-amber-600 hover:bg-amber-500/5 shadow-none"
-                  onClick={() => router.push('/dashboard/inventory')}
-                >
-                  Manage Stock →
-                </Button>
-              </CardFooter>
-            </Card>
+      {/* ── Next Action Banner ── */}
+      {nextAction && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className={cn(
+            "flex items-center gap-4 p-4 rounded-xl border",
+            nextAction.href === "#"
+              ? "bg-amber-500/5 border-amber-500/20"
+              : "bg-primary/5 border-primary/20 cursor-pointer hover:bg-primary/10 transition-colors"
           )}
-        </div>
+          onClick={() => nextAction.href !== "#" && router.push(nextAction.href)}
+        >
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <nextAction.icon className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold leading-tight">{nextAction.label}</p>
+            {nextAction.href !== "#" && (
+              <p className="text-xs text-primary font-medium mt-0.5">Tap to continue →</p>
+            )}
+          </div>
+          {nextAction.href !== "#" && <ChevronRight className="h-5 w-5 text-primary shrink-0" />}
+        </motion.div>
+      )}
 
+      {/* ── Profile Completion ── */}
+      <Card className="border-none shadow-lg">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base font-bold">Profile Completion</CardTitle>
+            <span className="text-2xl font-extrabold text-primary">{progress}%</span>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Progress value={progress} className="h-3 rounded-full" />
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <ChecklistItem done={!!vendor?.businessName} label="Business name" />
+            <ChecklistItem done={!!vendor?.businessType} label="Business type" />
+            <ChecklistItem done={!!vendor?.city} label="Address added" />
+            <ChecklistItem done={docTypes.every((t) => !!vendor?.documents.find((d) => d.type === t))} label="All docs uploaded" />
+          </div>
+        </CardContent>
+        {progress < 100 && (
+          <CardFooter className="pt-0">
+            <Button variant="outline" className="w-full gap-2 group" onClick={() => router.push("/onboarding")}>
+              Complete Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </CardFooter>
+        )}
+      </Card>
+
+      {/* ── Quick Tips ── */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center gap-2 text-primary">
+            <Sparkles className="h-4 w-4" />
+            <p className="text-sm font-bold">Quick Tips for Success</p>
+          </div>
+          <div className="grid gap-3">
+            {[
+              { t: "Complete KYC", d: "A 100% complete profile gets verified 2x faster.", icon: FileCheck },
+              { t: "Connect Platforms", d: "Link your Swiggy/Amazon ID to sync orders instantly.", icon: Globe },
+              { t: "Reusable ID", d: "Use your VendorFlow ID to onboard on new apps without KYC.", icon: BadgeCheck },
+            ].map((tip, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <div className="h-8 w-8 rounded-lg bg-background border flex items-center justify-center shrink-0">
+                  <tip.icon className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold">{tip.t}</p>
+                  <p className="text-[11px] text-muted-foreground">{tip.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Verification Status ── */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">
+          Document Verification
+        </h2>
+        <div className="space-y-3">
+          {docTypes.map((type) => {
+            const statusRaw = getDocStatus(vendor, type);
+            const meta = DOC_META[type];
+            const doc = vendor?.documents.find((d) => d.type === type);
+            return (
+              <motion.div
+                key={type}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: docTypes.indexOf(type) * 0.07 }}
+              >
+                <Card className={cn(
+                  "border transition-all",
+                  statusRaw === "verified" ? "border-emerald-500/20 bg-emerald-500/5" :
+                  statusRaw === "rejected" ? "border-red-500/20 bg-red-500/5" :
+                  "border-border"
+                )}>
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
+                      statusRaw === "verified" ? "bg-emerald-500/20" :
+                      statusRaw === "rejected" ? "bg-red-500/20" :
+                      "bg-muted"
+                    )}>
+                      {statusIcon(statusRaw)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm">{meta.label}</p>
+                      <p className="text-xs text-muted-foreground">{meta.desc}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge className={cn("text-[10px] font-bold uppercase px-2", statusStyles(statusRaw))}>
+                        {doc ? statusRaw : "Not uploaded"}
+                      </Badge>
+                      {doc && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => window.open(doc.url, "_blank")}
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                  {statusRaw === "rejected" && doc?.verification?.rejectionReason && (
+                    <div className="px-4 pb-4">
+                      <p className="text-xs text-red-600 bg-red-500/5 rounded-lg p-2 border border-red-500/10">
+                        ❌ {doc.verification.rejectionReason}
+                      </p>
+                    </div>
+                  )}
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
 
-      <OrderDetailsSheet 
-        order={selectedOrder as any}
-        isOpen={isOrderSheetOpen}
-        onClose={() => setIsOrderSheetOpen(false)}
-        onStatusUpdate={handleStatusUpdate}
-      />
+      {/* ── Business Profile Summary ── */}
+      {vendor && (
+        <Card className="border-none shadow-md bg-gradient-to-br from-primary/5 to-background">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-bold flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" /> Business Profile
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4 text-sm">
+            <ProfileField label="Business Type" value={vendor.businessType} />
+            <ProfileField label="Phone" value={vendor.phone} />
+            <ProfileField label="City" value={vendor.city} />
+            <ProfileField label="State" value={vendor.state} />
+            {vendor.email && <ProfileField label="Business Email" value={vendor.email} />}
+            <ProfileField label="Status" value={vendor.status} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Quick Actions ── */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="outline" className="h-14 flex flex-col gap-1 text-xs" onClick={() => router.push("/onboarding")}>
+          <FileText className="h-5 w-5 text-primary" />
+          Update Documents
+        </Button>
+        <Button variant="outline" className="h-14 flex flex-col gap-1 text-xs" onClick={() => fetchVendor(true)}>
+          <RefreshCw className="h-5 w-5 text-primary" />
+          Refresh Status
+        </Button>
+      </div>
     </motion.div>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const color = (s: string) => {
-    switch (s.toUpperCase()) {
-      case "NEW": return "bg-blue-500/10 text-blue-600 border-blue-500/20";
-      case "CONFIRMED": return "bg-indigo-500/10 text-indigo-600 border-indigo-500/20";
-      case "PREPARING": return "bg-amber-500/10 text-amber-600 border-amber-500/20";
-      case "READY": return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
-      case "DELIVERED": return "bg-emerald-500 text-white border-transparent";
-      default: return "bg-muted text-muted-foreground";
-    }
-  };
-
+function ChecklistItem({ done, label }: { done: boolean; label: string }) {
   return (
-    <Badge variant="outline" className={cn("text-[8px] font-black uppercase px-1 h-4", color(status))}>
-      {status}
-    </Badge>
+    <div className="flex items-center gap-2 text-sm">
+      {done
+        ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+        : <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30 shrink-0" />}
+      <span className={done ? "font-medium" : "text-muted-foreground"}>{label}</span>
+    </div>
+  );
+}
+
+function ProfileField({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="font-semibold mt-0.5 truncate">{value || "—"}</p>
+    </div>
   );
 }
