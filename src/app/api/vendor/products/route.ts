@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       products: vendor.products 
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[GET /api/vendor/products]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
@@ -132,7 +132,7 @@ export async function PATCH(request: Request) {
     }
 
     const results = await prisma.$transaction(
-      updates.map(u => prisma.product.update({
+      updates.map((u: any) => prisma.product.update({
         where: { id: u.id },
         data: { stock: { increment: u.stockChange } },
         include: { vendor: true }
@@ -140,7 +140,7 @@ export async function PATCH(request: Request) {
     );
 
     // Fire webhooks for any items that hit 0
-    results.forEach(p => {
+    results.forEach((p: any) => {
         if (p.stock <= 0) {
             dispatchWebhook(p.vendorId, 'ITEM_OUT_OF_STOCK', {
                 productId: p.id,
@@ -152,7 +152,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true, count: results.length });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[PATCH /api/vendor/products]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

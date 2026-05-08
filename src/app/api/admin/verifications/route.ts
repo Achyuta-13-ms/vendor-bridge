@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
@@ -41,7 +43,7 @@ export async function GET() {
       },
       vendors,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[GET /api/admin/verifications]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

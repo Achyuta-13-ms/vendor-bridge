@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(
   request: Request,
@@ -47,10 +49,10 @@ export async function POST(
     // Assume requirements: GST, PAN, BANK
     const requiredTypes = ['GST', 'PAN', 'BANK'];
     const hasAllRequired = requiredTypes.every(type => 
-      allDocs.some(d => d.type === type)
+      allDocs.some((d: any) => d.type === type)
     );
 
-    const allVerified = allDocs.every(d => d.verification?.status === 'VERIFIED');
+    const allVerified = allDocs.every((d: any) => d.verification?.status === 'VERIFIED');
 
     if (hasAllRequired && allVerified) {
       // Update vendor status to ACTIVE

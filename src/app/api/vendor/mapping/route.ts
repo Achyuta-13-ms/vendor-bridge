@@ -47,8 +47,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true, 
       products: vendor.products,
-      platforms: vendor.connections.map(c => c.platform),
-      unmappedItems: unmappedOrderItems.map(item => ({
+      platforms: vendor.connections.map((c: any) => c.platform),
+      unmappedItems: unmappedOrderItems.map((item: any) => ({
         name: item.name,
         platformName: item.order.platform.displayName,
         platformId: item.order.platformId,
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
       }))
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[GET /api/vendor/mapping]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, mapping });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/vendor/mapping]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
@@ -123,7 +123,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[DELETE /api/vendor/mapping]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

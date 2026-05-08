@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 import { PLAN_LIMITS } from '@/lib/constants';
 
 export async function POST(request: Request) {

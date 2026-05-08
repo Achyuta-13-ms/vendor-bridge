@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
@@ -111,7 +113,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, vendorId: vendor.id });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/onboarding/submit]', error);
     return NextResponse.json({ success: false, message: 'Submission failed' }, { status: 500 });
   }

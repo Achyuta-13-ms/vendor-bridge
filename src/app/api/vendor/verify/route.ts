@@ -48,9 +48,9 @@ export async function POST(request: Request) {
          const vendorDocs = doc.vendor?.documents || [];
          const requiredTypes = ["GST", "PAN", "BANK"];
          
-         const isFullyVerified = requiredTypes.every(reqType => {
-           const typeDocs = vendorDocs.filter(d => d.type === reqType);
-           return typeDocs.length > 0 && typeDocs.some(d => d.verification?.status === "Verified");
+         const isFullyVerified = requiredTypes.every((reqType: string) => {
+           const typeDocs = vendorDocs.filter((d: any) => d.type === reqType);
+           return typeDocs.length > 0 && typeDocs.some((d: any) => d.verification?.status === "Verified");
          });
 
          if (isFullyVerified) {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, verification });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[vendor/verify]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

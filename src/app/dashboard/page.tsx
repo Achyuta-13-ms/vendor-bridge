@@ -49,7 +49,7 @@ function computeProgress(vendor: VendorProfile | null): number {
   if (vendor.businessName) score += 20;
   if (vendor.businessType) score += 10;
   if (vendor.city) score += 10;
-  const docTypes = vendor.documents.map((d) => d.type);
+  const docTypes = vendor.documents.map((d: DocRecord) => d.type);
   if (docTypes.includes("GST")) score += 20;
   if (docTypes.includes("PAN")) score += 20;
   if (docTypes.includes("BANK")) score += 20;
@@ -57,18 +57,18 @@ function computeProgress(vendor: VendorProfile | null): number {
 }
 
 function getDocStatus(vendor: VendorProfile | null, type: string) {
-  const doc = vendor?.documents.find((d) => d.type === type);
+  const doc = vendor?.documents.find((d: DocRecord) => d.type === type);
   if (!doc) return "not_uploaded";
   return (doc.verification?.status ?? "PENDING").toLowerCase();
 }
 
 function getNextAction(vendor: VendorProfile | null): { label: string; href: string; icon: any } | null {
   if (!vendor) return { label: "Complete onboarding to get started", href: "/onboarding", icon: Building2 };
-  const missing = ["GST", "PAN", "BANK"].filter((t) => !vendor.documents.find((d) => d.type === t));
+  const missing = ["GST", "PAN", "BANK"].filter((t: string) => !vendor.documents.find((d: DocRecord) => d.type === t));
   if (missing.length > 0) return { label: `Upload missing documents: ${missing.join(", ")}`, href: "/onboarding", icon: Upload };
-  const pending = vendor.documents.filter((d) => (d.verification?.status ?? "PENDING") === "PENDING");
+  const pending = vendor.documents.filter((d: DocRecord) => (d.verification?.status ?? "PENDING") === "PENDING");
   if (pending.length > 0) return { label: "Awaiting document verification by our team", href: "#", icon: Clock };
-  const rejected = vendor.documents.filter((d) => d.verification?.status === "REJECTED");
+  const rejected = vendor.documents.filter((d: DocRecord) => d.verification?.status === "REJECTED");
   if (rejected.length > 0) return { label: "Some documents were rejected — re-upload required", href: "/onboarding", icon: AlertCircle };
   return null;
 }
@@ -228,7 +228,7 @@ export default function DashboardHome() {
             <ChecklistItem done={!!vendor?.businessName} label="Business name" />
             <ChecklistItem done={!!vendor?.businessType} label="Business type" />
             <ChecklistItem done={!!vendor?.city} label="Address added" />
-            <ChecklistItem done={docTypes.every((t) => !!vendor?.documents.find((d) => d.type === t))} label="All docs uploaded" />
+            <ChecklistItem done={docTypes.every((t: string) => !!vendor?.documents.find((d: DocRecord) => d.type === t))} label="All docs uploaded" />
           </div>
         </CardContent>
         {progress < 100 && (
@@ -273,10 +273,10 @@ export default function DashboardHome() {
           Document Verification
         </h2>
         <div className="space-y-3">
-          {docTypes.map((type) => {
+          {docTypes.map((type: string) => {
             const statusRaw = getDocStatus(vendor, type);
             const meta = DOC_META[type];
-            const doc = vendor?.documents.find((d) => d.type === type);
+            const doc = vendor?.documents.find((d: DocRecord) => d.type === type);
             return (
               <motion.div
                 key={type}

@@ -4,6 +4,8 @@ import { sendEmailOTP } from '@/lib/otp-services';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
       }, { status: result.status || 500 });
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[send-otp]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

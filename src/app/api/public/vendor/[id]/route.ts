@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
 
@@ -48,14 +50,14 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     }
 
     // Status Aggregation Logic
-    const statuses = vendor.documents.map(d => d.verification?.status?.toUpperCase() || 'PENDING');
+    const statuses = vendor.documents.map((d: any) => d.verification?.status?.toUpperCase() || 'PENDING');
     let overallStatus = "pending";
 
     if (statuses.length === 0) {
        overallStatus = "pending";
     } else if (statuses.includes("REJECTED") || statuses.includes("FAILED")) {
       overallStatus = "failed";
-    } else if (statuses.every(s => s === "VERIFIED")) {
+    } else if (statuses.every((s: string) => s === "VERIFIED")) {
       overallStatus = "verified";
     }
 
@@ -64,7 +66,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       vendorId: vendor.id,
       businessName: vendor.businessName || "Unknown",
       status: overallStatus,
-      documents: vendor.documents.map(d => ({
+      documents: vendor.documents.map((d: any) => ({
         type: d.type,
         status: d.verification?.status?.toLowerCase() || 'pending'
       }))
@@ -72,7 +74,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 
     return NextResponse.json(responsePayload);
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('[GET /api/public/vendor/[id]]', error);
     return NextResponse.json({ success: false, message: "Internal Server Error" }, { status: 500 });
   }

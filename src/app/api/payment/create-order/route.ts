@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
+import { prisma } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 import { PLAN_PRICING } from '@/lib/constants';
 
 export async function POST(request: Request) {
@@ -28,7 +31,7 @@ export async function POST(request: Request) {
       amount: order.amount,
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/payment/create-order]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

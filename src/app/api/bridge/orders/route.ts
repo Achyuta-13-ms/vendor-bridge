@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { dispatchWebhook } from '@/lib/webhooks';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
     }
 
     // Use transaction to create order, customer, and items
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // 1. Handle Customer
       let customerId = null;
       if (customer) {
@@ -167,7 +169,7 @@ export async function POST(request: Request) {
       externalId: externalOrderId
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/bridge/orders]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

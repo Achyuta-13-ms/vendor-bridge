@@ -3,6 +3,8 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
       fileName: file.name
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/upload]', error);
     return NextResponse.json({ success: false, message: 'Upload failed' }, { status: 500 });
   }

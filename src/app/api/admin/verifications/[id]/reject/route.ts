@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(
   request: Request,
@@ -48,7 +50,7 @@ export async function POST(
     });
 
     return NextResponse.json({ success: true, verification });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/admin/verifications/[id]/reject]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

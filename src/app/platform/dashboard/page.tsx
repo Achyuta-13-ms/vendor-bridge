@@ -37,8 +37,8 @@ interface VendorRecord {
 
 function getOverallStatus(docs: Document[]) {
   if (!docs.length) return "Pending";
-  const required = docs.filter(d => d.type === "GST" || d.type === "PAN");
-  return required.every(d => d.verification?.status === "Verified") ? "Verified" : "Pending";
+  const required = docs.filter((d: Document) => d.type === "GST" || d.type === "PAN");
+  return required.every((d: Document) => d.verification?.status === "Verified") ? "Verified" : "Pending";
 }
 
 export default function PlatformDashboard() {
@@ -110,7 +110,7 @@ export default function PlatformDashboard() {
       setFiltered(vendors);
     } else {
       const q = query.toLowerCase();
-      setFiltered(vendors.filter(v =>
+      setFiltered(vendors.filter((v: VendorRecord) =>
         v.businessName?.toLowerCase().includes(q) ||
         v.user.phone.includes(q) ||
         v.id.toLowerCase().includes(q)
@@ -118,7 +118,7 @@ export default function PlatformDashboard() {
     }
   }, [query, vendors]);
 
-  const verifiedCount = vendors.filter(v => getOverallStatus(v.documents) === "Verified").length;
+  const verifiedCount = vendors.filter((v: VendorRecord) => getOverallStatus(v.documents) === "Verified").length;
 
   const metrics = [
     { title: "Total Vendors", value: loading ? "-" : vendors.length.toString(), icon: Users, diff: "+12%" },
@@ -158,7 +158,7 @@ export default function PlatformDashboard() {
             timestamp: new Date().toISOString()
           }, null, 2)
         };
-        setWebhookLogs(prev => [newWebhook, ...prev].slice(0, 10));
+        setWebhookLogs((prev: any[]) => [newWebhook, ...prev].slice(0, 10));
 
         setSelectedDoc(null);
         setRejectionReason("");
@@ -372,7 +372,7 @@ export default function PlatformDashboard() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        apiKeys.map(key => (
+                        apiKeys.map((key: any) => (
                           <TableRow key={key.id}>
                             <TableCell className="font-medium">{key.name}</TableCell>
                             <TableCell className="font-mono text-xs">{key.key}</TableCell>
@@ -414,7 +414,7 @@ export default function PlatformDashboard() {
                       {webhookLogs.length === 0 ? (
                         <div className="text-center py-10 opacity-50">No webhooks sent yet. Verify a document to see activity.</div>
                       ) : (
-                        webhookLogs.map(log => (
+                        webhookLogs.map((log: any) => (
                           <div key={log.id} className="border-b border-border pb-2 last:border-0">
                             <div className="flex justify-between text-primary font-bold mb-1">
                               <span>POST /v1/webhooks/vendorflow</span>

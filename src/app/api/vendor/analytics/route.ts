@@ -40,16 +40,16 @@ export async function GET(request: Request) {
       end: new Date()
     });
 
-    const salesTrend = dailyInterval.map(day => {
+    const salesTrend = dailyInterval.map((day: Date) => {
       const dayStr = format(day, 'MMM dd');
-      const dayOrders = orders.filter(o => format(new Date(o.placedAt), 'MMM dd') === dayStr);
-      const revenue = dayOrders.reduce((acc, curr) => acc + curr.total, 0);
+      const dayOrders = orders.filter((o: any) => format(new Date(o.placedAt), 'MMM dd') === dayStr);
+      const revenue = dayOrders.reduce((acc: number, curr: any) => acc + curr.total, 0);
       return { day: dayStr, revenue, count: dayOrders.length };
     });
 
     // 3. Platform Distribution
     const platformDataMap: Record<string, { value: number, revenue: number }> = {};
-    orders.forEach(order => {
+    orders.forEach((order: any) => {
       const name = order.platform.displayName;
       if (!platformDataMap[name]) {
         platformDataMap[name] = { value: 0, revenue: 0 };
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
       platformDataMap[name].revenue += order.total;
     });
 
-    const platformDistribution = Object.entries(platformDataMap).map(([name, data]) => ({
+    const platformDistribution = Object.entries(platformDataMap).map(([name, data]: [string, any]) => ({
       name,
       ...data
     }));
@@ -66,14 +66,14 @@ export async function GET(request: Request) {
     // 4. Hourly Heatmap
     const hourlyDistribution = Array.from({ length: 24 }, (_, i) => ({
       hour: `${i === 0 ? 12 : i > 12 ? i - 12 : i}${i >= 12 ? 'PM' : 'AM'}`,
-      orders: orders.filter(o => new Date(o.placedAt).getHours() === i).length
+      orders: orders.filter((o: any) => new Date(o.placedAt).getHours() === i).length
     }));
 
     // 5. Overall KPIs
-    const totalRevenue = orders.reduce((acc, curr) => acc + curr.total, 0);
+    const totalRevenue = orders.reduce((acc: number, curr: any) => acc + curr.total, 0);
     const orderCount = orders.length;
     const aov = orderCount > 0 ? totalRevenue / orderCount : 0;
-    const itemsCount = orders.reduce((acc, curr) => acc + curr.items.length, 0);
+    const itemsCount = orders.reduce((acc: number, curr: any) => acc + curr.items.length, 0);
 
     return NextResponse.json({
       success: true,
@@ -90,7 +90,7 @@ export async function GET(request: Request) {
       }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[GET /api/vendor/analytics]', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
