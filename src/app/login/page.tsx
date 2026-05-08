@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, ArrowRight, ShieldCheck, RefreshCw, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 

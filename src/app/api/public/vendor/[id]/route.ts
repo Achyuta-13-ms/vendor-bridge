@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export async function GET(request: Request, context: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await context.params;
     const apiKeyHeader = request.headers.get("x-api-key");
     
     if (!apiKeyHeader) {
@@ -31,7 +32,7 @@ export async function GET(request: Request, context: { params: { id: string } })
     }).catch(console.error);
 
     const vendor = await prisma.vendor.findUnique({
-      where: { id: context.params.id },
+      where: { id },
       include: {
         documents: {
           include: {

@@ -347,7 +347,7 @@ export default function VendorDashboard() {
                             </div>
                             <div>
                               <p className="font-bold">{platform.displayName}</p>
-                              <Badge variant="ghost" className={cn("p-0 h-auto text-[10px] font-bold uppercase", isConnected ? "text-primary" : "text-muted-foreground")}>
+                              <Badge variant="outline" className={cn("p-0 h-auto text-[10px] font-bold uppercase border-0", isConnected ? "text-primary" : "text-muted-foreground")}>
                                 {isConnected ? "Active Bridge" : "Ready to Link"}
                               </Badge>
                             </div>

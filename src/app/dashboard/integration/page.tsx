@@ -128,7 +128,7 @@ export default function IntegrationPage() {
                     </div>
                     <div>
                       <CardTitle className="text-lg font-bold">{platform.displayName}</CardTitle>
-                      <Badge variant="ghost" className={cn("p-0 h-auto text-[10px] font-black uppercase", isConnected ? "text-primary" : "text-muted-foreground")}>
+                      <Badge variant="outline" className={cn("p-0 h-auto text-[10px] font-black uppercase border-0", isConnected ? "text-primary" : "text-muted-foreground")}>
                         {isConnected ? "Active Connection" : "Awaiting Bridge"}
                       </Badge>
                     </div>
