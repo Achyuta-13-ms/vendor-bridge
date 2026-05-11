@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
+import { put } from '@vercel/blob';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +19,25 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Use Vercel Blob if token is available (Production/Vercel)
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const blobPath = `${destPath}/${crypto.randomUUID()}${path.extname(file.name)}`;
+      
+      const blob = await put(blobPath, buffer, {
+        access: 'public',
+        contentType: file.type,
+      });
+
+      return NextResponse.json({
+        success: true,
+        url: blob.url,
+        fileName: file.name
+      });
+    }
+
+    // Local Development Fallback
+    console.log('BLOB_READ_WRITE_TOKEN not found, falling back to local filesystem');
+    
     // Ensure upload directory exists
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', destPath);
     await mkdir(uploadDir, { recursive: true });
