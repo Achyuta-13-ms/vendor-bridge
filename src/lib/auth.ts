@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
-import bcrypt from "bcryptjs";
+import { verifyOTP } from "@/lib/auth-utils";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -24,64 +24,13 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Email and OTP are required");
         }
 
-        const session = await prisma.otpSession.findUnique({
-          where: { identifier: credentials.email }
-        });
-
-        if (!session) {
-          throw new Error("No OTP request found. Please request a new one.");
+        try {
+          // Allow 30s window if it was already verified by the separate verify-otp API
+          const user = await verifyOTP(credentials.email, credentials.otp, { skipUsedCheckWindow: 30000 });
+          return user;
+        } catch (error: any) {
+          throw new Error(error.message || "Invalid verification code.");
         }
-
-        if (session.isUsed) {
-          throw new Error("This OTP has already been used.");
-        }
-
-        if (session.expiresAt < new Date()) {
-          throw new Error("OTP expired. Please request a new one.");
-        }
-
-        if (session.attempts >= 5) {
-          throw new Error("Too many attempts. Please request a new OTP.");
-        }
-
-        // Verify OTP hash
-        const isValid = await bcrypt.compare(credentials.otp, session.code);
-
-        // Increment attempt
-        await prisma.otpSession.update({
-          where: { id: session.id },
-          data: { 
-            attempts: { increment: 1 },
-            lastAttemptAt: new Date()
-          }
-        });
-
-        if (!isValid) {
-          throw new Error("Invalid verification code.");
-        }
-
-        // Mark as used
-        await prisma.otpSession.update({
-          where: { id: session.id },
-          data: { isUsed: true }
-        });
-
-        // Upsert user
-        let user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        });
-
-        if (!user) {
-          user = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              name: credentials.email.split('@')[0],
-              role: "VENDOR"
-            }
-          });
-        }
-
-        return user;
       }
     })
   ],

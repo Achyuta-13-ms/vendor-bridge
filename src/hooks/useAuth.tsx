@@ -1,7 +1,8 @@
 "use client";
 
-import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
+import { useSession, signOut as nextAuthSignOut, signIn as nextAuthSignIn } from "next-auth/react";
 import { createContext, useContext, ReactNode } from "react";
+import axios from "axios";
 
 export interface User {
   id: string;
@@ -40,7 +41,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async () => ({ error: new Error("Not implemented") });
   const signIn = async () => ({ error: new Error("Not implemented") });
   const signInWithOtp = async () => ({ error: new Error("Not implemented") });
-  const verifyOtp = async () => ({ error: new Error("Not implemented") });
+  const verifyOtp = async (email: string, otp: string) => {
+    try {
+      // 1. Verify via the dedicated API route as requested
+      const res = await axios.post("/api/auth/verify-otp", { email, otp });
+      
+      if (res.data.success) {
+        // 2. Establish a NextAuth session using the credentials provider
+        const signInResult = await nextAuthSignIn("credentials", {
+          email,
+          otp,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          return { error: new Error(signInResult.error) };
+        }
+
+        // 3. Store in localStorage for compatibility with existing signup logic
+        const userData = res.data.user;
+        localStorage.setItem("vendorSession", JSON.stringify(userData));
+        
+        return { success: true, user: userData, error: null };
+      }
+      return { error: new Error(res.data.message || "Verification failed") };
+    } catch (error: any) {
+      return { error: new Error(error.response?.data?.message || error.message || "Verification failed") };
+    }
+  };
 
   return (
     <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signInWithOtp, verifyOtp, signOut }}>
