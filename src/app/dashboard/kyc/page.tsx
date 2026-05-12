@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { 
   ShieldCheck, 
@@ -18,30 +20,74 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+const DEMO_KYC_VENDOR = {
+  id: "v-demo-kyc",
+  documents: [
+    { type: "GST", verification: { status: "Verified" } },
+    { type: "PAN", verification: { status: "Verified" } },
+    { type: "BANK", verification: { status: "Pending" } }
+  ]
+};
+
 export default function KYCPage() {
+  const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
+  
   const [vendor, setVendor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      fetchVendor(session.id);
+    if (authStatus === "unauthenticated") {
+      router.push("/login");
+    } else if (authStatus === "authenticated" && (session?.user as any)?.id) {
+      fetchVendor((session?.user as any).id);
     }
-  }, []);
+
+    // Safety timeout
+    const timer = setTimeout(() => {
+      if (loading && !vendor) {
+        setLoading(false);
+        setVendor(DEMO_KYC_VENDOR);
+        setIsDemo(true);
+      }
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [authStatus, session]);
 
   const fetchVendor = async (userId: string) => {
+    setLoading(true);
     try {
       const res = await axios.get(`/api/vendor?userId=${userId}`);
-      if (res.data.success) setVendor(res.data.vendor);
+      if (res.data.success && res.data.vendor) {
+        setVendor(res.data.vendor);
+        setIsDemo(false);
+      } else {
+        setVendor(DEMO_KYC_VENDOR);
+        setIsDemo(true);
+      }
     } catch (err) {
       console.error("KYC fetch error:", err);
+      setVendor(DEMO_KYC_VENDOR);
+      setIsDemo(true);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading || !vendor) return <div className="p-10 animate-pulse bg-muted/20 h-screen" />;
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center h-[50vh]">
+        <div className="flex flex-col items-center gap-4">
+          <ShieldCheck className="h-10 w-10 text-primary animate-pulse" />
+          <p className="text-muted-foreground animate-pulse font-medium">Verifying Document Status...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!vendor) return <div className="p-10 animate-pulse bg-muted/20 h-screen" />;
 
   const getDocStatus = (type: string) => {
     const doc = vendor.documents.find((d: any) => d.type === type);
@@ -86,7 +132,14 @@ export default function KYCPage() {
             <ShieldCheck className="h-10 w-10 text-primary" />
             KYC Verification
           </h1>
-          <p className="text-muted-foreground font-medium italic">Authentication required for marketplace bridge activation.</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-muted-foreground font-medium italic">Authentication required for marketplace bridge activation.</p>
+            {isDemo && (
+              <Badge variant="secondary" className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] animate-pulse">
+                DEMO MODE
+              </Badge>
+            )}
+          </div>
         </div>
         <Badge variant="outline" className="h-8 px-4 font-bold bg-primary/5 border-primary/20 text-primary uppercase tracking-widest">
             Level 1 Standard

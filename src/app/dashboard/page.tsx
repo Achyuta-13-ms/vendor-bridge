@@ -41,6 +41,23 @@ interface VendorProfile {
   documents: DocRecord[];
 }
 
+const DEMO_OVERVIEW_VENDOR: VendorProfile = {
+  id: "v-demo-ov",
+  businessName: "Sharma Kirana Store",
+  businessType: "RETAIL",
+  city: "Mumbai",
+  state: "Maharashtra",
+  status: "ACTIVE",
+  phone: "+91 98765 43210",
+  email: "sharma@demo.in",
+  createdAt: new Date().toISOString(),
+  documents: [
+    { id: "d1", type: "GST", url: "#", verification: { status: "Verified" } },
+    { id: "d2", type: "PAN", url: "#", verification: { status: "Verified" } },
+    { id: "d3", type: "BANK", url: "#", verification: { status: "Verified" } },
+  ]
+};
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function computeProgress(vendor: VendorProfile | null): number {
@@ -153,6 +170,16 @@ export default function DashboardHome() {
   useEffect(() => {
     if (authStatus === "unauthenticated") { router.push("/login"); return; }
     if (authStatus === "authenticated") fetchVendor();
+
+    // Safety timeout
+    const timer = setTimeout(() => {
+      if (loading && !vendor) {
+        setLoading(false);
+        setVendor(DEMO_OVERVIEW_VENDOR);
+      }
+    }, 4000);
+
+    return () => clearTimeout(timer);
   }, [authStatus]);
 
   if (authStatus === "loading" || loading) {

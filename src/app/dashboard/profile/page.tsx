@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { 
   User, 
@@ -17,31 +19,83 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+
+const DEMO_VENDOR = {
+  id: "v-demo-88",
+  businessName: "Founder's Choice Foods",
+  businessType: "RETAIL",
+  city: "Bangalore",
+  state: "Karnataka",
+  addressLine1: "12, Indiranagar 100ft Rd",
+  status: "ACTIVE",
+  createdAt: new Date().toISOString(),
+  user: {
+    email: "founder@vypaarsetu.in",
+    phone: "+91 99887 76655"
+  }
+};
 
 export default function ProfilePage() {
+  const { toast } = useToast();
+  const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
+  
   const [vendor, setVendor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      fetchVendor(session.id);
+    if (authStatus === "unauthenticated") {
+      router.push("/login");
+    } else if (authStatus === "authenticated" && (session?.user as any)?.id) {
+      fetchVendor((session?.user as any).id);
     }
-  }, []);
+
+    // Safety timeout
+    const timer = setTimeout(() => {
+      if (loading && !vendor) {
+        setLoading(false);
+        setVendor(DEMO_VENDOR);
+        setIsDemo(true);
+      }
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [authStatus, session]);
 
   const fetchVendor = async (userId: string) => {
+    setLoading(true);
     try {
       const res = await axios.get(`/api/vendor?userId=${userId}`);
-      if (res.data.success) setVendor(res.data.vendor);
+      if (res.data.success && res.data.vendor) {
+        setVendor(res.data.vendor);
+        setIsDemo(false);
+      } else {
+        setVendor(DEMO_VENDOR);
+        setIsDemo(true);
+      }
     } catch (err) {
       console.error("Profile fetch error:", err);
+      setVendor(DEMO_VENDOR);
+      setIsDemo(true);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading || !vendor) return <div className="p-10 animate-pulse bg-muted/20 h-screen" />;
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center justify-center h-[50vh]">
+        <div className="flex flex-col items-center gap-4">
+          <User className="h-10 w-10 text-primary animate-pulse" />
+          <p className="text-muted-foreground animate-pulse font-medium">Loading Identity Profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!vendor) return <div className="p-10 animate-pulse bg-muted/20 h-screen" />;
 
   return (
     <motion.div 
@@ -66,7 +120,7 @@ export default function ProfilePage() {
             </div>
           </CardContent>
           <CardFooter className="border-t border-muted/50 p-4">
-            <Button variant="ghost" className="w-full gap-2 font-bold">
+            <Button variant="ghost" className="w-full gap-2 font-bold" onClick={() => toast({ title: "Coming Soon", description: "Profile editing is currently being optimized for the demo." })}>
               <Edit2 className="h-4 w-4" /> Edit Profile
             </Button>
           </CardFooter>

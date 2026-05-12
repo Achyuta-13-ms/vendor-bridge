@@ -89,7 +89,6 @@ export function DashboardSidebar({ isMobile }: { isMobile?: boolean }) {
   const bottomItems = [
     { icon: UserIcon, label: "My Profile", href: "/dashboard/profile" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    { icon: HelpCircle, label: "Support", href: "#" },
   ];
 
   return (

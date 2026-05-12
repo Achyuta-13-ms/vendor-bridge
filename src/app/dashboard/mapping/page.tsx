@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { 
   Link, 
@@ -44,12 +46,43 @@ interface UnmappedItem {
   suggestedExternalId: string;
 }
 
+const DEMO_MAPPINGS = [
+  {
+    id: "p1", name: "Classic Cheese Pizza", sku: "PIZ-001",
+    platformMappings: [
+      { id: "m1", externalId: "SW-9921", platform: { displayName: "Swiggy" } },
+      { id: "m2", externalId: "ZO-1102", platform: { displayName: "Zomato" } }
+    ]
+  },
+  {
+    id: "p2", name: "Farmhouse Delight", sku: "PIZ-002",
+    platformMappings: [
+      { id: "m3", externalId: "AMZ-FOOD-22", platform: { displayName: "Amazon Food" } }
+    ]
+  },
+  {
+    id: "p3", name: "Garlic Breadsticks", sku: "SID-001",
+    platformMappings: []
+  }
+];
+
+const DEMO_PLATFORMS = [
+  { id: "pl1", displayName: "Swiggy" },
+  { id: "pl2", displayName: "Zomato" },
+  { id: "pl3", displayName: "Amazon Food" },
+  { id: "pl4", displayName: "ONDC (Magicpin)" },
+];
+
 export default function MappingPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [platforms, setPlatforms] = useState<any[]>([]);
   const [unmappedItems, setUnmappedItems] = useState<UnmappedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
   const [search, setSearch] = useState("");
   const [userId, setUserId] = useState<string>("");
 
@@ -61,25 +94,50 @@ export default function MappingPage() {
   });
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      setUserId(session.id);
-      fetchData(session.id);
+    if (authStatus === "unauthenticated") {
+      router.push("/login");
+    } else if (authStatus === "authenticated" && (session?.user as any)?.id) {
+      const uid = (session?.user as any).id;
+      setUserId(uid);
+      fetchData(uid);
     }
-  }, []);
+
+    // Safety timeout
+    const timer = setTimeout(() => {
+      if (loading) {
+        setLoading(false);
+        if (products.length === 0) {
+          setProducts(DEMO_MAPPINGS as any);
+          setPlatforms(DEMO_PLATFORMS);
+          setIsDemo(true);
+        }
+      }
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [authStatus, session]);
 
   const fetchData = async (uid: string) => {
     setLoading(true);
     try {
       const res = await axios.get(`/api/vendor/mapping?userId=${uid}`);
       if (res.data.success) {
-        setProducts(res.data.products);
-        setPlatforms(res.data.platforms);
-        setUnmappedItems(res.data.unmappedItems);
+        if (res.data.products.length > 0) {
+          setProducts(res.data.products);
+          setPlatforms(res.data.platforms);
+          setUnmappedItems(res.data.unmappedItems);
+          setIsDemo(false);
+        } else {
+          setProducts(DEMO_MAPPINGS as any);
+          setPlatforms(DEMO_PLATFORMS);
+          setIsDemo(true);
+        }
       }
     } catch (err) {
       console.error("Mapping fetch error:", err);
+      setProducts(DEMO_MAPPINGS as any);
+      setPlatforms(DEMO_PLATFORMS);
+      setIsDemo(true);
     } finally {
       setLoading(false);
     }
@@ -129,7 +187,14 @@ export default function MappingPage() {
             <ArrowLeftRight className="h-8 w-8 text-primary" />
             Catalog Alignment
           </h1>
-          <p className="text-muted-foreground font-medium">Link master inventory to marketplace-specific external IDs.</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-muted-foreground font-medium">Link master inventory to marketplace-specific external IDs.</p>
+            {isDemo && (
+              <Badge variant="secondary" className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] animate-pulse">
+                DEMO MODE
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
 
