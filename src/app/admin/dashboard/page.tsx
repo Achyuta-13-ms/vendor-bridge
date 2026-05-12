@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Users, Clock, CheckCircle2, XCircle, RefreshCw, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -160,6 +161,47 @@ export default function AdminDashboard() {
           </Card>
         </motion.div>
       )}
+
+      {/* Recent Activity */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="space-y-4"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold tracking-tight">Recent Activity</h2>
+          <Button variant="ghost" size="sm" className="text-xs text-primary" onClick={() => router.push("/admin/verifications")}>
+            View all verifications
+          </Button>
+        </div>
+        
+        <Card className="border-none shadow-sm overflow-hidden">
+          <div className="divide-y">
+            {[
+              { type: "Vendor Signup", name: "Modern Retailers", time: "2m ago", status: "PENDING" },
+              { type: "Doc Upload", name: "Global Exports", time: "15m ago", status: "ACTIVE" },
+              { type: "Verification", name: "Sunrise Foods", time: "1h ago", status: "ACTIVE" },
+            ].map((activity, i) => (
+              <div key={i} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <RefreshCw className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">{activity.name}</p>
+                    <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">{activity.type}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-medium">{activity.time}</p>
+                  <Badge variant="outline" className="text-[9px] h-4 uppercase">{activity.status}</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </motion.div>
     </div>
   );
 }

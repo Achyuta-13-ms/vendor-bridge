@@ -45,15 +45,30 @@ export default function KYCPage() {
 
   const getDocStatus = (type: string) => {
     const doc = vendor.documents.find((d: any) => d.type === type);
-    return doc?.verification?.status ?? "Pending Upload";
+    const status = doc?.verification?.status ?? "Pending Upload";
+    
+    if (status.toLowerCase() === "verified") {
+      if (type === "GST" || type === "PAN") return "Format Verified";
+      return "Verified";
+    }
+    if (status.toLowerCase() === "pending" && doc) {
+      return "Under Review";
+    }
+    return status;
   };
 
   const statusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case "verified": return "text-emerald-500 bg-emerald-500/10";
-      case "pending": return "text-amber-500 bg-amber-500/10";
-      case "rejected": return "text-red-500 bg-red-500/10";
-      default: return "text-muted-foreground bg-muted";
+      case "verified":
+      case "format verified": 
+        return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+      case "pending":
+      case "under review": 
+        return "text-amber-500 bg-amber-500/10 border-amber-500/20";
+      case "rejected": 
+        return "text-red-500 bg-red-500/10 border-red-500/20";
+      default: 
+        return "text-muted-foreground bg-muted border-transparent";
     }
   };
 

@@ -59,35 +59,59 @@ function computeProgress(vendor: VendorProfile | null): number {
 function getDocStatus(vendor: VendorProfile | null, type: string) {
   const doc = vendor?.documents.find((d: DocRecord) => d.type === type);
   if (!doc) return "not_uploaded";
-  return (doc.verification?.status ?? "PENDING").toLowerCase();
+  const status = (doc.verification?.status ?? "PENDING").toLowerCase();
+  
+  if (status === "verified") {
+    if (type === "GST" || type === "PAN") return "format verified";
+    return "verified";
+  }
+  if (status === "pending") return "under review";
+  return status;
 }
 
 function getNextAction(vendor: VendorProfile | null): { label: string; href: string; icon: any } | null {
   if (!vendor) return { label: "Complete onboarding to get started", href: "/onboarding", icon: Building2 };
   const missing = ["GST", "PAN", "BANK"].filter((t: string) => !vendor.documents.find((d: DocRecord) => d.type === t));
   if (missing.length > 0) return { label: `Upload missing documents: ${missing.join(", ")}`, href: "/onboarding", icon: Upload };
-  const pending = vendor.documents.filter((d: DocRecord) => (d.verification?.status ?? "PENDING") === "PENDING");
-  if (pending.length > 0) return { label: "Awaiting document verification by our team", href: "#", icon: Clock };
+  
+  const status = vendor.status.toLowerCase();
+  if (status === "pending") return { label: "Awaiting document verification by our team", href: "#", icon: Clock };
+  
   const rejected = vendor.documents.filter((d: DocRecord) => d.verification?.status === "REJECTED");
   if (rejected.length > 0) return { label: "Some documents were rejected — re-upload required", href: "/onboarding", icon: AlertCircle };
   return null;
 }
 
 const statusStyles = (s: string) => {
-  switch (s) {
-    case "verified": return "text-emerald-600 bg-emerald-500/10 border-emerald-500/20";
-    case "pending":  return "text-amber-600 bg-amber-500/10 border-amber-500/20";
-    case "rejected": return "text-red-600 bg-red-500/10 border-red-500/20";
-    default:         return "text-muted-foreground bg-muted border-transparent";
+  switch (s.toLowerCase()) {
+    case "verified": 
+    case "active":
+    case "format verified":
+      return "text-emerald-600 bg-emerald-500/10 border-emerald-500/20";
+    case "pending":  
+    case "under review":
+      return "text-amber-600 bg-amber-500/10 border-amber-500/20";
+    case "rejected": 
+      return "text-red-600 bg-red-500/10 border-red-500/20";
+    default:         
+      return "text-muted-foreground bg-muted border-transparent";
   }
 };
 
 const statusIcon = (s: string) => {
-  switch (s) {
-    case "verified": return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
-    case "pending":  return <Clock className="h-4 w-4 text-amber-500" />;
-    case "rejected": return <AlertCircle className="h-4 w-4 text-red-500" />;
-    default:         return <Upload className="h-4 w-4 text-muted-foreground" />;
+  const status = s.toLowerCase();
+  switch (status) {
+    case "verified":
+    case "active":
+    case "format verified":
+      return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+    case "pending":
+    case "under review":
+      return <Clock className="h-4 w-4 text-amber-500" />;
+    case "rejected": 
+      return <AlertCircle className="h-4 w-4 text-red-500" />;
+    default:         
+      return <Upload className="h-4 w-4 text-muted-foreground" />;
   }
 };
 
@@ -174,9 +198,16 @@ export default function DashboardHome() {
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             {vendor?.businessName ? `Welcome, ${vendor.businessName}` : "Welcome!"}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {session?.user?.email}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-1">
+            <p className="text-sm text-muted-foreground">
+              {session?.user?.email}
+            </p>
+            {vendor && (
+              <Badge className={cn("text-[9px] uppercase font-bold tracking-widest h-5", statusStyles(vendor.status === "ACTIVE" ? "verified" : "under review"))}>
+                {vendor.status === "ACTIVE" ? "Verified" : "Under Review"}
+              </Badge>
+            )}
+          </div>
         </div>
         <Button
           variant="outline"
@@ -187,6 +218,49 @@ export default function DashboardHome() {
           <LogOut className="h-3.5 w-3.5" /> Sign out
         </Button>
       </div>
+
+      {/* ── Marketplace Ready Card ── */}
+      {vendor?.status === "ACTIVE" && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="border-emerald-500/30 bg-emerald-500/5 shadow-xl overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+              <BadgeCheck className="h-24 w-24 text-emerald-500" />
+            </div>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2 text-emerald-600">
+                <Sparkles className="h-5 w-5 animate-pulse" />
+                <CardTitle className="text-base font-black uppercase tracking-widest">Marketplace Ready</CardTitle>
+              </div>
+              <CardDescription className="text-emerald-700/70 font-medium">
+                Your profile is verified and synchronized. You can now bridge to any marketplace.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+               <div className="bg-background/80 dark:bg-black/20 rounded-xl p-3 border border-emerald-500/10 flex items-center justify-between gap-3 shadow-sm">
+                 <div className="flex items-center gap-2 min-w-0">
+                   <Globe className="h-4 w-4 text-emerald-600 shrink-0" />
+                   <p className="text-xs font-mono truncate text-muted-foreground">vypaar.setu/{vendor.id.substring(0, 8)}</p>
+                 </div>
+                 <Button 
+                   size="sm" 
+                   variant="secondary" 
+                   className="h-8 text-xs font-bold text-emerald-700 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 shrink-0" 
+                   onClick={() => {
+                     navigator.clipboard.writeText(`https://vypaarsetu.com/profile/${vendor.id}`);
+                     toast({ title: "Link Copied!", description: "Share your business profile with anyone." });
+                   }}
+                 >
+                   Copy Link
+                 </Button>
+               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* ── Next Action Banner ── */}
       {nextAction && (
