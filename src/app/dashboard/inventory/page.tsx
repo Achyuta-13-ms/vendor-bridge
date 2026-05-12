@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { 
   Package, 
@@ -66,10 +68,22 @@ interface Product {
   platformMappings?: any[];
 }
 
+const DEMO_PRODUCTS: Product[] = [
+  { id: "demo-1", name: "Premium Basmati Rice", sku: "RIC-001", price: 749, stock: 45, lowStockLevel: 10, isActive: true, category: "Grains", platformMappings: [{id: 'm1', platform: {displayName: 'Swiggy'}}] },
+  { id: "demo-2", name: "Organic Cold Pressed Oil", sku: "OIL-002", price: 599, stock: 12, lowStockLevel: 15, isActive: true, category: "Groceries", platformMappings: [{id: 'm2', platform: {displayName: 'Zomato'}}] },
+  { id: "demo-3", name: "Farm Fresh Honey (500g)", sku: "HNY-003", price: 349, stock: 0, lowStockLevel: 5, isActive: true, category: "Food", platformMappings: [{id: 'm3', platform: {displayName: 'Amazon'}}] },
+  { id: "demo-4", name: "Artisanal Wheat Flour", sku: "WHT-004", price: 420, stock: 85, lowStockLevel: 20, isActive: true, category: "Grains", platformMappings: [] },
+  { id: "demo-5", name: "Masala Chai Blend", sku: "TEA-005", price: 180, stock: 150, lowStockLevel: 25, isActive: true, category: "Beverages", platformMappings: [{id: 'm4', platform: {displayName: 'Shopify'}}] },
+];
+
 export default function InventoryPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
   const [search, setSearch] = useState("");
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [userId, setUserId] = useState<string>("");
@@ -85,21 +99,45 @@ export default function InventoryPage() {
   });
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      setUserId(session.id);
-      fetchProducts(session.id);
+    if (authStatus === "unauthenticated") {
+      router.push("/login");
+    } else if (authStatus === "authenticated" && (session?.user as any)?.id) {
+      const uid = (session?.user as any).id;
+      setUserId(uid);
+      fetchProducts(uid);
     }
-  }, []);
+    
+    // Safety timeout to prevent infinite loading
+    const timer = setTimeout(() => {
+      if (loading) {
+        setLoading(false);
+        if (products.length === 0) {
+          setProducts(DEMO_PRODUCTS);
+          setIsDemo(true);
+        }
+      }
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [authStatus, session]);
 
   const fetchProducts = async (uid: string) => {
     setLoading(true);
     try {
       const res = await axios.get(`/api/vendor/products?userId=${uid}`);
-      if (res.data.success) setProducts(res.data.products);
+      if (res.data.success) {
+        if (res.data.products.length > 0) {
+          setProducts(res.data.products);
+          setIsDemo(false);
+        } else {
+          setProducts(DEMO_PRODUCTS);
+          setIsDemo(true);
+        }
+      }
     } catch (err) {
       console.error("Fetch products error:", err);
+      setProducts(DEMO_PRODUCTS);
+      setIsDemo(true);
     } finally {
       setLoading(false);
     }
@@ -182,7 +220,14 @@ export default function InventoryPage() {
             <Package className="h-8 w-8 text-primary" />
             Inventory Control
           </h1>
-          <p className="text-muted-foreground font-medium">Master catalog and cross-platform stock management.</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-muted-foreground font-medium">Master catalog and cross-platform stock management.</p>
+            {isDemo && (
+              <Badge variant="secondary" className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] animate-pulse">
+                DEMO MODE
+              </Badge>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
