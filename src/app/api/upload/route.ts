@@ -17,6 +17,24 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validation
+    const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json(
+        { success: false, message: "File too large. Please upload a file under 4 MB." },
+        { status: 400 }
+      );
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid file type. Please upload a PDF, JPG, or PNG." },
+        { status: 400 }
+      );
+    }
+
     const safePath = destPath.replace(/[^a-zA-Z0-9-_]/g, "_");
     const ext = file.name.includes(".")
       ? file.name.substring(file.name.lastIndexOf("."))

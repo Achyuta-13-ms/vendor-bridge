@@ -24,6 +24,22 @@ export function FileUpload({ onUpload, accept = ".pdf,.jpg,.png", className, lab
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const processFile = useCallback(async (file: File) => {
+    // Client-side validation
+    const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+
+    if (file.size > MAX_SIZE) {
+      setStatus("error");
+      setErrorMessage("File too large. Please upload a file under 4 MB.");
+      return;
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setStatus("error");
+      setErrorMessage("Invalid file type. Please upload a PDF, JPG, or PNG.");
+      return;
+    }
+
     setFile(file);
     setStatus("uploading");
     setProgress(0);
@@ -155,23 +171,6 @@ export function FileUpload({ onUpload, accept = ".pdf,.jpg,.png", className, lab
               {status === "error" ? errorMessage : "Drag and drop or click to browse"}
             </p>
             
-            {status !== "error" && (
-              <Button 
-                type="button"
-                variant="ghost" 
-                size="sm" 
-                className="mt-4 text-[10px] uppercase font-black tracking-widest text-primary/40 hover:text-primary transition-all underline underline-offset-4"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpload(`https://mock-storage.vypaar.tech/simulated/${path}/${Date.now()}.png`);
-                  setFile(new File([""], "simulated_upload.png", { type: "image/png" }));
-                  setStatus("success");
-                }}
-              >
-                Simulate Upload
-              </Button>
-            )}
-
             {status === "error" && (
               <Button 
                 type="button"
