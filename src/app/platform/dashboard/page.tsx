@@ -177,7 +177,7 @@ export default function PlatformDashboard() {
       {/* Sidebar */}
       <aside className="w-64 border-r bg-background hidden md:flex flex-col">
         <div className="p-6">
-          <h2 className="font-bold text-2xl text-primary tracking-tight">VendorFlow</h2>
+          <h2 className="font-bold text-2xl text-primary tracking-tight">VyapaarSetu</h2>
           <p className="text-xs text-muted-foreground mt-0.5">Platform Console</p>
         </div>
         <nav className="flex-1 px-4 space-y-1">
@@ -417,7 +417,7 @@ export default function PlatformDashboard() {
                         webhookLogs.map((log: any) => (
                           <div key={log.id} className="border-b border-border pb-2 last:border-0">
                             <div className="flex justify-between text-primary font-bold mb-1">
-                              <span>POST /v1/webhooks/vendorflow</span>
+                              <span>POST /v1/webhooks/vyapaarsetu</span>
                               <span>{log.time}</span>
                             </div>
                             <div className="text-foreground">Event: {log.event}</div>

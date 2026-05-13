@@ -140,7 +140,7 @@ export default function OutboundSimulator() {
             </CardContent>
             <CardFooter className="border-t border-green-500/20 py-3 bg-neutral-900">
                <div className="flex items-center justify-between w-full text-[10px] text-green-700">
-                  <span>VendorFlow_Outbound_Hub v1.0</span>
+                  <span>VyapaarSetu_Outbound_Hub v1.0</span>
                   <span>{events.length} EVENTS RECORDED</span>
                </div>
             </CardFooter>
@@ -191,7 +191,7 @@ export default function OutboundSimulator() {
                         <ShieldCheck className="h-3 w-3" /> Security Headers
                        </h4>
                        <div className="bg-neutral-900 p-4 rounded-xl text-[11px] font-mono text-blue-400 overflow-x-auto">
-                          <p>X-VendorFlow-Signature: <span className="text-emerald-400">{selectedEvent.signature || 'NONE_UNSIGNED'}</span></p>
+                          <p>X-VyapaarSetu-Signature: <span className="text-emerald-400">{selectedEvent.signature || 'NONE_UNSIGNED'}</span></p>
                           <p>User-Agent: axios/1.6.8</p>
                           <p>Connection: keep-alive</p>
                        </div>
@@ -217,7 +217,7 @@ export default function OutboundSimulator() {
                 <div>
                   <h3 className="text-xl font-bold">Simulator Integration Required</h3>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto mt-2">
-                    to see how VendorFlow synchronizes with external platforms, you must first register this simulator endpoint in your developer console. 
+                    to see how VyapaarSetu synchronizes with external platforms, you must first register this simulator endpoint in your developer console. 
                   </p>
                 </div>
                 <div className="w-full max-w-sm space-y-3">

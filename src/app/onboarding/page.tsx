@@ -266,7 +266,7 @@ export default function OnboardingPage() {
             <ShieldCheck className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight">VendorFlow</h1>
+            <h1 className="text-xl font-extrabold tracking-tight">VyapaarSetu</h1>
             <p className="text-xs text-muted-foreground">Vendor Onboarding</p>
           </div>
         </div>

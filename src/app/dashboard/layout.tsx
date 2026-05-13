@@ -21,7 +21,7 @@ export default function DashboardLayout({
               <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center">
                 <ShieldCheck className="h-5 w-5 text-primary" />
               </div>
-              <span className="font-bold text-lg tracking-tight">VendorFlow</span>
+              <span className="font-bold text-lg tracking-tight">VyapaarSetu</span>
             </div>
             <Sheet>
               <SheetTrigger asChild>
@@ -47,7 +47,7 @@ export default function DashboardLayout({
                 <span>Secured with 256-bit encryption</span>
               </div>
               <p className="text-xs text-muted-foreground">
-                © {new Date().getFullYear()} VendorFlow. All rights reserved.
+                © {new Date().getFullYear()} VyapaarSetu. All rights reserved.
               </p>
             </div>
           </footer>

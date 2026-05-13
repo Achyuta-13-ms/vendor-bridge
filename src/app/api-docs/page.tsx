@@ -239,14 +239,14 @@ export default function ApiDocsPage() {
               <Key className="h-3 w-3" /> API Reference — v1.0
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-              VendorFlow API Documentation
+              VyapaarSetu API Documentation
             </h1>
             <p className="text-sm text-muted-foreground max-w-xl mx-auto">
               Everything you need to integrate vendor KYC verification into your marketplace.
               RESTful, JSON-based, and built for production.
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
-              <Badge variant="secondary" className="font-mono">Base URL: https://api.vendorflow.in/v1</Badge>
+              <Badge variant="secondary" className="font-mono">Base URL: https://api.vyapaarsetu.in/v1</Badge>
               <Badge variant="outline">REST · JSON</Badge>
             </div>
           </div>

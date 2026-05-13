@@ -25,7 +25,7 @@ const features = [
   },
   {
     title: "Reusable Virtual Vendor IDs",
-    desc: "Once a vendor is verified on VendorFlow, they receive a unique, secure ID. They can use this ID to instantly onboard with any marketplace in our ecosystem.",
+    desc: "Once a vendor is verified on VyapaarSetu, they receive a unique, secure ID. They can use this ID to instantly onboard with any marketplace in our ecosystem.",
     icon: BadgeCheck,
     color: "bg-emerald-500/10 text-emerald-600",
   },
@@ -66,7 +66,7 @@ export default function FeaturesPage() {
               <span className="text-primary">Modern Marketplaces</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-              VendorFlow provides the technical backbone for vendor onboarding, 
+              VyapaarSetu provides the technical backbone for vendor onboarding, 
               compliance, and identity verification at scale.
             </p>
             <div className="flex justify-center gap-4">
@@ -133,7 +133,7 @@ export default function FeaturesPage() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
             <h2 className="text-3xl font-bold mb-4 relative z-10">Start scaling your marketplace today</h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto relative z-10">
-              Join 200+ leading platforms that trust VendorFlow for their compliance infrastructure.
+              Join 200+ leading platforms that trust VyapaarSetu for their compliance infrastructure.
             </p>
             <Link href="/login">
               <Button size="lg" variant="secondary" className="h-12 px-8 font-bold relative z-10">

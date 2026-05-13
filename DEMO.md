@@ -1,6 +1,6 @@
-# VendorFlow Demo Environment
+# VyapaarSetu Demo Environment
 
-This document provides instructions for setting up and exploring the VendorFlow demo environment.
+This document provides instructions for setting up and exploring the VyapaarSetu demo environment.
 
 ## 🚀 Setup Instructions
 
@@ -19,7 +19,7 @@ This command will:
 
 | Role | Email | OTP |
 | :--- | :--- | :--- |
-| **Admin** | `admin@vendorflow.demo` | `123456` |
+| **Admin** | `admin@vyapaarsetu.demo` | `123456` |
 | **Vendor (Verified)** | `vendor1@demo.in` | `123456` |
 | **Vendor (Pending)** | `vendor5@demo.in` | `123456` |
 | **Vendor (Rejected)** | `vendor8@demo.in` | `123456` |
@@ -29,7 +29,7 @@ This command will:
 ## 🛠️ Testing Checklist
 
 ### Admin Workflow
-- [ ] Log in as `admin@vendorflow.demo`.
+- [ ] Log in as `admin@vyapaarsetu.demo`.
 - [ ] View the dashboard metrics (staggered animations).
 - [ ] Navigate to **Verifications**.
 - [ ] Search for "Kirana" or "Gupta".
@@ -41,7 +41,7 @@ This command will:
 - [ ] Log in as `vendor1@demo.in`.
 - [ ] View the polished dashboard with analytics and status timeline.
 - [ ] Check the **Inventory** section to see pre-populated demo products.
-- [ ] Observe the "Verified by VendorFlow" badges.
+- [ ] Observe the "Verified by VyapaarSetu" badges.
 
 ## 📂 Demo Assets
 Realistic placeholder documents are located in `/public/demo/`:

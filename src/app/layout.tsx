@@ -12,8 +12,8 @@ import { NextAuthProvider } from '@/components/providers/next-auth-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'VendorFlow',
-  description: 'Vendor onboarding infrastructure for marketplaces',
+  title: 'VyapaarSetu',
+  description: 'Vendor onboarding infrastructure for marketplaces, hyperlocal delivery startups, and ONDC ecosystems.',
   icons: {
     icon: '/favicon.svg',
   },

@@ -11,7 +11,7 @@ const Footer = () => (
             <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
               <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">VendorFlow</span>
+            <span className="text-xl font-bold tracking-tight text-foreground">VyapaarSetu</span>
           </Link>
           <p className="text-muted-foreground leading-relaxed">
             The modern infrastructure for vendor onboarding in India. 
@@ -57,7 +57,7 @@ const Footer = () => (
           <div className="space-y-4">
             <div className="flex items-center gap-3 text-muted-foreground">
               <Mail className="h-4 w-4" />
-              <span>founders@vendorflow.in</span>
+              <span>founders@vyapaarsetu.in</span>
             </div>
             <div className="pt-4 border-t border-border/50">
               <p className="text-sm font-bold text-foreground mb-2">Build in India 🇮🇳</p>
@@ -72,7 +72,7 @@ const Footer = () => (
 
       <div className="pt-10 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
         <p className="text-xs text-muted-foreground order-2 md:order-1">
-          © {new Date().getFullYear()} VendorFlow Technologies Pvt. Ltd. All rights reserved.
+          © {new Date().getFullYear()} VyapaarSetu Technologies Pvt. Ltd. All rights reserved.
         </p>
         <div className="flex items-center gap-8 order-1 md:order-2">
           <Link href="/privacy" className="text-xs text-muted-foreground hover:text-primary">Privacy Policy</Link>

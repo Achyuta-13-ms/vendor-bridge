@@ -110,7 +110,7 @@ export function DashboardSidebar({ isMobile }: { isMobile?: boolean }) {
             <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center">
               <ShieldCheck className="h-5 w-5 text-primary" />
             </div>
-            <span className="font-bold text-lg tracking-tight">VendorFlow</span>
+            <span className="font-bold text-lg tracking-tight">VyapaarSetu</span>
           </motion.div>
         )}
         <div className="flex items-center gap-2">

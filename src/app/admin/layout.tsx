@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="h-16 flex items-center px-6 border-b">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-primary" />
-          <span className="font-bold tracking-tight text-lg">VendorFlow Admin</span>
+          <span className="font-bold tracking-tight text-lg">VyapaarSetu Admin</span>
         </div>
       </div>
       <nav className="flex-1 p-4 space-y-1">
@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="md:hidden flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-primary" />
-          <span className="font-bold tracking-tight text-lg">VendorFlow</span>
+          <span className="font-bold tracking-tight text-lg">VyapaarSetu</span>
         </div>
         <Sheet>
           <SheetTrigger asChild>

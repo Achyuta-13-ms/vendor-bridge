@@ -31,7 +31,7 @@ const DEMO_VENDOR = {
   status: "ACTIVE",
   createdAt: new Date().toISOString(),
   user: {
-    email: "founder@vendorflow.in",
+    email: "founder@vyapaarsetu.in",
     phone: "+91 99887 76655"
   }
 };

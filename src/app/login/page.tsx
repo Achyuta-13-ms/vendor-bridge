@@ -162,7 +162,7 @@ export default function LoginPage() {
           </motion.div>
           
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">VendorFlow</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">VyapaarSetu</h1>
             <p className="text-muted-foreground text-sm font-medium">
               Secure Access • Step {step === "email" ? "1" : "2"} of 2
             </p>
@@ -337,7 +337,7 @@ export default function LoginPage() {
         </AnimatePresence>
 
         <p className="text-center text-sm text-muted-foreground font-medium">
-          New to VendorFlow?{" "}
+          New to VyapaarSetu?{" "}
           <a href="/signup" className="text-primary font-bold hover:text-primary/80 transition-colors">
             Get started
           </a>

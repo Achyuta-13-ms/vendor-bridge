@@ -220,7 +220,7 @@ export default function DashboardHome() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">VendorFlow</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">VyapaarSetu</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             {vendor?.businessName ? `Welcome, ${vendor.businessName}` : "Welcome!"}
@@ -270,14 +270,14 @@ export default function DashboardHome() {
                <div className="bg-background/80 dark:bg-black/20 rounded-xl p-3 border border-emerald-500/10 flex items-center justify-between gap-3 shadow-sm">
                  <div className="flex items-center gap-2 min-w-0">
                    <Globe className="h-4 w-4 text-emerald-600 shrink-0" />
-                   <p className="text-xs font-mono truncate text-muted-foreground">vypaar.setu/{vendor.id.substring(0, 8)}</p>
+                   <p className="text-xs font-mono truncate text-muted-foreground">vyapaarsetu.in/profile/{vendor.id.substring(0, 8)}</p>
                  </div>
                  <Button 
                    size="sm" 
                    variant="secondary" 
                    className="h-8 text-xs font-bold text-emerald-700 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 shrink-0" 
                    onClick={() => {
-                     navigator.clipboard.writeText(`https://vendorflow.in/profile/${vendor.id}`);
+                     navigator.clipboard.writeText(`https://vyapaarsetu.in/profile/${vendor.id}`);
                      toast({ title: "Link Copied!", description: "Share your business profile with anyone." });
                    }}
                  >
@@ -352,7 +352,7 @@ export default function DashboardHome() {
             {[
               { t: "Complete KYC", d: "A 100% complete profile gets verified 2x faster.", icon: FileCheck },
               { t: "Connect Platforms", d: "Link your Swiggy/Amazon ID to sync orders instantly.", icon: Globe },
-              { t: "Reusable ID", d: "Use your VendorFlow ID to onboard on new apps without KYC.", icon: BadgeCheck },
+              { t: "Reusable ID", d: "Use your VyapaarSetu ID to onboard on new apps without KYC.", icon: BadgeCheck },
             ].map((tip, i) => (
               <div key={i} className="flex gap-3 items-start">
                 <div className="h-8 w-8 rounded-lg bg-background border flex items-center justify-center shrink-0">

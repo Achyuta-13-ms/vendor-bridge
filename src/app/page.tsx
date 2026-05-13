@@ -73,7 +73,7 @@ const useCases = [
 const faqs = [
   {
     q: "How does the 'reusable profile' work?",
-    a: "Once a vendor completes verification on VendorFlow, they receive a unique Profile ID. They can use this ID to instantly share their verified credentials with any other marketplace in our network, skipping the entire document upload process."
+    a: "Once a vendor completes verification on VyapaarSetu, they receive a unique Profile ID. They can use this ID to instantly share their verified credentials with any other marketplace in our network, skipping the entire document upload process."
   },
   {
     q: "Is it compliant with Indian data regulations?",
@@ -120,7 +120,7 @@ const Index = () => {
             </h1>
 
             <p className="mt-8 text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Marketplaces lose 40% of vendors during KYC. VendorFlow automates 
+              Marketplaces lose 40% of vendors during KYC. VyapaarSetu automates 
               verification in seconds, reducing drop-offs and cutting onboarding costs by 70%.
             </p>
 
@@ -160,7 +160,7 @@ const Index = () => {
                   onClick={() => setActiveTab('after')}
                   className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === 'after' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                  With VendorFlow
+                  With VyapaarSetu
                 </button>
               </div>
             </div>
@@ -245,7 +245,7 @@ const Index = () => {
               >
                 <img 
                   src="/demo/dashboard-mockup.png" 
-                  alt="VendorFlow Dashboard Mockup" 
+                  alt="VyapaarSetu Dashboard Mockup" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
@@ -340,12 +340,12 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Why VendorFlow */}
+      {/* Why VyapaarSetu */}
       <section className="py-24 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div {...fadeIn}>
-              <h2 className="text-4xl font-bold tracking-tight mb-8">Why platforms choose VendorFlow</h2>
+              <h2 className="text-4xl font-bold tracking-tight mb-8">Why platforms choose VyapaarSetu</h2>
               <div className="space-y-8">
                 {[
                   { 
@@ -421,7 +421,7 @@ const Index = () => {
           <motion.div {...fadeIn} className="max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-extrabold mb-8">Ready for a pilot?</h2>
             <p className="text-xl text-primary-foreground/80 mb-12 leading-relaxed">
-              Join 200+ leading marketplaces scaling with VendorFlow. 
+              Join 200+ leading marketplaces scaling with VyapaarSetu. 
               Schedule a demo with our founding team to explore a customized pilot for your platform.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
