@@ -13,7 +13,10 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'VendorFlow',
-  description: 'Vendor Onboarding and KYC Verification',
+  description: 'Vendor onboarding infrastructure for marketplaces',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({

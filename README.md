@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# VendorFlow - Vendor Onboarding Infrastructure
 
-TODO: Document your project here
+Vendor onboarding infrastructure for marketplaces. Automating compliance, KYC verification, and vendor management for the next million Indian merchants.
