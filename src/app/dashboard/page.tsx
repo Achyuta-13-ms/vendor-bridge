@@ -277,7 +277,7 @@ export default function DashboardHome() {
                    variant="secondary" 
                    className="h-8 text-xs font-bold text-emerald-700 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 shrink-0" 
                    onClick={() => {
-                     navigator.clipboard.writeText(`https://vypaarsetu.com/profile/${vendor.id}`);
+                     navigator.clipboard.writeText(`https://vendorflow.in/profile/${vendor.id}`);
                      toast({ title: "Link Copied!", description: "Share your business profile with anyone." });
                    }}
                  >

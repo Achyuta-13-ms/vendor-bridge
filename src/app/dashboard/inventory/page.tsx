@@ -250,7 +250,7 @@ export default function InventoryPage() {
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="sku" className="text-right">SKU</Label>
-                    <Input id="sku" className="col-span-3" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="e.g. VS-PIZZA-001" />
+                    <Input id="sku" className="col-span-3" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="e.g. VF-PIZZA-001" />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="price" className="text-right">Price</Label>

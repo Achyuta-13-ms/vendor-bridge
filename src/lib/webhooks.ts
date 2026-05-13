@@ -41,7 +41,7 @@ export async function dispatchWebhook(vendorId: string, event: WebhookEvent, dat
       try {
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'X-VypaarSetu-Event': event,
+          'X-VendorFlow-Event': event,
         };
 
         // 3. Sign payload if secret exists
@@ -50,7 +50,7 @@ export async function dispatchWebhook(vendorId: string, event: WebhookEvent, dat
             .createHmac('sha256', config.secret)
             .update(payloadString)
             .digest('hex');
-          headers['X-VypaarSetu-Signature'] = signature;
+          headers['X-VendorFlow-Signature'] = signature;
         }
 
         console.log(`[WEBHOOK DISPATCH] Firing ${event} to ${config.url}`);

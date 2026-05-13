@@ -42,6 +42,16 @@ export async function POST(request: Request) {
 
     const filename = `uploads/${safePath}/${crypto.randomUUID()}${ext}`;
 
+    // DEMO FALLBACK: If no Vercel Blob token, return a local mock URL
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.warn("BLOB_READ_WRITE_TOKEN not found. Returning mock URL for demo.");
+      return NextResponse.json({
+        success: true,
+        url: `https://placehold.co/600x400?text=${encodeURIComponent(file.name)}`,
+        fileName: file.name,
+      });
+    }
+
     const blob = await put(filename, file, {
       access: "public",
     });

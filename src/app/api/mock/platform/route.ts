@@ -15,8 +15,8 @@ export async function POST(request: Request) {
       receivedAt: new Date().toISOString(),
       payload,
       headers,
-      signature: headers['x-vypaarsetu-signature'],
-      eventType: headers['x-vypaarsetu-event']
+      signature: headers['x-vendorflow-signature'],
+      eventType: headers['x-vendorflow-event']
     };
 
     receivedEvents.unshift(event);

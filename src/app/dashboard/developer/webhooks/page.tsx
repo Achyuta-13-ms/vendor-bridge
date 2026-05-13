@@ -177,7 +177,7 @@ export default function WebhooksPage() {
                     onChange={e => setForm({...form, url: e.target.value})} 
                     required 
                   />
-                  <p className="text-[10px] text-muted-foreground">URL where VypaarSetu will send POST requests.</p>
+                  <p className="text-[10px] text-muted-foreground">URL where VendorFlow will send POST requests.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="secret">Signing Secret (Optional)</Label>
@@ -187,7 +187,7 @@ export default function WebhooksPage() {
                     value={form.secret} 
                     onChange={e => setForm({...form, secret: e.target.value})} 
                   />
-                  <p className="text-[10px] text-muted-foreground italic">Used for HMAC SHA-256 payload signing (X-VypaarSetu-Signature).</p>
+                  <p className="text-[10px] text-muted-foreground italic">Used for HMAC SHA-256 payload signing (X-VendorFlow-Signature).</p>
                 </div>
               </div>
               <DialogFooter>
