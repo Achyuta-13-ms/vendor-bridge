@@ -61,8 +61,8 @@ const statusColor = (status: string) => {
     case "NEW": return "bg-blue-500/10 text-blue-600 border-blue-500/20";
     case "CONFIRMED": return "bg-indigo-500/10 text-indigo-600 border-indigo-500/20";
     case "PREPARING": return "bg-amber-500/10 text-amber-600 border-amber-500/20";
-    case "READY": return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
-    case "DELIVERED": return "bg-emerald-500 text-white border-transparent";
+    case "READY": return "bg-blue-500/10 text-blue-600 border-blue-500/20";
+    case "DELIVERED": return "bg-blue-500 text-white border-transparent";
     case "CANCELLED": return "bg-red-500/10 text-red-600 border-red-500/20";
     default: return "bg-muted text-muted-foreground";
   }
@@ -112,7 +112,7 @@ export function OrderDetailsSheet({ order, isOpen, onClose, onStatusUpdate }: Or
         );
       case "PREPARING":
         return (
-          <Button className="w-full gap-2 font-bold bg-emerald-500 hover:bg-emerald-600 shadow-lg" onClick={() => updateStatus("READY")} disabled={loading}>
+          <Button className="w-full gap-2 font-bold bg-blue-500 hover:bg-blue-600 shadow-lg" onClick={() => updateStatus("READY")} disabled={loading}>
             <CheckCircle2 className="h-4 w-4" /> Mark as Ready
           </Button>
         );
@@ -124,7 +124,7 @@ export function OrderDetailsSheet({ order, isOpen, onClose, onStatusUpdate }: Or
         );
       case "PICKED_UP":
         return (
-          <Button className="w-full gap-2 font-bold bg-emerald-600 hover:bg-emerald-700 shadow-lg" onClick={() => updateStatus("DELIVERED")} disabled={loading}>
+          <Button className="w-full gap-2 font-bold bg-blue-600 hover:bg-blue-700 shadow-lg" onClick={() => updateStatus("DELIVERED")} disabled={loading}>
             <CheckCircle2 className="h-4 w-4" /> Mark Delivered
           </Button>
         );

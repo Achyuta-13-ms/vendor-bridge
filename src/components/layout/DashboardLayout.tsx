@@ -30,12 +30,17 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
 
   const Sidebar = ({ mobile = false }: { mobile?: boolean }) => (
     <div className={`flex flex-col h-full ${mobile ? "" : "w-60 border-r border-border"} bg-card`}>
-      <div className="flex items-center gap-2.5 p-4 border-b border-border">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary">
-          <Shield className="h-4 w-4 text-primary-foreground" />
+      <div className="flex items-center gap-3 p-4 border-b border-border bg-card">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background shadow-orange-glow border border-border/50 overflow-hidden">
+          <img 
+            src="/logo.png" 
+            alt="VS" 
+            className="h-full w-full object-cover" 
+          />
         </div>
-        <span className="text-sm font-semibold text-foreground">VendorFlow</span>
+        <span className="text-sm font-bold tracking-tight text-foreground">VyapaarSetu</span>
       </div>
+
 
       <nav className="flex-1 p-3 space-y-0.5">
         {sidebarLinks.map((link) => {

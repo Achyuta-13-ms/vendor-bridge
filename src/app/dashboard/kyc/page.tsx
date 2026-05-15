@@ -107,7 +107,7 @@ export default function KYCPage() {
     switch (status.toLowerCase()) {
       case "verified":
       case "format verified": 
-        return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+        return "text-blue-500 bg-blue-500/10 border-blue-500/20";
       case "pending":
       case "under review": 
         return "text-amber-500 bg-amber-500/10 border-amber-500/20";
@@ -172,7 +172,7 @@ export default function KYCPage() {
                 return (
                   <div key={doc.type} className="flex items-center justify-between p-4 rounded-2xl border bg-muted/10 group hover:border-primary/40 transition-all">
                     <div className="flex items-center gap-4">
-                      <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center", isVerified ? "bg-emerald-500/20 text-emerald-600" : "bg-muted text-muted-foreground")}>
+                      <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center", isVerified ? "bg-blue-500/20 text-blue-600" : "bg-muted text-muted-foreground")}>
                         <FileText className="h-6 w-6" />
                       </div>
                       <div>

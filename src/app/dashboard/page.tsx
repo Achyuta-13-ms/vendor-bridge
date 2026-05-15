@@ -104,7 +104,7 @@ const statusStyles = (s: string) => {
     case "verified": 
     case "active":
     case "format verified":
-      return "text-emerald-600 bg-emerald-500/10 border-emerald-500/20";
+      return "text-blue-600 bg-blue-500/10 border-blue-500/20";
     case "pending":  
     case "under review":
       return "text-amber-600 bg-amber-500/10 border-amber-500/20";
@@ -121,7 +121,7 @@ const statusIcon = (s: string) => {
     case "verified":
     case "active":
     case "format verified":
-      return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+      return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
     case "pending":
     case "under review":
       return <Clock className="h-4 w-4 text-amber-500" />;
@@ -131,6 +131,7 @@ const statusIcon = (s: string) => {
       return <Upload className="h-4 w-4 text-muted-foreground" />;
   }
 };
+
 
 const DOC_META: Record<string, { label: string; desc: string }> = {
   GST:  { label: "GST Certificate", desc: "Goods & Service Tax Registration" },
@@ -253,29 +254,28 @@ export default function DashboardHome() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="border-emerald-500/30 bg-emerald-500/5 shadow-xl overflow-hidden relative">
-            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-              <BadgeCheck className="h-24 w-24 text-emerald-500" />
+          <Card className="border-primary/30 bg-primary/5 shadow-orange-glow overflow-hidden relative group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-500">
+              <BadgeCheck className="h-24 w-24 text-primary" />
             </div>
             <CardHeader className="pb-2">
-              <div className="flex items-center gap-2 text-emerald-600">
+              <div className="flex items-center gap-2 text-primary">
                 <Sparkles className="h-5 w-5 animate-pulse" />
                 <CardTitle className="text-base font-black uppercase tracking-widest">Marketplace Ready</CardTitle>
               </div>
-              <CardDescription className="text-emerald-700/70 font-medium">
+              <CardDescription className="text-muted-foreground font-medium">
                 Your profile is verified and synchronized. You can now bridge to any marketplace.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-               <div className="bg-background/80 dark:bg-black/20 rounded-xl p-3 border border-emerald-500/10 flex items-center justify-between gap-3 shadow-sm">
+               <div className="bg-background/80 dark:bg-black/20 rounded-xl p-3 border border-primary/10 flex items-center justify-between gap-3 shadow-sm">
                  <div className="flex items-center gap-2 min-w-0">
-                   <Globe className="h-4 w-4 text-emerald-600 shrink-0" />
+                   <Globe className="h-4 w-4 text-primary shrink-0" />
                    <p className="text-xs font-mono truncate text-muted-foreground">vyapaarsetu.in/profile/{vendor.id.substring(0, 8)}</p>
                  </div>
                  <Button 
                    size="sm" 
-                   variant="secondary" 
-                   className="h-8 text-xs font-bold text-emerald-700 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 shrink-0" 
+                   className="h-8 text-xs font-bold shadow-orange-glow shrink-0" 
                    onClick={() => {
                      navigator.clipboard.writeText(`https://vyapaarsetu.in/profile/${vendor.id}`);
                      toast({ title: "Link Copied!", description: "Share your business profile with anyone." });
@@ -288,6 +288,7 @@ export default function DashboardHome() {
           </Card>
         </motion.div>
       )}
+
 
       {/* ── Next Action Banner ── */}
       {nextAction && (
@@ -387,18 +388,19 @@ export default function DashboardHome() {
               >
                 <Card className={cn(
                   "border transition-all",
-                  statusRaw === "verified" ? "border-emerald-500/20 bg-emerald-500/5" :
+                  statusRaw === "verified" ? "border-blue-500/20 bg-blue-500/5" :
                   statusRaw === "rejected" ? "border-red-500/20 bg-red-500/5" :
                   "border-border"
                 )}>
                   <CardContent className="p-4 flex items-center gap-4">
                     <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
-                      statusRaw === "verified" ? "bg-emerald-500/20" :
+                      statusRaw === "verified" ? "bg-blue-500/20" :
                       statusRaw === "rejected" ? "bg-red-500/20" :
                       "bg-muted"
                     )}>
                       {statusIcon(statusRaw)}
                     </div>
+
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm">{meta.label}</p>
                       <p className="text-xs text-muted-foreground">{meta.desc}</p>
@@ -471,12 +473,13 @@ function ChecklistItem({ done, label }: { done: boolean; label: string }) {
   return (
     <div className="flex items-center gap-2 text-sm">
       {done
-        ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+        ? <CheckCircle2 className="h-4 w-4 text-blue-500 shrink-0" />
         : <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30 shrink-0" />}
       <span className={done ? "font-medium" : "text-muted-foreground"}>{label}</span>
     </div>
   );
 }
+
 
 function ProfileField({ label, value }: { label: string; value?: string | null }) {
   return (

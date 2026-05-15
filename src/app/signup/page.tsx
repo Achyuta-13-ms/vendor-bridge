@@ -192,10 +192,15 @@ export default function SignupPage() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary mb-2"
+              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-card border border-border/50 shadow-orange-glow overflow-hidden"
             >
-              <Shield className="h-6 w-6" />
+              <img 
+                src="/logo.png" 
+                alt="VyapaarSetu" 
+                className="h-full w-full object-cover"
+              />
             </motion.div>
+
             <h1 className="text-3xl font-bold tracking-tight">Create your account</h1>
             <p className="text-muted-foreground">Join the trusted infrastructure for vendor onboarding.</p>
           </div>
@@ -413,7 +418,7 @@ export default function SignupPage() {
                               <FormItem>
                                 <div className="flex items-center justify-between mb-2">
                                   <FormLabel>GST Certificate</FormLabel>
-                                  {field.value && <BadgeCheck className="h-5 w-5 text-emerald-500" />}
+                                  {field.value && <BadgeCheck className="h-5 w-5 text-blue-500" />}
                                 </div>
                                 <FormControl>
                                   <FileUpload
@@ -430,7 +435,7 @@ export default function SignupPage() {
                               <FormItem>
                                 <div className="flex items-center justify-between mb-2">
                                   <FormLabel>Company PAN</FormLabel>
-                                  {field.value && <BadgeCheck className="h-5 w-5 text-emerald-500" />}
+                                  {field.value && <BadgeCheck className="h-5 w-5 text-blue-500" />}
                                 </div>
                                 <FormControl>
                                   <FileUpload
@@ -447,7 +452,7 @@ export default function SignupPage() {
                               <FormItem>
                                 <div className="flex items-center justify-between mb-2">
                                   <FormLabel>Cancelled Cheque / Bank Statement (Optional)</FormLabel>
-                                  {field.value && <BadgeCheck className="h-5 w-5 text-emerald-500" />}
+                                  {field.value && <BadgeCheck className="h-5 w-5 text-blue-500" />}
                                 </div>
                                 <FormControl>
                                   <FileUpload
@@ -497,16 +502,16 @@ export default function SignupPage() {
                               </div>
                               <div className="grid grid-cols-2 gap-4 border-t pt-4">
                                 <div className="flex items-center gap-2">
-                                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                  <CheckCircle2 className="h-4 w-4 text-blue-500" />
                                   <span className="text-xs">GST Uploaded</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                  <CheckCircle2 className="h-4 w-4 text-blue-500" />
                                   <span className="text-xs">PAN Uploaded</span>
                                 </div>
                                 {form.getValues("documents.bank") && (
                                   <div className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                    <CheckCircle2 className="h-4 w-4 text-blue-500" />
                                     <span className="text-xs">Bank Doc Uploaded</span>
                                   </div>
                                 )}

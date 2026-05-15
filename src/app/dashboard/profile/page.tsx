@@ -114,7 +114,8 @@ export default function ProfilePage() {
             <div className="mt-14 text-center space-y-1">
               <h2 className="text-xl font-black">{vendor.businessName}</h2>
               <p className="text-sm text-muted-foreground font-medium">{vendor.businessType}</p>
-              <Badge variant="outline" className="mt-2 bg-emerald-500/5 text-emerald-600 border-emerald-500/20 uppercase text-[10px] font-black">
+              <Badge variant="outline" className="mt-2 bg-blue-500/5 text-blue-600 border-blue-500/20 uppercase text-[10px] font-black">
+
                 {vendor.status} Profile
               </Badge>
             </div>

@@ -91,16 +91,17 @@ function FileUploadZone({
 
   if (url) {
     return (
-      <div className="flex items-center gap-3 p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 animate-in slide-in-from-bottom-2">
-        <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+      <div className="flex items-center gap-3 p-4 rounded-xl border border-blue-500/30 bg-blue-500/5 animate-in slide-in-from-bottom-2 shadow-sm">
+        <CheckCircle2 className="h-5 w-5 text-blue-500 shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm text-emerald-700 dark:text-emerald-400 truncate">{file?.name || "File uploaded"}</p>
+          <p className="font-medium text-sm text-blue-700 dark:text-blue-400 truncate">{file?.name || "File uploaded"}</p>
           <p className="text-xs text-muted-foreground">Upload successful</p>
         </div>
         <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={onRemove}>
           <X className="h-3.5 w-3.5" />
         </Button>
       </div>
+
     );
   }
 
@@ -287,8 +288,9 @@ export default function OnboardingPage() {
                 className={cn(
                   "flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all",
                   i === step ? "bg-primary text-primary-foreground" :
-                  i < step ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" :
+                  i < step ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" :
                   "bg-muted text-muted-foreground"
+
                 )}
               >
                 {i < step ? <CheckCircle2 className="h-3 w-3" /> : <s.icon className="h-3 w-3" />}
@@ -552,16 +554,17 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 function DocStatusBadge({ label, uploaded }: { label: string; uploaded: boolean }) {
   return (
     <div className={cn(
-      "flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center",
-      uploaded ? "border-emerald-500/30 bg-emerald-500/5" : "border-red-500/30 bg-red-500/5"
+      "flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center shadow-sm",
+      uploaded ? "border-blue-500/30 bg-blue-500/5" : "border-red-500/30 bg-red-500/5"
     )}>
       {uploaded
-        ? <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+        ? <CheckCircle2 className="h-5 w-5 text-blue-500" />
         : <X className="h-5 w-5 text-red-500" />}
       <span className="text-xs font-bold">{label}</span>
-      <span className={cn("text-[10px] font-medium", uploaded ? "text-emerald-600" : "text-red-600")}>
+      <span className={cn("text-[10px] font-medium", uploaded ? "text-blue-600" : "text-red-600")}>
         {uploaded ? "Ready" : "Missing"}
       </span>
     </div>
   );
 }
+

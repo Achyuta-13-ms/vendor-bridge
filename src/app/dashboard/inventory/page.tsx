@@ -275,7 +275,7 @@ export default function InventoryPage() {
         <StatsCard label="Total Items" value={stats.total} icon={Box} color="primary" />
         <StatsCard label="Low Stock" value={stats.lowStock} icon={TrendingDown} color="amber" alert={stats.lowStock > 0} />
         <StatsCard label="Out of Stock" value={stats.outOfStock} icon={AlertTriangle} color="red" alert={stats.outOfStock > 0} />
-        <StatsCard label="Vault Value" value={`₹${stats.totalValue.toLocaleString()}`} icon={ShoppingCart} color="emerald" />
+        <StatsCard label="Vault Value" value={`₹${stats.totalValue.toLocaleString()}`} icon={ShoppingCart} color="primary" />
       </div>
 
       <Card className="border-none shadow-xl overflow-hidden bg-gradient-to-br from-background to-muted/20">
@@ -335,7 +335,7 @@ export default function InventoryPage() {
                       <TableCell>
                         <Badge variant="outline" className={cn(
                           "text-[10px] uppercase font-black px-1.5 h-5",
-                          isOOS ? "bg-red-500/10 text-red-600 border-red-500/20" : isLow ? "bg-amber-500/10 text-amber-600 border-amber-500/20" : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                          isOOS ? "bg-red-500/10 text-red-600 border-red-500/20" : isLow ? "bg-amber-500/10 text-amber-600 border-amber-500/20" : "bg-blue-500/10 text-blue-600 border-blue-500/20"
                         )}>
                           {isOOS ? "Out of Stock" : isLow ? "Low Stock" : "Healthy"}
                         </Badge>
@@ -355,7 +355,7 @@ export default function InventoryPage() {
                           </div>
                           <div className="w-16 h-1 bg-muted rounded-full overflow-hidden hidden xl:block">
                             <div 
-                              className={cn("h-full transition-all", isOOS ? "bg-red-500" : isLow ? "bg-amber-500" : "bg-emerald-500")}
+                              className={cn("h-full transition-all", isOOS ? "bg-red-500" : isLow ? "bg-amber-500" : "bg-blue-500")}
                               style={{ width: `${Math.min((product.stock / 50) * 100, 100)}%` }}
                             />
                           </div>
@@ -369,9 +369,9 @@ export default function InventoryPage() {
                                  <Switch 
                                    checked={product.isActive} 
                                    onCheckedChange={(v) => toggleActive(product, v)}
-                                   className="data-[state=checked]:bg-emerald-500"
+                                   className="data-[state=checked]:bg-blue-500"
                                  />
-                                 {product.isActive ? <Power className="h-3 w-3 text-emerald-500" /> : <PowerOff className="h-3 w-3 text-muted-foreground" />}
+                                 {product.isActive ? <Power className="h-3 w-3 text-blue-500" /> : <PowerOff className="h-3 w-3 text-muted-foreground" />}
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -440,7 +440,8 @@ function StatsCard({ label, value, icon: Icon, color, alert }: any) {
     primary: "text-primary bg-primary/10 border-primary/20",
     amber: "text-amber-600 bg-amber-50 border-amber-500/20",
     red: "text-red-600 bg-red-50 border-red-500/20",
-    emerald: "text-emerald-600 bg-emerald-50 border-emerald-500/20",
+    blue: "text-blue-600 bg-blue-50 border-blue-500/20",
+
   };
 
   return (

@@ -9,7 +9,7 @@ import { Copy, Check, ChevronDown, ChevronRight, Shield, Zap, Key, Webhook } fro
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 const METHOD_COLORS: Record<HttpMethod, string> = {
-  GET: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  GET: "bg-blue-500/10 text-blue-500 border-blue-500/20",
   POST: "bg-blue-500/10 text-blue-500 border-blue-500/20",
   PUT: "bg-amber-500/10 text-amber-500 border-amber-500/20",
   DELETE: "bg-red-500/10 text-red-500 border-red-500/20",
@@ -27,7 +27,7 @@ function CopyButton({ text }: { text: string }) {
       onClick={handleCopy}
       className="absolute top-3 right-3 p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
     >
-      {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+      {copied ? <Check className="h-3.5 w-3.5 text-blue-400" /> : <Copy className="h-3.5 w-3.5" />}
     </button>
   );
 }

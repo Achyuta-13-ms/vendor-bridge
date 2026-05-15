@@ -93,7 +93,7 @@ export default function IntegrationPage() {
           <p className="text-muted-foreground font-medium italic">Configure real-time order and inventory sync with external platforms.</p>
         </div>
         <div className="flex items-center gap-2">
-           <Badge variant="outline" className="px-3 bg-emerald-500/5 text-emerald-600 border-emerald-500/20">
+           <Badge variant="outline" className="px-3 bg-blue-500/5 text-blue-600 border-blue-500/20">
                <Zap className="h-3 w-3 mr-1" /> All Systems Nominal
            </Badge>
         </div>
@@ -142,10 +142,10 @@ export default function IntegrationPage() {
                       <div className="p-3 rounded-xl bg-background/50 border border-primary/10 space-y-2">
                         <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                           <span>Sync Health</span>
-                          <span className="text-emerald-500">Excellent</span>
+                          <span className="text-blue-500">Excellent</span>
                         </div>
                         <div className="h-1.5 w-full bg-primary/10 rounded-full overflow-hidden">
-                          <div className="h-full bg-emerald-500 w-[95%]" />
+                          <div className="h-full bg-blue-500 w-[95%]" />
                         </div>
                         <p className="text-[10px] text-muted-foreground italic">Last sync: 2 minutes ago</p>
                       </div>
@@ -188,11 +188,11 @@ export default function IntegrationPage() {
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="text-xs p-3 rounded-xl bg-background border flex items-center justify-between font-medium">
-            <span className="flex items-center gap-2 italic"><CheckCircle2 className="h-3 w-3 text-emerald-500" /> Swiggy API Bridge Stabilized</span>
+            <span className="flex items-center gap-2 italic"><CheckCircle2 className="h-3 w-3 text-blue-500" /> Swiggy API Bridge Stabilized</span>
             <span className="text-muted-foreground opacity-60">12:45 PM</span>
           </div>
           <div className="text-xs p-3 rounded-xl bg-background border flex items-center justify-between font-medium">
-             <span className="flex items-center gap-2 italic"><CheckCircle2 className="h-3 w-3 text-emerald-500" /> Zomato Credential Verified</span>
+             <span className="flex items-center gap-2 italic"><CheckCircle2 className="h-3 w-3 text-blue-500" /> Zomato Credential Verified</span>
              <span className="text-muted-foreground opacity-60">10:30 AM</span>
           </div>
         </CardContent>

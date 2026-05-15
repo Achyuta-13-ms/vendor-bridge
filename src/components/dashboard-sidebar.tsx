@@ -101,18 +101,24 @@ export function DashboardSidebar({ isMobile }: { isMobile?: boolean }) {
       )}
     >
       <div className="p-6 flex items-center justify-between">
-        {(!collapsed || isMobile) && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-2"
-          >
-            <div className="h-8 w-8 bg-primary/10 rounded-lg flex items-center justify-center">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">VyapaarSetu</span>
-          </motion.div>
-        )}
+        <motion.div 
+          className={cn(
+            "flex items-center gap-2.5 overflow-hidden transition-all duration-300",
+            collapsed && !isMobile ? "w-10 justify-center" : "w-auto"
+          )}
+        >
+          <div className="h-9 w-9 bg-card rounded-xl flex items-center justify-center border border-border/50 shadow-orange-glow overflow-hidden shrink-0">
+            <img 
+              src="/logo.png" 
+              alt="VS" 
+              className="h-full w-full object-cover" 
+            />
+          </div>
+          {(!collapsed || isMobile) && (
+            <span className="font-bold text-lg tracking-tight whitespace-nowrap">VyapaarSetu</span>
+          )}
+        </motion.div>
+
         <div className="flex items-center gap-2">
           {(!collapsed || isMobile) && <ModeToggle />}
           {!isMobile && (

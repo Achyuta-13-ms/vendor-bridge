@@ -66,9 +66,9 @@ export default function AdminDashboard() {
       title: "Verified Active",
       key: "verified" as const,
       icon: CheckCircle2,
-      color: "text-emerald-500",
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/10",
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/10",
       desc: "Fully onboarded",
     },
     {

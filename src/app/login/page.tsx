@@ -156,10 +156,15 @@ export default function LoginPage() {
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary"
+            className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-card border border-border/50 shadow-orange-glow overflow-hidden"
           >
-            <ShieldCheck className="h-8 w-8" />
+            <img 
+              src="/logo.png" 
+              alt="VyapaarSetu" 
+              className="h-full w-full object-cover"
+            />
           </motion.div>
+
           
           <div className="space-y-1">
             <h1 className="text-3xl font-extrabold tracking-tight text-foreground">VyapaarSetu</h1>

@@ -27,7 +27,8 @@ const features = [
     title: "Reusable Virtual Vendor IDs",
     desc: "Once a vendor is verified on VyapaarSetu, they receive a unique, secure ID. They can use this ID to instantly onboard with any marketplace in our ecosystem.",
     icon: BadgeCheck,
-    color: "bg-emerald-500/10 text-emerald-600",
+    color: "bg-blue-500/10 text-blue-600",
+
   },
   {
     title: "Webhooks & Real-time Alerts",

@@ -229,7 +229,7 @@ export default function SimulatorPage() {
               {logs.map((log, i) => (
                 <p key={i} className={cn(
                   "border-l-2 pl-2",
-                  log.includes("SUCCESS") ? "border-emerald-500 text-emerald-400" : 
+                  log.includes("SUCCESS") ? "border-blue-500 text-blue-400" : 
                   log.includes("ERROR") ? "border-red-500 text-red-400" : "border-zinc-700"
                 )}>
                   {log}

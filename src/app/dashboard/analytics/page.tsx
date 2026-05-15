@@ -306,7 +306,8 @@ function KpiCard({ title, value, desc, icon: Icon, trend }: any) {
       <CardContent>
         <div className="text-2xl font-black">{value}</div>
         <div className="flex items-center gap-1 mt-1">
-          {trend === "up" ? <ArrowUpRight className="h-3 w-3 text-emerald-500" /> : trend === "down" ? <ArrowDownRight className="h-3 w-3 text-red-500" /> : null}
+          {trend === "up" ? <ArrowUpRight className="h-3 w-3 text-blue-500" /> : trend === "down" ? <ArrowDownRight className="h-3 w-3 text-red-500" /> : null}
+
           <p className="text-[10px] font-medium text-muted-foreground">{desc}</p>
         </div>
       </CardContent>

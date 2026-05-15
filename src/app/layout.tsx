@@ -15,8 +15,9 @@ export const metadata: Metadata = {
   title: 'VyapaarSetu',
   description: 'Vendor onboarding infrastructure for marketplaces, hyperlocal delivery startups, and ONDC ecosystems.',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/logo.png',
   },
+
 }
 
 export default function RootLayout({

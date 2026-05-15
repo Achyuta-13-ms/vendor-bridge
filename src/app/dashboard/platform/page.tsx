@@ -81,7 +81,8 @@ export default function PlatformPage() {
         key,
         amount,
         currency: "INR",
-        name: "VendorFlow",
+        name: "VyapaarSetu",
+
         description: `Upgrade to ${planName} Plan`,
         order_id: orderId,
         handler: async function (response: any) {

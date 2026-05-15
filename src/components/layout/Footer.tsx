@@ -7,12 +7,17 @@ const Footer = () => (
     <div className="container py-20 px-4 mx-auto">
       <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4 mb-16">
         <div className="space-y-6">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
-              <Shield className="h-5 w-5 text-primary-foreground" />
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-orange-glow overflow-hidden border border-border/50 transition-all duration-300 group-hover:shadow-orange-glow-lg">
+              <img 
+                src="/logo.png" 
+                alt="VyapaarSetu" 
+                className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
             </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">VyapaarSetu</span>
+            <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">VyapaarSetu</span>
           </Link>
+
           <p className="text-muted-foreground leading-relaxed">
             The modern infrastructure for vendor onboarding in India. 
             Automating compliance so you can focus on scale.

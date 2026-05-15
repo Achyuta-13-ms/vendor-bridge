@@ -47,7 +47,7 @@ type StatusFilter = "ALL" | "PENDING" | "ACTIVE" | "REJECTED";
 
 const statusBadgeClass = (status: string) => {
   switch (status) {
-    case "ACTIVE":   return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
+    case "ACTIVE":   return "bg-blue-500/10 text-blue-600 border-blue-500/20";
     case "PENDING":  return "bg-amber-500/10 text-amber-600 border-amber-500/20";
     case "REJECTED": return "bg-red-500/10 text-red-600 border-red-500/20";
     default:         return "bg-muted text-muted-foreground";
@@ -56,7 +56,7 @@ const statusBadgeClass = (status: string) => {
 
 const verificationBadgeClass = (status: string) => {
   switch (status) {
-    case "VERIFIED": return "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20";
+    case "VERIFIED": return "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20";
     case "REJECTED": return "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:border-red-500/20";
     default:         return "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20";
   }
@@ -67,7 +67,7 @@ function TimelineItem({ icon: Icon, title, time, status }: { icon: any, title: s
     <div className="flex items-start gap-3 relative z-10">
       <div className={cn(
         "h-6 w-6 rounded-full flex items-center justify-center shrink-0 border-2",
-        status === "complete" ? "bg-emerald-500 border-emerald-500 text-white" : "bg-background border-muted text-muted-foreground"
+        status === "complete" ? "bg-blue-500 border-blue-500 text-white" : "bg-background border-muted text-muted-foreground"
       )}>
         <Icon className="h-3 w-3" />
       </div>
@@ -290,11 +290,11 @@ export default function AdminVerifications() {
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <p className="text-[10px] uppercase font-bold text-muted-foreground">Risk Level</p>
-                                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 text-[10px]">Low Risk</Badge>
+                                <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 text-[10px]">Low Risk</Badge>
                               </div>
                               <div>
                                 <p className="text-[10px] uppercase font-bold text-muted-foreground">Auto-Check</p>
-                                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 text-[10px]">100% Match</Badge>
+                                <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 text-[10px]">100% Match</Badge>
                               </div>
                             </div>
                           </div>
@@ -332,7 +332,7 @@ export default function AdminVerifications() {
                                         className={cn(
                                           "text-[9px] h-5 font-bold border",
                                           doc.type === "GST" || doc.type === "PAN" 
-                                            ? "bg-emerald-500/5 text-emerald-600 border-emerald-500/10" 
+                                            ? "bg-blue-500/5 text-blue-600 border-blue-500/10" 
                                             : "bg-amber-500/5 text-amber-600 border-amber-500/10"
                                         )}
                                       >

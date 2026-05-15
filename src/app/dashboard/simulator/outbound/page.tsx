@@ -170,7 +170,7 @@ export default function OutboundSimulator() {
                             <CardDescription className="text-xs">{selectedEvent.id}</CardDescription>
                          </div>
                       </div>
-                      <Badge className="bg-emerald-500 h-6">Acknowledged 200</Badge>
+                      <Badge className="bg-blue-500 h-6">Acknowledged 200</Badge>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 space-y-6 flex-1 overflow-y-auto no-scrollbar">
@@ -191,7 +191,7 @@ export default function OutboundSimulator() {
                         <ShieldCheck className="h-3 w-3" /> Security Headers
                        </h4>
                        <div className="bg-neutral-900 p-4 rounded-xl text-[11px] font-mono text-blue-400 overflow-x-auto">
-                          <p>X-VyapaarSetu-Signature: <span className="text-emerald-400">{selectedEvent.signature || 'NONE_UNSIGNED'}</span></p>
+                          <p>X-VyapaarSetu-Signature: <span className="text-blue-400">{selectedEvent.signature || 'NONE_UNSIGNED'}</span></p>
                           <p>User-Agent: axios/1.6.8</p>
                           <p>Connection: keep-alive</p>
                        </div>

@@ -121,8 +121,8 @@ export default function PricingPage() {
                 <div className="space-y-4 mb-10 flex-1">
                   {tier.features.map((feature) => (
                     <div key={feature} className="flex items-start gap-3 text-sm">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <div className="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-3.5 h-3.5 text-blue-600" />
                       </div>
                       <span className="text-muted-foreground">{feature}</span>
                     </div>

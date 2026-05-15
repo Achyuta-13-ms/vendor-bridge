@@ -252,7 +252,7 @@ export default function PlatformDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{metric.value}</div>
-                  <p className="text-xs text-emerald-600 mt-1">{metric.diff} from last month</p>
+                  <p className="text-xs text-blue-600 mt-1">{metric.diff} from last month</p>
                 </CardContent>
               </Card>
             ))}
@@ -308,7 +308,7 @@ export default function PlatformDashboard() {
                                 variant="outline"
                                 className={
                                   status === "Verified"
-                                    ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                    ? "bg-blue-500/10 text-blue-600 border-blue-500/20"
                                     : "bg-amber-500/10 text-amber-600 border-amber-500/20"
                                 }
                               >
@@ -473,7 +473,7 @@ export default function PlatformDashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className={
-                        doc.verification?.status === "Verified" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" :
+                        doc.verification?.status === "Verified" ? "bg-blue-500/10 text-blue-600 border-blue-500/20" :
                         doc.verification?.status === "Rejected" ? "bg-red-500/10 text-red-600 border-red-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"
                       }>
                         {doc.verification?.status || "Pending"}

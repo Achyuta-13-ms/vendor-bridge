@@ -53,7 +53,7 @@ export default function ConnectedAPIsPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Main Production Key</span>
-                  <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Active</Badge>
+                  <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">Active</Badge>
                 </div>
                 <div className="flex gap-2">
                   <Input 
@@ -92,14 +92,16 @@ export default function ConnectedAPIsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-sm bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors cursor-pointer border border-emerald-500/10">
+            <Card className="border-none shadow-sm bg-blue-500/5 hover:bg-blue-500/10 transition-colors cursor-pointer border border-blue-500/10">
               <CardContent className="p-6 space-y-3">
-                <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Shield className="h-5 w-5 text-emerald-600" />
+                <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-blue-600" />
                 </div>
-                <h3 className="font-bold">Integrity Logs</h3>
-                <p className="text-xs text-muted-foreground font-medium">Audit logs of all data ingestion events via the bridge API.</p>
-                <Button variant="link" className="p-0 h-auto text-emerald-600 font-bold">View Logs →</Button>
+                <div>
+                  <p className="text-sm font-bold">API Security</p>
+                  <p className="text-[10px] text-muted-foreground">Monitor auth logs</p>
+                </div>
+                <Button variant="link" className="p-0 h-auto text-blue-600 font-bold">View Logs →</Button>
               </CardContent>
             </Card>
           </div>

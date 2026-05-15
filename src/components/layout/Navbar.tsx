@@ -35,12 +35,17 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between mx-auto px-4">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/10">
-            <Shield className="h-5 w-5 text-primary-foreground" />
+        <Link href="/" className="flex items-center gap-3 group transition-all duration-300">
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-orange-glow group-hover:shadow-orange-glow-lg transition-all duration-300 overflow-hidden border border-border/50">
+            <img 
+              src="/logo.png" 
+              alt="VyapaarSetu" 
+              className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
           </div>
-          <span className="text-xl font-bold tracking-tight text-foreground">VyapaarSetu</span>
+          <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">VyapaarSetu</span>
         </Link>
+
 
         {/* Desktop nav links */}
         <div className="hidden items-center gap-1 md:flex">

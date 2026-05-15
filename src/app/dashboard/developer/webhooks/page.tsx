@@ -177,7 +177,7 @@ export default function WebhooksPage() {
                     onChange={e => setForm({...form, url: e.target.value})} 
                     required 
                   />
-                  <p className="text-[10px] text-muted-foreground">URL where VendorFlow will send POST requests.</p>
+                  <p className="text-[10px] text-muted-foreground">URL where VyapaarSetu will send POST requests.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="secret">Signing Secret (Optional)</Label>
@@ -187,7 +187,7 @@ export default function WebhooksPage() {
                     value={form.secret} 
                     onChange={e => setForm({...form, secret: e.target.value})} 
                   />
-                  <p className="text-[10px] text-muted-foreground italic">Used for HMAC SHA-256 payload signing (X-VendorFlow-Signature).</p>
+                  <p className="text-[10px] text-muted-foreground italic">Used for HMAC SHA-256 payload signing (X-VyapaarSetu-Signature).</p>
                 </div>
               </div>
               <DialogFooter>
@@ -210,7 +210,7 @@ export default function WebhooksPage() {
             <Card key={config.id} className="border-none shadow-md overflow-hidden bg-gradient-to-br from-background to-muted/10">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between mb-2">
-                  <Badge className="text-[9px] uppercase font-black bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                  <Badge className="text-[9px] uppercase font-black bg-blue-500/10 text-blue-600 border-blue-500/20">
                     Active
                   </Badge>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-red-500" onClick={() => deleteConfig(config.id)}>
@@ -278,7 +278,7 @@ export default function WebhooksPage() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {log.status === 'SUCCESS' ? (
-                              <div className="h-5 w-5 bg-emerald-500/10 text-emerald-600 rounded-full flex items-center justify-center">
+                              <div className="h-5 w-5 bg-blue-500/10 text-blue-600 rounded-full flex items-center justify-center">
                                 <CheckCircle2 className="h-3 w-3" />
                               </div>
                             ) : (
