@@ -100,11 +100,11 @@ export function DashboardSidebar({ isMobile }: { isMobile?: boolean }) {
         !isMobile && "hidden md:flex"
       )}
     >
-      <div className="p-6 flex items-center justify-between">
+      <div className="px-4 py-6 flex items-center justify-between gap-2">
         <motion.div 
           className={cn(
-            "flex items-center gap-2.5 overflow-hidden transition-all duration-300",
-            collapsed && !isMobile ? "w-10 justify-center" : "w-auto"
+            "flex items-center gap-2.5 min-w-0 overflow-hidden transition-all duration-300",
+            collapsed && !isMobile ? "w-10 justify-center" : "flex-1"
           )}
         >
           <div className="h-9 w-9 bg-card rounded-xl flex items-center justify-center border border-border/50 shadow-green-glow overflow-hidden shrink-0">
@@ -115,11 +115,11 @@ export function DashboardSidebar({ isMobile }: { isMobile?: boolean }) {
             />
           </div>
           {(!collapsed || isMobile) && (
-            <span className="font-bold text-lg tracking-tight whitespace-nowrap">VyapaarSetu</span>
+            <span className="font-bold text-lg tracking-tight whitespace-nowrap truncate">VyapaarSetu</span>
           )}
         </motion.div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           {(!collapsed || isMobile) && <ModeToggle />}
           {!isMobile && (
             <Button
