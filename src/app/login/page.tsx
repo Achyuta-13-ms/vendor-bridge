@@ -156,7 +156,7 @@ export default function LoginPage() {
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-card border border-border/50 shadow-orange-glow overflow-hidden"
+            className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-card border border-border/50 shadow-green-glow overflow-hidden"
           >
             <img 
               src="/logo.png" 

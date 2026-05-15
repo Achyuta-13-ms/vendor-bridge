@@ -60,7 +60,7 @@ const useCases = [
     title: "ONDC Sellers",
     desc: "Enable instant seller registration for the ONDC ecosystem with pre-verified profiles.",
     icon: Globe,
-    color: "bg-orange-500/10 text-orange-600"
+    color: "bg-emerald-500/10 text-emerald-600"
   },
   {
     title: "Pharmacy Apps",
@@ -108,7 +108,7 @@ const Index = () => {
             transition={{ duration: 0.6 }}
             className="mx-auto max-w-4xl"
           >
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary shadow-orange-glow animate-fade-in">
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary shadow-green-glow animate-fade-in">
               <Sparkles className="h-3.5 w-3.5" />
               Infrastructure for the next 1M Indian Merchants
             </div>
@@ -116,7 +116,7 @@ const Index = () => {
             <h1 className="text-5xl font-extrabold tracking-tight text-foreground sm:text-7xl md:text-8xl leading-[1.0] mb-8 animate-fade-in">
               Vendor onboarding 
               <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-orange-400">reimagined.</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-emerald-400">reimagined.</span>
             </h1>
 
             <p className="mt-8 text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
@@ -126,7 +126,7 @@ const Index = () => {
 
             <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center animate-fade-in [animation-delay:400ms]">
               <Link href="/signup">
-                <Button size="lg" className="h-14 px-10 text-lg shadow-orange-glow hover:shadow-orange-glow-lg transition-all rounded-2xl group font-bold">
+                <Button size="lg" className="h-14 px-10 text-lg shadow-green-glow hover:shadow-green-glow-lg transition-all rounded-2xl group font-bold">
                   Start for Free <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
@@ -210,7 +210,7 @@ const Index = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  <div className="bg-background border rounded-3xl p-8 border-primary/20 shadow-xl shadow-orange-glow">
+                  <div className="bg-background border rounded-3xl p-8 border-primary/20 shadow-xl shadow-green-glow">
                     <div className="flex items-center gap-3 mb-6 text-primary">
                       <Rocket className="h-6 w-6" />
                       <h3 className="text-lg font-bold">The Solution</h3>
@@ -427,7 +427,7 @@ const Index = () => {
               Schedule a demo with our founding team to explore a customized pilot for your platform.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" className="h-14 px-10 text-lg rounded-2xl font-bold shadow-orange-glow hover:shadow-orange-glow-lg transition-all">
+              <Button size="lg" className="h-14 px-10 text-lg rounded-2xl font-bold shadow-green-glow hover:shadow-green-glow-lg transition-all">
                 Book a Demo
               </Button>
               <Link href="/signup">

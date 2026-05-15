@@ -75,9 +75,10 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        'orange-glow': '0 0 20px -5px rgba(255, 106, 0, 0.3)',
-        'orange-glow-lg': '0 0 40px -10px rgba(255, 106, 0, 0.4)',
-        'premium-card': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
+        'green-glow': '0 0 20px -5px rgba(16, 185, 129, 0.3)',
+        'green-glow-lg': '0 0 40px -10px rgba(16, 185, 129, 0.4)',
+        'premium-card': '0 4px 20px -2px rgba(0, 0, 0, 0.1)',
+        'premium-card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
       },
       keyframes: {
         "accordion-down": {

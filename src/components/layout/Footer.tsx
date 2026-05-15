@@ -8,7 +8,7 @@ const Footer = () => (
       <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4 mb-16">
         <div className="space-y-6">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-orange-glow overflow-hidden border border-border/50 transition-all duration-300 group-hover:shadow-orange-glow-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-green-glow overflow-hidden border border-border/50 transition-all duration-300 group-hover:shadow-green-glow-lg">
               <img 
                 src="/logo.png" 
                 alt="VyapaarSetu" 

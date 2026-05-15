@@ -192,7 +192,7 @@ export default function SignupPage() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-card border border-border/50 shadow-orange-glow overflow-hidden"
+              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-card border border-border/50 shadow-green-glow overflow-hidden"
             >
               <img 
                 src="/logo.png" 
