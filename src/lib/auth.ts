@@ -44,6 +44,22 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = (user as any).role || "VENDOR";
       }
+      
+      // Ensure role is up-to-date from the database on subsequent calls
+      if (token.id) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { role: true }
+          });
+          if (dbUser) {
+            token.role = dbUser.role;
+          }
+        } catch (error) {
+          console.error("Error fetching user role for JWT:", error);
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {

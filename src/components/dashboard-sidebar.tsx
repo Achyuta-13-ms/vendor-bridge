@@ -161,6 +161,16 @@ export function DashboardSidebar({ isMobile }: { isMobile?: boolean }) {
               collapsed={!isMobile && collapsed}
             />
           ))}
+
+          {(session?.user as any)?.role === "ADMIN" && (
+            <SidebarItem
+              icon={ShieldCheck}
+              label="Admin Console"
+              href="/admin/dashboard"
+              active={pathname.startsWith("/admin")}
+              collapsed={!isMobile && collapsed}
+            />
+          )}
           
           <div className={cn(
             "flex items-center px-3 py-2 rounded-lg",

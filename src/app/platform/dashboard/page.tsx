@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Users, CheckCircle2, Activity, Zap, Search, Bell, Settings, LayoutDashboard, FileText, Webhook, Key, Copy } from "lucide-react";
+import { Users, CheckCircle2, Activity, Zap, Search, Bell, Settings, LayoutDashboard, FileText, Webhook, Key, Copy, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -209,8 +209,11 @@ export default function PlatformDashboard() {
             <Settings className="h-4 w-4" /> Settings
           </a>
         </nav>
-        <div className="p-4 border-t">
-          <a href="/" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+        <div className="p-4 border-t space-y-3">
+          <a href="/admin/dashboard" className="flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-2 rounded-md transition-colors">
+            <ShieldCheck className="h-3.5 w-3.5" /> Admin Console
+          </a>
+          <a href="/" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1">
             <LayoutDashboard className="h-3.5 w-3.5" /> Back to Main Site
           </a>
         </div>
