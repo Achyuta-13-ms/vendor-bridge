@@ -75,10 +75,8 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        'green-glow': '0 0 20px -5px rgba(16, 185, 129, 0.3)',
-        'green-glow-lg': '0 0 40px -10px rgba(16, 185, 129, 0.4)',
-        'premium-card': '0 4px 20px -2px rgba(0, 0, 0, 0.1)',
-        'premium-card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
+        'premium-card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        'premium-card-dark': '0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5)',
       },
       keyframes: {
         "accordion-down": {
@@ -92,17 +90,12 @@ export default {
         "fade-in": {
           from: { opacity: "0" },
           to: { opacity: "1" },
-        },
-        "glow-pulse": {
-          '0%, 100%': { opacity: '0.5' },
-          '50%': { opacity: '1' },
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out",
-        "glow-pulse": "glow-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
 
     },

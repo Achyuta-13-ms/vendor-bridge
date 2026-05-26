@@ -92,9 +92,9 @@ export default function FeaturesPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group p-8 rounded-3xl border border-border bg-card hover:shadow-xl transition-all"
+                className="group p-8 rounded-xl border border-border bg-card hover:shadow-xl transition-all"
               >
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${f.color} group-hover:scale-110 transition-transform`}>
+                <div className={`w-14 h-14 rounded-lg flex items-center justify-center mb-6 ${f.color} group-hover:scale-110 transition-transform`}>
                   <f.icon className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">{f.title}</h3>
@@ -130,7 +130,7 @@ export default function FeaturesPage() {
       {/* CTA */}
       <section className="py-24">
         <div className="container mx-auto px-4 text-center">
-          <div className="max-w-4xl mx-auto rounded-3xl bg-primary p-12 text-primary-foreground shadow-2xl relative overflow-hidden">
+          <div className="max-w-4xl mx-auto rounded-xl bg-primary p-12 text-primary-foreground shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
             <h2 className="text-3xl font-bold mb-4 relative z-10">Start scaling your marketplace today</h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto relative z-10">

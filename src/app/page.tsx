@@ -97,8 +97,8 @@ const Index = () => {
       {/* Hero */}
       <section className="relative overflow-hidden bg-background pt-24 pb-32">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl opacity-50 pointer-events-none">
-          <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] animate-glow-pulse" />
-          <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-glow-pulse" />
+          <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] animate-fade-in" />
+          <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-fade-in" />
         </div>
 
         <div className="container relative mx-auto px-4 text-center">
@@ -108,7 +108,7 @@ const Index = () => {
             transition={{ duration: 0.6 }}
             className="mx-auto max-w-4xl"
           >
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary shadow-green-glow animate-fade-in">
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary shadow-sm animate-fade-in">
               <Sparkles className="h-3.5 w-3.5" />
               Infrastructure for the next 1M Indian Merchants
             </div>
@@ -126,11 +126,11 @@ const Index = () => {
 
             <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center animate-fade-in [animation-delay:400ms]">
               <Link href="/signup">
-                <Button size="lg" className="h-14 px-10 text-lg shadow-green-glow hover:shadow-green-glow-lg transition-all rounded-2xl group font-bold">
+                <Button size="lg" className="h-14 px-10 text-lg shadow-sm hover:shadow-elevated transition-all rounded-lg group font-bold">
                   Start for Free <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              <Button variant="ghost" size="lg" className="h-14 px-10 text-lg rounded-2xl gap-2 hover:bg-muted/50 border border-border/50">
+              <Button variant="ghost" size="lg" className="h-14 px-10 text-lg rounded-lg gap-2 hover:bg-muted/50 border border-border/50">
                 <Play className="h-5 w-5 fill-primary text-primary" /> Watch Demo
               </Button>
             </div>
@@ -150,7 +150,7 @@ const Index = () => {
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h2 className="text-3xl font-bold tracking-tight mb-4">Onboarding Reimagined</h2>
             <div className="flex justify-center mt-8">
-              <div className="inline-flex p-1 bg-background border rounded-2xl">
+              <div className="inline-flex p-1 bg-background border rounded-lg">
                 <button 
                   onClick={() => setActiveTab('before')}
                   className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === 'before' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
@@ -177,7 +177,7 @@ const Index = () => {
                   exit={{ opacity: 0, x: 20 }}
                   className="space-y-6"
                 >
-                  <div className="bg-background border rounded-3xl p-8 border-red-500/20 shadow-xl shadow-red-500/5">
+                  <div className="bg-background border rounded-xl p-8 border-red-500/20 shadow-xl shadow-red-500/5">
                     <div className="flex items-center gap-3 mb-6 text-red-600">
                       <ShieldAlert className="h-6 w-6" />
                       <h3 className="text-lg font-bold">The Pain Point</h3>
@@ -197,7 +197,7 @@ const Index = () => {
                       ))}
                     </ul>
                   </div>
-                  <div className="text-center p-6 rounded-2xl bg-red-500/5 border border-red-500/10">
+                  <div className="text-center p-6 rounded-lg bg-red-500/5 border border-red-500/10">
                     <p className="text-2xl font-bold text-red-700">7-10 Days</p>
                     <p className="text-xs text-red-600 uppercase tracking-widest font-bold">Time to Market</p>
                   </div>
@@ -210,7 +210,7 @@ const Index = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  <div className="bg-background border rounded-3xl p-8 border-primary/20 shadow-xl shadow-green-glow">
+                  <div className="bg-background border rounded-xl p-8 border-primary/20 shadow-xl shadow-sm">
                     <div className="flex items-center gap-3 mb-6 text-primary">
                       <Rocket className="h-6 w-6" />
                       <h3 className="text-lg font-bold">The Solution</h3>
@@ -230,7 +230,7 @@ const Index = () => {
                       ))}
                     </ul>
                   </div>
-                  <div className="text-center p-6 rounded-2xl bg-primary/5 border border-primary/10">
+                  <div className="text-center p-6 rounded-lg bg-primary/5 border border-primary/10">
                     <p className="text-2xl font-bold text-primary">Sub-minute</p>
                     <p className="text-xs text-primary/60 uppercase tracking-widest font-bold">Time to Market</p>
                   </div>
@@ -243,7 +243,7 @@ const Index = () => {
               <motion.div 
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="aspect-video bg-card border rounded-[32px] shadow-2xl overflow-hidden relative group border-primary/20"
+                className="aspect-video bg-card border rounded-xl shadow-2xl overflow-hidden relative group border-primary/20"
               >
                 <img 
                   src="/demo/dashboard-mockup.png" 
@@ -299,7 +299,7 @@ const Index = () => {
               { icon: Zap, title: "Live Sync", desc: "Approved vendors are pushed to your marketplace via webhooks." }
             ].map((step, i) => (
               <div key={i} className="relative group">
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/5 border border-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/20">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/5 border border-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/20">
                   <step.icon className="h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">{step.title}</h3>
@@ -329,9 +329,9 @@ const Index = () => {
                 key={uc.title}
                 {...fadeIn}
                 transition={{ delay: i * 0.1 }}
-                className="bg-background rounded-3xl p-8 border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="bg-background rounded-xl p-8 border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
-                <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl ${uc.color}`}>
+                <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-lg ${uc.color}`}>
                   <uc.icon className="h-7 w-7" />
                 </div>
                 <h3 className="text-lg font-bold mb-3">{uc.title}</h3>
@@ -390,14 +390,14 @@ const Index = () => {
                 initial={{ rotate: -2, y: 0 }}
                 whileInView={{ rotate: 0, y: -10 }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="relative bg-background border rounded-[48px] p-2 shadow-3xl overflow-hidden"
+                className="relative bg-background border rounded-xl p-2 shadow-3xl overflow-hidden"
               >
                 <img 
                   src="/demo/verified-graphic.png" 
                   alt="Verified Infrastructure" 
-                  className="w-full aspect-square object-cover rounded-[40px]"
+                  className="w-full aspect-square object-cover rounded-xl"
                 />
-                <div className="absolute top-8 right-8 bg-white/90 backdrop-blur-md px-6 py-4 rounded-3xl border shadow-2xl flex items-center gap-3">
+                <div className="absolute top-8 right-8 bg-white/90 backdrop-blur-md px-6 py-4 rounded-xl border shadow-2xl flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
                     <Check className="h-5 w-5 text-white" />
                   </div>
@@ -427,11 +427,11 @@ const Index = () => {
               Schedule a demo with our founding team to explore a customized pilot for your platform.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" className="h-14 px-10 text-lg rounded-2xl font-bold shadow-green-glow hover:shadow-green-glow-lg transition-all">
+              <Button size="lg" className="h-14 px-10 text-lg rounded-lg font-bold shadow-sm hover:shadow-elevated transition-all">
                 Book a Demo
               </Button>
               <Link href="/signup">
-                <Button size="lg" variant="outline" className="h-14 px-10 text-lg rounded-2xl border-border hover:bg-muted/50 font-bold transition-all">
+                <Button size="lg" variant="outline" className="h-14 px-10 text-lg rounded-lg border-border hover:bg-muted/50 font-bold transition-all">
                   Try it Free
                 </Button>
               </Link>

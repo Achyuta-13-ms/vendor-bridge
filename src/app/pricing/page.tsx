@@ -93,7 +93,7 @@ export default function PricingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className={`relative flex flex-col p-8 rounded-3xl border bg-card transition-all ${
+                className={`relative flex flex-col p-8 rounded-xl border bg-card transition-all ${
                   tier.popular ? "border-primary shadow-2xl scale-105 z-10" : "border-border shadow-sm"
                 }`}
               >
@@ -104,7 +104,7 @@ export default function PricingPage() {
                 )}
                 
                 <div className="mb-8">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${tier.popular ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-6 ${tier.popular ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                     <tier.icon className="w-6 h-6" />
                   </div>
                   <h3 className="text-2xl font-bold">{tier.name}</h3>
@@ -145,7 +145,7 @@ export default function PricingPage() {
       {/* Comparison Question */}
       <section className="py-24 bg-muted/20 border-t">
         <div className="container mx-auto px-4 max-w-4xl text-center">
-          <div className="inline-flex items-center justify-center p-3 bg-card rounded-2xl shadow-sm mb-6 border border-border">
+          <div className="inline-flex items-center justify-center p-3 bg-card rounded-lg shadow-sm mb-6 border border-border">
             <Info className="w-5 h-5 text-primary mr-2" />
             <span className="text-sm font-medium">Need something simpler?</span>
             <button className="ml-2 text-sm text-primary hover:underline font-bold">Try Pay-as-you-go</button>
@@ -157,7 +157,7 @@ export default function PricingPage() {
               { q: "Can I upgrade or downgrade anytime?", a: "Yes, you can change your plan at the beginning of any billing cycle directly from your dashboard." },
               { q: "Do you offer test credits?", a: "The Sandbox plan comes with 100 free verification units per month to test your integration logic." },
             ].map((faq) => (
-              <div key={faq.q} className="p-6 rounded-2xl bg-card border border-border">
+              <div key={faq.q} className="p-6 rounded-lg bg-card border border-border">
                 <h4 className="font-bold mb-2">{faq.q}</h4>
                 <p className="text-sm text-muted-foreground">{faq.a}</p>
               </div>

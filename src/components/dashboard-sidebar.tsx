@@ -107,7 +107,7 @@ export function DashboardSidebar({ isMobile }: { isMobile?: boolean }) {
             collapsed && !isMobile ? "w-10 justify-center" : "flex-1"
           )}
         >
-          <div className="h-9 w-9 bg-card rounded-xl flex items-center justify-center border border-border/50 shadow-green-glow overflow-hidden shrink-0">
+          <div className="h-9 w-9 bg-card rounded-md flex items-center justify-center border border-border shadow-sm overflow-hidden shrink-0">
             <img 
               src="/logo.png" 
               alt="VS" 

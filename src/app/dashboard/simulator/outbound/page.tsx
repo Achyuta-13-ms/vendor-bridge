@@ -201,7 +201,7 @@ export default function OutboundSimulator() {
                        <h4 className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
                         <Code2 className="h-3 w-3" /> Payload Content
                        </h4>
-                       <pre className="bg-neutral-900 p-6 rounded-2xl text-xs text-amber-400 overflow-x-auto border-2 border-amber-900/20 shadow-inner">
+                       <pre className="bg-neutral-900 p-6 rounded-lg text-xs text-amber-400 overflow-x-auto border-2 border-amber-900/20 shadow-inner">
                         {JSON.stringify(selectedEvent.payload, null, 2)}
                        </pre>
                     </div>

@@ -31,7 +31,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const Sidebar = ({ mobile = false }: { mobile?: boolean }) => (
     <div className={`flex flex-col h-full ${mobile ? "" : "w-60 border-r border-border"} bg-card`}>
       <div className="flex items-center gap-3 p-4 border-b border-border bg-card">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background shadow-green-glow border border-border/50 overflow-hidden">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background shadow-sm border border-border/50 overflow-hidden">
           <img 
             src="/logo.png" 
             alt="VS" 

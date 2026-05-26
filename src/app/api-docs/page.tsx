@@ -60,7 +60,7 @@ function EndpointCard({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-border rounded-2xl overflow-hidden bg-card shadow-xs">
+    <div className="border border-border rounded-lg overflow-hidden bg-card shadow-xs">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors"
@@ -256,7 +256,7 @@ export default function ApiDocsPage() {
             <h2 className="text-lg font-semibold text-foreground">Quick Start</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {features.map((f) => (
-                <div key={f.title} className="rounded-2xl border border-border bg-card p-4 flex gap-3 shadow-xs">
+                <div key={f.title} className="rounded-lg border border-border bg-card p-4 flex gap-3 shadow-xs">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/15">
                     <f.icon className="h-4 w-4 text-primary" />
                   </div>
@@ -307,7 +307,7 @@ export default function ApiDocsPage() {
           {/* Error codes */}
           <section className="space-y-4">
             <h2 className="text-lg font-semibold text-foreground">Error Codes</h2>
-            <div className="overflow-hidden rounded-2xl border border-border">
+            <div className="overflow-hidden rounded-lg border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 border-b border-border">
                   <tr>
@@ -335,7 +335,7 @@ export default function ApiDocsPage() {
           </section>
 
           {/* CTA */}
-          <section className="rounded-2xl border border-border bg-card p-8 text-center shadow-xs">
+          <section className="rounded-lg border border-border bg-card p-8 text-center shadow-xs">
             <h2 className="text-xl font-semibold text-foreground">Ready to integrate?</h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
               Sign up for a free account to get your sandbox API key and start testing.

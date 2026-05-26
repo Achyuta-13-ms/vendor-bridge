@@ -119,7 +119,7 @@ export default function IntegrationPage() {
                   isConnected ? "border-primary/20 bg-primary/5 shadow-primary/5 shadow-lg" : "border-border/50 hover:border-primary/30"
                 )}>
                   <CardHeader className="pb-3 flex flex-row items-center gap-4">
-                    <div className="h-14 w-14 rounded-2xl bg-white border-2 shadow-sm p-2 flex items-center justify-center overflow-hidden shrink-0 group-hover:rotate-3 transition-transform">
+                    <div className="h-14 w-14 rounded-lg bg-white border-2 shadow-sm p-2 flex items-center justify-center overflow-hidden shrink-0 group-hover:rotate-3 transition-transform">
                       {platform.logoUrl ? (
                         <img src={platform.logoUrl} alt={platform.displayName} className="w-full h-full object-contain" />
                       ) : (

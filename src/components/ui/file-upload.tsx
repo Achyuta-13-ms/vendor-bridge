@@ -91,7 +91,7 @@ export function FileUpload({ onUpload, accept = ".pdf,.jpg,.png", className, lab
 
   if (status === "success" && (file || initialUrl)) {
     return (
-      <div className={cn("rounded-lg border bg-success/5 border-success/30 p-4 flex items-center justify-between animate-in fade-in zoom-in duration-300", className)}>
+      <div className={cn("rounded-md border bg-success/5 border-success/30 p-4 flex items-center justify-between animate-in fade-in duration-200", className)}>
         <div className="flex items-center gap-3">
           <CheckCircle2 className="h-8 w-8 text-success" />
           <div className="overflow-hidden">

@@ -192,7 +192,7 @@ export default function SignupPage() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-card border border-border/50 shadow-green-glow overflow-hidden"
+              className="inline-flex h-16 w-16 items-center justify-center rounded-lg bg-card border border-border/50 shadow-sm overflow-hidden"
             >
               <img 
                 src="/logo.png" 
@@ -479,7 +479,7 @@ export default function SignupPage() {
                         {/* STEP 6: REVIEW */}
                         {step === 6 && (
                           <div className="space-y-6">
-                            <div className="rounded-2xl border bg-muted/30 p-5 space-y-4">
+                            <div className="rounded-lg border bg-muted/30 p-5 space-y-4">
                               <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                   <UserIcon className="h-5 w-5" />

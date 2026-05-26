@@ -170,7 +170,7 @@ export default function KYCPage() {
                 const status = getDocStatus(doc.type);
                 const isVerified = status === "Verified";
                 return (
-                  <div key={doc.type} className="flex items-center justify-between p-4 rounded-2xl border bg-muted/10 group hover:border-primary/40 transition-all">
+                  <div key={doc.type} className="flex items-center justify-between p-4 rounded-lg border bg-muted/10 group hover:border-primary/40 transition-all">
                     <div className="flex items-center gap-4">
                       <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center", isVerified ? "bg-blue-500/20 text-blue-600" : "bg-muted text-muted-foreground")}>
                         <FileText className="h-6 w-6" />

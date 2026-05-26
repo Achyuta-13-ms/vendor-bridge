@@ -254,7 +254,7 @@ export default function DashboardHome() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="border-primary/30 bg-primary/5 shadow-green-glow overflow-hidden relative group">
+          <Card className="border-primary/30 bg-primary/5 shadow-sm overflow-hidden relative group">
             <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-500">
               <BadgeCheck className="h-24 w-24 text-primary" />
             </div>
@@ -275,7 +275,7 @@ export default function DashboardHome() {
                  </div>
                  <Button 
                    size="sm" 
-                   className="h-8 text-xs font-bold shadow-green-glow shrink-0" 
+                   className="h-8 text-xs font-bold shadow-sm shrink-0" 
                    onClick={() => {
                      navigator.clipboard.writeText(`https://vyapaarsetu.in/profile/${vendor.id}`);
                      toast({ title: "Link Copied!", description: "Share your business profile with anyone." });

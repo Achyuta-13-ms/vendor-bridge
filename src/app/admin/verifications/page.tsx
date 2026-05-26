@@ -274,7 +274,7 @@ export default function AdminVerifications() {
                       className="overflow-hidden"
                     >
                       <div className="border-t bg-muted/10 p-4 sm:p-5 space-y-3">
-                        <div className="flex flex-col md:flex-row gap-6 mb-6 bg-background/50 rounded-2xl p-5 border border-dashed">
+                        <div className="flex flex-col md:flex-row gap-6 mb-6 bg-background/50 rounded-lg p-5 border border-dashed">
                           <div className="space-y-3 flex-1">
                             <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Verification Timeline</p>
                             <div className="space-y-4 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-muted">
