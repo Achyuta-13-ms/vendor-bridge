@@ -254,7 +254,7 @@ export default function DashboardHome() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="border-primary/30 bg-primary/5 shadow-sm overflow-hidden relative group">
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 shadow-glow-primary overflow-hidden relative group backdrop-blur-md hover:shadow-premium-card transition-all">
             <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-500">
               <BadgeCheck className="h-24 w-24 text-primary" />
             </div>
@@ -317,7 +317,7 @@ export default function DashboardHome() {
       )}
 
       {/* ── Profile Completion ── */}
-      <Card className="border-none shadow-lg">
+      <Card className="border border-border/50 shadow-premium-card backdrop-blur-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base font-bold">Profile Completion</CardTitle>
@@ -343,7 +343,7 @@ export default function DashboardHome() {
       </Card>
 
       {/* ── Quick Tips ── */}
-      <Card className="border-primary/20 bg-primary/5">
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-transparent shadow-sm backdrop-blur-sm">
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2 text-primary">
             <Sparkles className="h-4 w-4" />
@@ -437,7 +437,7 @@ export default function DashboardHome() {
 
       {/* ── Business Profile Summary ── */}
       {vendor && (
-        <Card className="border-none shadow-md bg-gradient-to-br from-primary/5 to-background">
+        <Card className="border border-primary/10 shadow-premium-card bg-gradient-to-br from-primary/10 via-primary/5 to-background backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-bold flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" /> Business Profile

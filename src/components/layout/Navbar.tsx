@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Shield, LayoutDashboard, LogOut } from "lucide-react";
 
 const navLinks = [
-  { label: "Features", href: "#features" },
-  { label: "Use Cases", href: "#use-cases" },
+  { label: "Features", href: "/#features" },
+  { label: "Use Cases", href: "/#use-cases" },
   { label: "Pricing", href: "/pricing" },
   { label: "API Docs", href: "/api-docs" },
 ];
@@ -84,7 +84,7 @@ const Navbar = () => {
               <Link href="/login">
                 <Button variant="ghost" size="sm" className="font-semibold">Log in</Button>
               </Link>
-              <Link href="#book-demo">
+              <Link href="/#book-demo">
                 <Button size="sm" className="rounded-xl font-bold px-5">Book Demo</Button>
               </Link>
             </>
@@ -128,7 +128,7 @@ const Navbar = () => {
                   <Link href="/login" onClick={() => setMobileOpen(false)}>
                     <Button variant="outline" className="w-full rounded-xl font-bold">Log in</Button>
                   </Link>
-                  <Link href="#book-demo" onClick={() => setMobileOpen(false)}>
+                  <Link href="/#book-demo" onClick={() => setMobileOpen(false)}>
                     <Button className="w-full rounded-xl font-bold">Book Demo</Button>
                   </Link>
                 </>

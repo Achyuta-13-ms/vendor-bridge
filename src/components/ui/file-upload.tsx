@@ -127,8 +127,8 @@ export function FileUpload({ onUpload, accept = ".pdf,.jpg,.png", className, lab
     <div className="space-y-2">
       <div
         className={cn(
-          "relative rounded-lg border-2 border-dashed p-6 transition-all hover:bg-muted/50 text-center flex flex-col items-center justify-center gap-2",
-          isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+          "relative rounded-xl border-2 border-dashed p-6 transition-all duration-300 hover:bg-muted/50 text-center flex flex-col items-center justify-center gap-2 overflow-hidden hover:border-primary/50",
+          isDragging ? "border-primary bg-primary/5 shadow-glow-sm" : "border-muted-foreground/25",
           status === "error" ? "border-destructive/50 bg-destructive/5" : "",
           className
         )}

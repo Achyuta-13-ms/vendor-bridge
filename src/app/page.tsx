@@ -96,6 +96,7 @@ const Index = () => {
     <PublicLayout>
       {/* Hero */}
       <section className="relative overflow-hidden bg-background pt-24 pb-32">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/15 via-background to-background pointer-events-none -z-10" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl opacity-50 pointer-events-none">
           <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] animate-fade-in" />
           <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-fade-in" />
@@ -116,7 +117,7 @@ const Index = () => {
             <h1 className="text-5xl font-extrabold tracking-tight text-foreground sm:text-7xl md:text-8xl leading-[1.0] mb-8 animate-fade-in">
               Vendor onboarding 
               <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-emerald-400">reimagined.</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-emerald-400 animate-gradient bg-[length:200%_auto]">reimagined.</span>
             </h1>
 
             <p className="mt-8 text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
@@ -299,7 +300,7 @@ const Index = () => {
               { icon: Zap, title: "Live Sync", desc: "Approved vendors are pushed to your marketplace via webhooks." }
             ].map((step, i) => (
               <div key={i} className="relative group">
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/5 border border-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-sm group-hover:shadow-lg group-hover:shadow-primary/20">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/10 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground transition-all duration-500 shadow-sm group-hover:shadow-glow-primary">
                   <step.icon className="h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">{step.title}</h3>
@@ -329,7 +330,7 @@ const Index = () => {
                 key={uc.title}
                 {...fadeIn}
                 transition={{ delay: i * 0.1 }}
-                className="bg-background rounded-xl p-8 border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="bg-card/50 backdrop-blur-sm rounded-xl p-8 border border-border/50 shadow-sm hover:shadow-premium-card hover:-translate-y-1 transition-all duration-500 hover:bg-card/80"
               >
                 <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-lg ${uc.color}`}>
                   <uc.icon className="h-7 w-7" />
@@ -390,7 +391,7 @@ const Index = () => {
                 initial={{ rotate: -2, y: 0 }}
                 whileInView={{ rotate: 0, y: -10 }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="relative bg-background border rounded-xl p-2 shadow-3xl overflow-hidden"
+                className="relative bg-gradient-to-b from-card/80 to-background backdrop-blur-xl border border-border/50 rounded-xl p-2 shadow-glow-primary overflow-hidden"
               >
                 <img 
                   src="/demo/verified-graphic.png" 
