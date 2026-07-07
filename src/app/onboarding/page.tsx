@@ -1,340 +1,410 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Loader2, ArrowRight, ArrowLeft, UploadCloud, CheckCircle2, Building, ShieldCheck } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, UploadCloud, FileText, Upload, ChevronLeft } from "lucide-react";
+import Link from "next/link";
+
+const onboardingSchema = z.object({
+  // Step 1
+  businessName: z.string().min(2, "Business name is required"),
+  workEmail: z.string().email("Valid email required"),
+  mobile: z.string().min(10, "Valid mobile required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+  termsAccepted: z.boolean().refine(val => val, "You must accept the terms"),
+  
+  // Step 2 (OTP handled implicitly or via simple state, but we can track it here if we want)
+  otp: z.string().optional(),
+
+  // Step 3
+  legalBusinessName: z.string().optional(),
+  businessType: z.string().optional(),
+  industry: z.string().optional(),
+  gst: z.string().optional(),
+  pan: z.string().optional(),
+  cin: z.string().optional(),
+  website: z.string().optional(),
+  businessSize: z.string().optional(),
+
+  // Step 4
+  address: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  pin: z.string().optional(),
+  country: z.string().default("India"),
+  
+  // Step 5 (Documents handled via separate state usually, but we track generic strings for simplicity)
+  gstDoc: z.string().optional(),
+  panDoc: z.string().optional(),
+  incDoc: z.string().optional(),
+  chequeDoc: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword || !data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+type OnboardingData = z.infer<typeof onboardingSchema>;
 
 const STEPS = [
-  { id: 1, title: "Business Information" },
-  { id: 2, title: "Business Details" },
-  { id: 3, title: "Business Address" },
-  { id: 4, title: "Authorized Person" },
-  { id: 5, title: "Upload Documents" }
+  "Create Account",
+  "Verify Contact",
+  "Business Information",
+  "Business Address",
+  "Upload Documents",
+  "Review & Submit"
 ];
 
 export default function OnboardingWizard() {
   const router = useRouter();
-  const { toast } = useToast();
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [mounted, setMounted] = useState(false);
 
-  // Form State
-  const [formData, setFormData] = useState({
-    legalName: "", tradeName: "", businessType: "", industry: "", companySize: "", website: "",
-    gst: "", pan: "", cin: "", msme: "",
-    address: "", city: "", state: "", pin: "",
-    authName: "", authDesig: "", authEmail: "", authMobile: "",
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<OnboardingData>({
+    resolver: zodResolver(onboardingSchema),
+    defaultValues: {
+      country: "India"
+    }
   });
 
-  const [uploads, setUploads] = useState({
-    gst: false, pan: false, inc: false, cheque: false, other: false
-  });
+  const formValues = watch();
 
-  const updateForm = (key: string, value: string) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
-  };
+  // Load saved state
+  useEffect(() => {
+    setMounted(true);
+    const saved = localStorage.getItem("vypaar_onboarding_draft");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.step) setCurrentStep(parsed.step);
+      Object.keys(parsed.data || {}).forEach((key) => {
+        setValue(key as keyof OnboardingData, parsed.data[key]);
+      });
+    }
+  }, [setValue]);
 
-  const nextStep = () => setStep(s => Math.min(5, s + 1));
-  const prevStep = () => setStep(s => Math.max(1, s - 1));
+  // Auto-save state
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("vypaar_onboarding_draft", JSON.stringify({
+        step: currentStep,
+        data: formValues
+      }));
+    }
+  }, [formValues, currentStep, mounted]);
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      router.push("/onboarding/verifying");
-    } catch (error) {
-      toast({ title: "Submission Failed", variant: "destructive" });
-    } finally {
-      setLoading(false);
+  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 6));
+  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+
+  const onSubmit = (data: OnboardingData) => {
+    if (currentStep < 6) {
+      nextStep();
+    } else {
+      // Final Submit
+      localStorage.removeItem("vypaar_onboarding_draft"); // clear draft
+      router.push("/onboarding/success");
     }
   };
 
-  // Simplified Mock File Upload Component
-  const MockUpload = ({ label, uploadedKey }: { label: string, uploadedKey: keyof typeof uploads }) => {
-    const isUploaded = uploads[uploadedKey];
-    return (
-      <div 
-        className={`border-2 border-dashed rounded-xl p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-3
-          ${isUploaded ? "border-emerald-500 bg-emerald-50" : "border-zinc-200 hover:border-black hover:bg-zinc-50"}
-        `}
-        onClick={() => {
-          if (!isUploaded) {
-            setUploads(prev => ({ ...prev, [uploadedKey]: true }));
-            toast({ title: `${label} uploaded successfully` });
-          }
-        }}
-      >
-        {isUploaded ? (
-          <>
-            <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-            <span className="font-semibold text-emerald-700">{label} Uploaded</span>
-          </>
-        ) : (
-          <>
-            <UploadCloud className="w-8 h-8 text-zinc-400" />
-            <span className="font-semibold text-zinc-600">Click to upload {label}</span>
-            <span className="text-xs text-zinc-400">PDF, JPG or PNG (Max 5MB)</span>
-          </>
-        )}
-      </div>
-    );
-  };
+  if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      {/* Header */}
-      <header className="bg-white border-b border-zinc-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-zinc-50 flex flex-col items-center pt-16 pb-24 px-4 font-sans">
+      
+      {/* Brand & Progress Header */}
+      <div className="w-full max-w-2xl mb-8">
+        <div className="flex items-center justify-between mb-8">
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-black flex items-center justify-center">
-              <span className="text-white font-bold text-sm">VS</span>
+            <div className="w-8 h-8 rounded-lg bg-white border border-zinc-200 shadow-sm flex items-center justify-center overflow-hidden">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="font-extrabold text-xl text-black tracking-tight hidden sm:block">VyapaarSetu</span>
+            <span className="font-bold text-lg text-black tracking-tight">VyapaarSetu</span>
           </Link>
-          <div className="text-sm font-semibold text-zinc-500 flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            Secure Setup
+          <div className="text-sm font-semibold tracking-widest uppercase text-zinc-500">
+            Step {currentStep} of 6
           </div>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-12 max-w-4xl">
-        <div className="flex flex-col md:flex-row gap-12">
-          
-          {/* Sidebar / Progress */}
-          <div className="w-full md:w-64 shrink-0">
-            <div className="sticky top-24">
-              <h2 className="text-sm font-bold text-black uppercase tracking-widest mb-6">Profile Setup</h2>
-              <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-zinc-200 before:to-transparent">
-                {STEPS.map((s) => {
-                  const isActive = step === s.id;
-                  const isCompleted = step > s.id;
-                  return (
-                    <div key={s.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                      <div className={`flex items-center gap-4 ${isActive ? 'opacity-100' : 'opacity-50'} transition-opacity`}>
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 z-10 transition-colors
-                          ${isCompleted ? 'bg-black text-white' : isActive ? 'bg-orange-500 text-white ring-4 ring-orange-100' : 'bg-zinc-200 text-zinc-500'}
-                        `}>
-                          {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <span className="text-xs font-bold">{s.id}</span>}
-                        </div>
-                        <span className={`font-semibold ${isActive ? 'text-black' : 'text-zinc-600'}`}>{s.title}</span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+        {/* Progress Bar */}
+        <div className="h-1.5 w-full bg-zinc-200 rounded-full overflow-hidden">
+          <motion.div 
+            className="h-full bg-orange-500 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${(currentStep / 6) * 100}%` }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          />
+        </div>
+      </div>
+
+      {/* Main Form Card */}
+      <div className="w-full max-w-2xl bg-white border border-zinc-200 rounded-[16px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+        
+        {currentStep > 1 && (
+          <div className="px-8 pt-8 pb-0">
+            <button onClick={prevStep} className="flex items-center text-sm font-semibold text-zinc-500 hover:text-black transition-colors">
+              <ChevronLeft className="w-4 h-4 mr-1" /> Back
+            </button>
           </div>
+        )}
 
-          {/* Form Content */}
-          <div className="flex-1 bg-white border border-zinc-200 rounded-3xl shadow-[0_20px_60px_rgb(0,0,0,0.04)] overflow-hidden min-h-[500px]">
-            <div className="p-8 sm:p-12">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={step}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-6"
-                >
-                  <div className="mb-8 border-b border-zinc-100 pb-6">
-                    <h1 className="text-2xl font-extrabold text-black mb-2">{STEPS[step - 1].title}</h1>
-                    <p className="text-zinc-500">Provide accurate information to ensure seamless verification.</p>
+        <div className="p-8 md:p-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-black mb-2">{STEPS[currentStep - 1]}</h2>
+          <p className="text-zinc-500 mb-8">
+            {currentStep === 1 && "Start by creating your administrative account."}
+            {currentStep === 2 && "We've sent a 6-digit code to your email and mobile."}
+            {currentStep === 3 && "Tell us about your legal business entity."}
+            {currentStep === 4 && "Where is your business registered?"}
+            {currentStep === 5 && "Upload required verification documents."}
+            {currentStep === 6 && "Please review your details before submitting."}
+          </p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            
+            {/* STEP 1: Create Account */}
+            {currentStep === 1 && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-black mb-1.5">Business Name</label>
+                  <input {...register("businessName")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="Acme Corp" />
+                  {errors.businessName && <p className="text-red-500 text-xs mt-1">{errors.businessName.message}</p>}
+                </div>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">Work Email</label>
+                    <input {...register("workEmail")} type="email" className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="founder@acme.com" />
+                    {errors.workEmail && <p className="text-red-500 text-xs mt-1">{errors.workEmail.message}</p>}
                   </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">Mobile Number</label>
+                    <input {...register("mobile")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="+91 98765 43210" />
+                    {errors.mobile && <p className="text-red-500 text-xs mt-1">{errors.mobile.message}</p>}
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">Password</label>
+                    <input {...register("password")} type="password" className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="••••••••" />
+                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">Confirm Password</label>
+                    <input {...register("confirmPassword")} type="password" className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="••••••••" />
+                    {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
+                  </div>
+                </div>
+                <div className="pt-2 flex items-start gap-3">
+                  <input type="checkbox" {...register("termsAccepted")} id="terms" className="mt-1 w-4 h-4 rounded border-zinc-300 text-orange-600 focus:ring-orange-500" />
+                  <label htmlFor="terms" className="text-sm text-zinc-600 leading-tight">
+                    I agree to the Terms of Service and Privacy Policy. I understand that my business identity will be verified against government databases.
+                  </label>
+                </div>
+                {errors.termsAccepted && <p className="text-red-500 text-xs mt-1">{errors.termsAccepted.message}</p>}
+              </motion.div>
+            )}
 
-                  {step === 1 && (
-                    <div className="space-y-5">
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Legal Business Name</label>
-                          <Input value={formData.legalName} onChange={e => updateForm("legalName", e.target.value)} className="h-12 bg-zinc-50" placeholder="As per PAN" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Trade Name</label>
-                          <Input value={formData.tradeName} onChange={e => updateForm("tradeName", e.target.value)} className="h-12 bg-zinc-50" placeholder="Store or brand name" />
-                        </div>
-                      </div>
-                      
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Business Type</label>
-                          <Select onValueChange={v => updateForm("businessType", v)} value={formData.businessType}>
-                            <SelectTrigger className="h-12 bg-zinc-50"><SelectValue placeholder="Select type" /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="prop">Sole Proprietorship</SelectItem>
-                              <SelectItem value="llp">LLP</SelectItem>
-                              <SelectItem value="pvt">Private Limited</SelectItem>
-                              <SelectItem value="pub">Public Limited</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Industry</label>
-                          <Select onValueChange={v => updateForm("industry", v)} value={formData.industry}>
-                            <SelectTrigger className="h-12 bg-zinc-50"><SelectValue placeholder="Select industry" /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="retail">Retail & FMCG</SelectItem>
-                              <SelectItem value="tech">Technology / SaaS</SelectItem>
-                              <SelectItem value="logistics">Logistics</SelectItem>
-                              <SelectItem value="finance">Financial Services</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
+            {/* STEP 2: Verify Contact */}
+            {currentStep === 2 && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6 text-center">
+                <p className="text-black font-medium">Sent to: {formValues.workEmail}</p>
+                <div className="flex justify-center gap-3 my-8">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <input key={i} type="text" maxLength={1} className="w-12 h-14 text-center text-xl font-bold rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" />
+                  ))}
+                </div>
+                <div className="flex flex-col gap-3 justify-center items-center">
+                  <button type="button" className="text-sm font-bold text-orange-500 hover:text-orange-600">Resend OTP</button>
+                  <button type="button" onClick={prevStep} className="text-sm font-bold text-zinc-500 hover:text-black">Change Email / Mobile</button>
+                </div>
+              </motion.div>
+            )}
 
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Company Size</label>
-                          <Select onValueChange={v => updateForm("companySize", v)} value={formData.companySize}>
-                            <SelectTrigger className="h-12 bg-zinc-50"><SelectValue placeholder="Select size" /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="1-10">1-10 Employees</SelectItem>
-                              <SelectItem value="11-50">11-50 Employees</SelectItem>
-                              <SelectItem value="51-200">51-200 Employees</SelectItem>
-                              <SelectItem value="200+">200+ Employees</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Website (Optional)</label>
-                          <Input value={formData.website} onChange={e => updateForm("website", e.target.value)} className="h-12 bg-zinc-50" placeholder="https://" />
-                        </div>
+            {/* STEP 3: Business Information */}
+            {currentStep === 3 && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-black mb-1.5">Legal Business Name</label>
+                  <input {...register("legalBusinessName")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="As registered on PAN" />
+                </div>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">Business Type</label>
+                    <select {...register("businessType")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all bg-white">
+                      <option value="">Select Type</option>
+                      <option value="pvt_ltd">Private Limited</option>
+                      <option value="llp">LLP</option>
+                      <option value="proprietorship">Proprietorship</option>
+                      <option value="partnership">Partnership</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">Industry</label>
+                    <select {...register("industry")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all bg-white">
+                      <option value="">Select Industry</option>
+                      <option value="software">Software / IT</option>
+                      <option value="manufacturing">Manufacturing</option>
+                      <option value="retail">Retail / E-commerce</option>
+                      <option value="services">Services</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">GST Number</label>
+                    <input {...register("gst")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 outline-none uppercase" placeholder="22AAAAA0000A1Z5" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">PAN Number</label>
+                    <input {...register("pan")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 outline-none uppercase" placeholder="ABCDE1234F" />
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">CIN (Optional)</label>
+                    <input {...register("cin")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 outline-none uppercase" placeholder="L12345MH2000PLC123456" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">Website (Optional)</label>
+                    <input {...register("website")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 outline-none" placeholder="https://acme.com" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-black mb-3">Business Size</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {["Micro", "Small", "Medium", "Large"].map((size) => (
+                      <label key={size} className={`flex items-center justify-center p-3 rounded-xl border cursor-pointer transition-all ${formValues.businessSize === size ? 'border-orange-500 bg-orange-50 text-orange-700 font-bold' : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'}`}>
+                        <input type="radio" value={size} {...register("businessSize")} className="sr-only" />
+                        {size}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 4: Business Address */}
+            {currentStep === 4 && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-black mb-1.5">Registered Address</label>
+                  <input {...register("address")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="123 Business Park, Block A" />
+                </div>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">City</label>
+                    <input {...register("city")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="Mumbai" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">State</label>
+                    <select {...register("state")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all bg-white">
+                      <option value="">Select State</option>
+                      <option value="MH">Maharashtra</option>
+                      <option value="KA">Karnataka</option>
+                      <option value="DL">Delhi</option>
+                      <option value="TN">Tamil Nadu</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">PIN Code</label>
+                    <input {...register("pin")} className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" placeholder="400001" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-1.5">Country</label>
+                    <input {...register("country")} disabled className="w-full h-12 px-4 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-500 outline-none" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 5: Upload Documents */}
+            {currentStep === 5 && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                {[
+                  { id: "gstDoc", label: "GST Certificate", required: true },
+                  { id: "panDoc", label: "PAN Card", required: true },
+                  { id: "incDoc", label: "Certificate of Incorporation", required: false },
+                  { id: "chequeDoc", label: "Cancelled Cheque", required: true },
+                ].map((doc) => (
+                  <div key={doc.id} className="border border-zinc-200 border-dashed rounded-xl p-5 flex items-center justify-between hover:bg-zinc-50 transition-colors cursor-pointer group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center group-hover:bg-orange-50">
+                        <FileText className="w-5 h-5 text-zinc-400 group-hover:text-orange-500 transition-colors" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-black text-sm">{doc.label} {!doc.required && <span className="text-zinc-400 font-normal">(Optional)</span>}</p>
+                        <p className="text-xs text-zinc-500 mt-0.5">PDF, JPG or PNG (Max 5MB)</p>
                       </div>
                     </div>
-                  )}
+                    <Button type="button" variant="outline" size="sm" className="rounded-lg shadow-none pointer-events-none">
+                      <Upload className="w-4 h-4 mr-2" /> Upload
+                    </Button>
+                  </div>
+                ))}
+              </motion.div>
+            )}
 
-                  {step === 2 && (
-                    <div className="space-y-5">
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">GST Number</label>
-                          <Input value={formData.gst} onChange={e => updateForm("gst", e.target.value)} className="h-12 bg-zinc-50 uppercase" placeholder="22AAAAA0000A1Z5" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">PAN Number</label>
-                          <Input value={formData.pan} onChange={e => updateForm("pan", e.target.value)} className="h-12 bg-zinc-50 uppercase" placeholder="ABCDE1234F" />
-                        </div>
-                      </div>
-                      
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">CIN (Optional)</label>
-                          <Input value={formData.cin} onChange={e => updateForm("cin", e.target.value)} className="h-12 bg-zinc-50 uppercase" placeholder="U12345MH2023PTC123456" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">MSME Number (Optional)</label>
-                          <Input value={formData.msme} onChange={e => updateForm("msme", e.target.value)} className="h-12 bg-zinc-50 uppercase" placeholder="UDYAM-MH-12-1234567" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
+            {/* STEP 6: Review & Submit */}
+            {currentStep === 6 && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                
+                <div className="bg-zinc-50 rounded-xl p-6 border border-zinc-100">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-black text-lg">Account Details</h3>
+                    <button type="button" onClick={() => setCurrentStep(1)} className="text-sm font-bold text-orange-500">Edit</button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div><span className="text-zinc-500">Business Name</span><br/><span className="font-medium text-black">{formValues.businessName}</span></div>
+                    <div><span className="text-zinc-500">Email</span><br/><span className="font-medium text-black">{formValues.workEmail}</span></div>
+                    <div><span className="text-zinc-500">Mobile</span><br/><span className="font-medium text-black">{formValues.mobile}</span></div>
+                  </div>
+                </div>
 
-                  {step === 3 && (
-                    <div className="space-y-5">
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-black">Registered Address</label>
-                        <Input value={formData.address} onChange={e => updateForm("address", e.target.value)} className="h-12 bg-zinc-50" placeholder="Plot No, Street Name, Area" />
-                      </div>
-                      
-                      <div className="grid sm:grid-cols-3 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">City</label>
-                          <Input value={formData.city} onChange={e => updateForm("city", e.target.value)} className="h-12 bg-zinc-50" placeholder="Mumbai" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">State</label>
-                          <Input value={formData.state} onChange={e => updateForm("state", e.target.value)} className="h-12 bg-zinc-50" placeholder="Maharashtra" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">PIN Code</label>
-                          <Input value={formData.pin} onChange={e => updateForm("pin", e.target.value)} className="h-12 bg-zinc-50" placeholder="400001" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                <div className="bg-zinc-50 rounded-xl p-6 border border-zinc-100">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-black text-lg">Business Information</h3>
+                    <button type="button" onClick={() => setCurrentStep(3)} className="text-sm font-bold text-orange-500">Edit</button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div><span className="text-zinc-500">Legal Name</span><br/><span className="font-medium text-black">{formValues.legalBusinessName || "-"}</span></div>
+                    <div><span className="text-zinc-500">GST</span><br/><span className="font-medium text-black">{formValues.gst || "-"}</span></div>
+                    <div><span className="text-zinc-500">PAN</span><br/><span className="font-medium text-black">{formValues.pan || "-"}</span></div>
+                    <div><span className="text-zinc-500">Type</span><br/><span className="font-medium text-black uppercase">{formValues.businessType || "-"}</span></div>
+                  </div>
+                </div>
 
-                  {step === 4 && (
-                    <div className="space-y-5">
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Full Name</label>
-                          <Input value={formData.authName} onChange={e => updateForm("authName", e.target.value)} className="h-12 bg-zinc-50" placeholder="Jane Doe" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Designation</label>
-                          <Input value={formData.authDesig} onChange={e => updateForm("authDesig", e.target.value)} className="h-12 bg-zinc-50" placeholder="Director / CEO" />
-                        </div>
-                      </div>
-                      
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Work Email</label>
-                          <Input value={formData.authEmail} onChange={e => updateForm("authEmail", e.target.value)} className="h-12 bg-zinc-50" type="email" placeholder="jane@company.com" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-black">Mobile Number</label>
-                          <Input value={formData.authMobile} onChange={e => updateForm("authMobile", e.target.value)} className="h-12 bg-zinc-50" type="tel" placeholder="+91 9876543210" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                <div className="bg-zinc-50 rounded-xl p-6 border border-zinc-100">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-black text-lg">Documents Uploaded</h3>
+                    <button type="button" onClick={() => setCurrentStep(5)} className="text-sm font-bold text-orange-500">Edit</button>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">GST</span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">PAN</span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">Cheque</span>
+                  </div>
+                </div>
 
-                  {step === 5 && (
-                    <div className="space-y-4">
-                      <MockUpload label="GST Certificate" uploadedKey="gst" />
-                      <MockUpload label="Company PAN" uploadedKey="pan" />
-                      <MockUpload label="Incorporation Certificate" uploadedKey="inc" />
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <MockUpload label="Cancelled Cheque" uploadedKey="cheque" />
-                        <MockUpload label="Other (Optional)" uploadedKey="other" />
-                      </div>
-                    </div>
-                  )}
-                  
-                </motion.div>
-              </AnimatePresence>
-            </div>
+              </motion.div>
+            )}
 
-            {/* Footer Navigation */}
-            <div className="bg-zinc-50 border-t border-zinc-200 p-6 sm:px-12 flex items-center justify-between">
-              <Button 
-                variant="outline" 
-                onClick={prevStep} 
-                disabled={step === 1 || loading}
-                className="h-12 px-6 border-zinc-200 text-black hover:bg-zinc-100 font-semibold rounded-xl"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+            {/* Actions */}
+            <div className="pt-6 border-t border-zinc-100 mt-8">
+              <Button type="submit" size="lg" className="w-full md:w-auto h-12 px-8 text-base">
+                {currentStep === 1 && "Continue"}
+                {currentStep === 2 && "Verify & Continue"}
+                {currentStep > 2 && currentStep < 6 && "Continue"}
+                {currentStep === 6 && "Submit for Verification"}
               </Button>
-
-              {step < 5 ? (
-                <Button 
-                  onClick={nextStep} 
-                  className="h-12 px-8 bg-black text-white hover:bg-black/90 font-bold rounded-xl shadow-md"
-                >
-                  Continue <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button 
-                  onClick={handleSubmit} 
-                  disabled={loading}
-                  className="h-12 px-8 bg-orange-500 text-white hover:bg-orange-600 font-bold rounded-xl shadow-md"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Submit for Verification"}
-                </Button>
-              )}
             </div>
 
-          </div>
+          </form>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

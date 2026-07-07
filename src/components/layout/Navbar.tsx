@@ -85,7 +85,7 @@ const Navbar = () => {
               <Link href="/login">
                 <Button variant="ghost" size="sm" className="font-semibold text-foreground hover:bg-muted/50">Login</Button>
               </Link>
-              <Link href="/signup">
+              <Link href="/onboarding">
                 <Button size="sm" className="rounded-lg font-bold px-5 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">Create Business Identity</Button>
               </Link>
             </>
@@ -129,7 +129,7 @@ const Navbar = () => {
                   <Link href="/login" onClick={() => setMobileOpen(false)}>
                     <Button variant="outline" className="w-full rounded-lg font-bold">Login</Button>
                   </Link>
-                  <Link href="/signup" onClick={() => setMobileOpen(false)}>
+                  <Link href="/onboarding" onClick={() => setMobileOpen(false)}>
                     <Button className="w-full rounded-lg font-bold bg-primary">Create Business Identity</Button>
                   </Link>
                 </>

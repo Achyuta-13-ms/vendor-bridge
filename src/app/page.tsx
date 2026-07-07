@@ -52,7 +52,7 @@ const Index = () => {
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-              <Link href="/signup">
+              <Link href="/onboarding">
                 <Button size="lg">
                   Create Business Identity
                 </Button>
@@ -190,7 +190,7 @@ const Index = () => {
             Stop filling out the same forms. Start building trust.
           </p>
           <div className="flex justify-center gap-4">
-            <Link href="/signup">
+            <Link href="/onboarding">
               <Button size="lg">
                 Get Started Now <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
