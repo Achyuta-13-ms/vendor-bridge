@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Shield, LayoutDashboard, LogOut } from "lucide-react";
 
 const navLinks = [
-  { label: "Features", href: "/#features" },
-  { label: "Use Cases", href: "/#use-cases" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "API Docs", href: "/api-docs" },
+  { label: "Home", href: "/" },
+  { label: "Platform", href: "/#platform" },
+  { label: "Solutions", href: "/#solutions" },
+  { label: "Developers", href: "/#developers" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "About", href: "/#about" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 const Navbar = () => {
@@ -82,10 +85,10 @@ const Navbar = () => {
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm" className="font-semibold">Log in</Button>
+                <Button variant="ghost" size="sm" className="font-semibold text-foreground hover:bg-muted/50">Login</Button>
               </Link>
-              <Link href="/#book-demo">
-                <Button size="sm" className="rounded-xl font-bold px-5">Book Demo</Button>
+              <Link href="/signup">
+                <Button size="sm" className="rounded-lg font-bold px-5 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">Create Identity</Button>
               </Link>
             </>
           )}
@@ -126,10 +129,10 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link href="/login" onClick={() => setMobileOpen(false)}>
-                    <Button variant="outline" className="w-full rounded-xl font-bold">Log in</Button>
+                    <Button variant="outline" className="w-full rounded-lg font-bold">Login</Button>
                   </Link>
-                  <Link href="/#book-demo" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full rounded-xl font-bold">Book Demo</Button>
+                  <Link href="/signup" onClick={() => setMobileOpen(false)}>
+                    <Button className="w-full rounded-lg font-bold bg-primary">Create Identity</Button>
                   </Link>
                 </>
               )}
