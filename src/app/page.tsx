@@ -32,7 +32,7 @@ const Index = () => {
   return (
     <PublicLayout>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white pt-32 pb-24 border-b border-border/40">
+      <section className="relative overflow-hidden bg-white pt-32 pb-24 border-b border-zinc-200">
         <div className="container relative mx-auto px-4 lg:flex lg:items-center lg:gap-12">
           
           {/* Hero Text */}
@@ -48,17 +48,17 @@ const Index = () => {
             </h1>
             
             <p className="mt-6 text-xl text-zinc-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              VyapaarSetu helps businesses create one verified digital identity that can be securely shared across enterprises, marketplaces, banks and procurement platforms.
+              VyapaarSetu helps businesses create one verified digital identity that can be securely reused across enterprises, marketplaces, banks and procurement platforms.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
               <Link href="/signup">
-                <Button size="lg" className="h-14 px-8 text-lg shadow-sm hover:shadow-md transition-all rounded-lg font-medium bg-black text-white hover:bg-black/90">
+                <Button size="lg">
                   Create Business Identity
                 </Button>
               </Link>
-              <Link href="/#book-demo">
-                <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-lg border-zinc-200 text-black hover:bg-zinc-50 font-medium transition-all">
+              <Link href="/#contact">
+                <Button variant="outline" size="lg">
                   Book Enterprise Demo
                 </Button>
               </Link>
@@ -74,7 +74,7 @@ const Index = () => {
           >
             {/* Background elements */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[80px]" />
+              <div className="w-[500px] h-[500px] bg-orange-50 rounded-full blur-[80px]" />
             </div>
 
             {/* Connecting Lines SVG */}
@@ -84,11 +84,11 @@ const Index = () => {
                 animate={{ opacity: 1, pathLength: 1 }}
                 transition={{ duration: 1.5, delay: 0.5 }}
               >
-                <path d="M 50% 50% L 20% 20%" stroke="#e4e4e7" strokeWidth="1" fill="none" strokeDasharray="4 4" />
-                <path d="M 50% 50% L 80% 20%" stroke="#e4e4e7" strokeWidth="1" fill="none" strokeDasharray="4 4" />
-                <path d="M 50% 50% L 80% 80%" stroke="#e4e4e7" strokeWidth="1" fill="none" strokeDasharray="4 4" />
-                <path d="M 50% 50% L 20% 80%" stroke="#e4e4e7" strokeWidth="1" fill="none" strokeDasharray="4 4" />
-                <path d="M 50% 50% L 90% 50%" stroke="#e4e4e7" strokeWidth="1" fill="none" strokeDasharray="4 4" />
+                <path d="M 50% 50% L 20% 20%" stroke="#E5E7EB" strokeWidth="1.5" fill="none" strokeDasharray="4 4" />
+                <path d="M 50% 50% L 80% 20%" stroke="#E5E7EB" strokeWidth="1.5" fill="none" strokeDasharray="4 4" />
+                <path d="M 50% 50% L 80% 80%" stroke="#E5E7EB" strokeWidth="1.5" fill="none" strokeDasharray="4 4" />
+                <path d="M 50% 50% L 20% 80%" stroke="#E5E7EB" strokeWidth="1.5" fill="none" strokeDasharray="4 4" />
+                <path d="M 50% 50% L 90% 50%" stroke="#E5E7EB" strokeWidth="1.5" fill="none" strokeDasharray="4 4" />
               </motion.g>
             </svg>
 
@@ -101,7 +101,7 @@ const Index = () => {
 
             {/* Center Identity Card */}
             <motion.div 
-              className="relative z-10 bg-white border border-zinc-200 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 w-[320px]"
+              className="relative z-10 bg-white border border-zinc-200 rounded-[18px] shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6 w-[320px]"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, type: "spring", stiffness: 100 }}
@@ -112,7 +112,7 @@ const Index = () => {
                   <h3 className="font-bold text-lg text-black">Acme Corp Ltd.</h3>
                   <p className="text-xs font-mono text-zinc-500 mt-1">ID: VYP-8829-XJ</p>
                 </div>
-                <div className="bg-orange-50 text-orange-600 rounded-full px-3 py-1 text-xs font-bold flex items-center gap-1">
+                <div className="bg-zinc-100 text-black rounded-full px-3 py-1 text-xs font-bold flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3" /> Trust: 99
                 </div>
               </div>
@@ -125,7 +125,7 @@ const Index = () => {
 
               <div className="border-t border-zinc-100 pt-4 flex items-center justify-between">
                 <div className="text-xs text-zinc-400">Scanned 2m ago</div>
-                <QrCode className="w-8 h-8 text-zinc-300" />
+                <QrCode className="w-8 h-8 text-black" />
               </div>
             </motion.div>
 
@@ -134,10 +134,10 @@ const Index = () => {
       </section>
 
       {/* Trust Section */}
-      <section className="py-20 bg-zinc-50 border-b border-zinc-100">
+      <section className="py-20 bg-zinc-50 border-b border-zinc-200">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm font-semibold text-zinc-500 uppercase tracking-widest mb-10">Built for Modern Digital Commerce</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-60 grayscale">
+          <div className="flex flex-wrap justify-center items-center gap-12 opacity-80">
             <div className="flex items-center gap-2 text-xl font-bold font-sans text-black"><Building2 className="w-6 h-6"/> Enterprise</div>
             <div className="flex items-center gap-2 text-xl font-bold font-sans text-black"><Store className="w-6 h-6"/> Marketplace</div>
             <div className="flex items-center gap-2 text-xl font-bold font-sans text-black"><Landmark className="w-6 h-6"/> Banking</div>
@@ -147,13 +147,13 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Content Sections (Simplified for Enterprise Vibe) */}
-      <section className="py-32 bg-white">
+      {/* Content Sections */}
+      <section className="py-32 bg-white" id="platform">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid md:grid-cols-3 gap-12 text-center md:text-left">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center mb-6 mx-auto md:mx-0">
-                <ShieldCheck className="w-6 h-6 text-orange-500" />
+              <div className="w-12 h-12 rounded-[18px] bg-zinc-100 flex items-center justify-center mb-6 mx-auto md:mx-0">
+                <ShieldCheck className="w-6 h-6 text-black" />
               </div>
               <h3 className="text-xl font-bold text-black">Verified Once</h3>
               <p className="text-zinc-600 leading-relaxed">
@@ -161,17 +161,17 @@ const Index = () => {
               </p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center mb-6 mx-auto md:mx-0">
-                <Store className="w-6 h-6 text-orange-500" />
+              <div className="w-12 h-12 rounded-[18px] bg-zinc-100 flex items-center justify-center mb-6 mx-auto md:mx-0">
+                <Store className="w-6 h-6 text-black" />
               </div>
               <h3 className="text-xl font-bold text-black">Accepted Everywhere</h3>
               <p className="text-zinc-600 leading-relaxed">
-                Share your VyapaarSetu Identity across our network of 200+ partner marketplaces, banks, and enterprises instantly.
+                Share your VyapaarSetu Identity across our network of partner marketplaces, banks, and enterprises instantly.
               </p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="space-y-4">
-              <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center mb-6 mx-auto md:mx-0">
-                <Building className="w-6 h-6 text-orange-500" />
+              <div className="w-12 h-12 rounded-[18px] bg-zinc-100 flex items-center justify-center mb-6 mx-auto md:mx-0">
+                <Building className="w-6 h-6 text-black" />
               </div>
               <h3 className="text-xl font-bold text-black">Enterprise Grade</h3>
               <p className="text-zinc-600 leading-relaxed">
@@ -183,18 +183,15 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-black relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500 rounded-full blur-[120px]" />
-        </div>
+      <section className="py-24 bg-orange-50 relative overflow-hidden border-t border-zinc-200">
         <div className="container mx-auto px-4 relative text-center">
-          <h2 className="text-4xl md:text-5xl font-extrabold mb-8 tracking-tight text-white">Join the Identity Network</h2>
-          <p className="text-xl text-zinc-400 mb-10 max-w-2xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-8 tracking-tight text-black">Join the Identity Network</h2>
+          <p className="text-xl text-zinc-600 mb-10 max-w-2xl mx-auto">
             Stop filling out the same forms. Start building trust.
           </p>
           <div className="flex justify-center gap-4">
             <Link href="/signup">
-              <Button size="lg" className="h-14 px-8 text-lg bg-orange-500 text-white hover:bg-orange-600 rounded-lg font-medium border-0">
+              <Button size="lg">
                 Get Started Now <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
@@ -208,9 +205,9 @@ const Index = () => {
 
 function VerificationBadge({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-2 text-sm text-zinc-700 bg-zinc-50 py-2 px-3 rounded-md border border-zinc-100">
-      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-      <span className="font-medium">{label}</span>
+    <div className="flex items-center gap-2 text-sm text-black bg-zinc-50 py-2 px-3 rounded-[12px] border border-zinc-200">
+      <CheckCircle2 className="w-4 h-4 text-black shrink-0" />
+      <span className="font-semibold">{label}</span>
     </div>
   );
 }
@@ -228,9 +225,9 @@ function PeripheralNode({
       className="absolute flex items-center justify-center"
       style={{ top, bottom, left, right, zIndex: 10 }}
     >
-      <div className="bg-white border border-zinc-200 rounded-xl p-3 shadow-sm flex flex-col items-center gap-2 w-24">
-        <Icon className="w-6 h-6 text-zinc-400" />
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{label}</span>
+      <div className="bg-white border border-zinc-200 rounded-[12px] p-3 shadow-sm flex flex-col items-center gap-2 w-24">
+        <Icon className="w-6 h-6 text-black" />
+        <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider">{label}</span>
       </div>
     </motion.div>
   );

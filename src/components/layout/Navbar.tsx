@@ -9,8 +9,6 @@ import { Menu, X, Shield, LayoutDashboard, LogOut } from "lucide-react";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Platform", href: "/#platform" },
-  { label: "Solutions", href: "/#solutions" },
-  { label: "Developers", href: "/#developers" },
   { label: "Pricing", href: "/#pricing" },
   { label: "About", href: "/#about" },
   { label: "Contact", href: "/#contact" },
@@ -88,7 +86,7 @@ const Navbar = () => {
                 <Button variant="ghost" size="sm" className="font-semibold text-foreground hover:bg-muted/50">Login</Button>
               </Link>
               <Link href="/signup">
-                <Button size="sm" className="rounded-lg font-bold px-5 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">Create Identity</Button>
+                <Button size="sm" className="rounded-lg font-bold px-5 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">Create Business Identity</Button>
               </Link>
             </>
           )}
@@ -132,7 +130,7 @@ const Navbar = () => {
                     <Button variant="outline" className="w-full rounded-lg font-bold">Login</Button>
                   </Link>
                   <Link href="/signup" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full rounded-lg font-bold bg-primary">Create Identity</Button>
+                    <Button className="w-full rounded-lg font-bold bg-primary">Create Business Identity</Button>
                   </Link>
                 </>
               )}
