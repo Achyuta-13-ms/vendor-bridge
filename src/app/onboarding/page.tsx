@@ -8,6 +8,7 @@ import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, UploadCloud, FileText, Upload, ChevronLeft, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 
 const onboardingSchema = z.object({
@@ -101,22 +102,60 @@ export default function OnboardingWizard() {
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const { toast } = useToast();
 
   const onSubmit = async (data: OnboardingData) => {
-    if (currentStep < 6) {
-      nextStep();
-    } else {
-      setIsSubmitting(true);
-      try {
-        // Simulate network request
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
+    setIsSubmitting(true);
+    setOtpError("");
+    try {
+      if (currentStep === 1) {
+        // Step 1 -> Send OTP
+        const res = await fetch("/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: data.workEmail }),
+        });
+        const result = await res.json();
+        if (result.success) {
+          toast({ title: "OTP Sent", description: "Check your email (or server console) for the OTP." });
+          setOtpSent(true);
+          nextStep();
+        } else {
+          toast({ title: "Failed to send OTP", description: result.message, variant: "destructive" });
+        }
+      } else if (currentStep === 2) {
+        // Step 2 -> Verify OTP
+        if (!data.otp || data.otp.length < 6) {
+          setOtpError("Please enter a valid 6-digit OTP");
+          setIsSubmitting(false);
+          return;
+        }
+        const res = await fetch("/api/auth/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: data.workEmail, otp: data.otp }),
+        });
+        const result = await res.json();
+        if (result.success) {
+          toast({ title: "Email Verified", description: "Your email has been successfully verified." });
+          nextStep();
+        } else {
+          setOtpError(result.message || "Invalid OTP");
+        }
+      } else if (currentStep < 6) {
+        nextStep();
+      } else {
         // Final Submit
-        localStorage.removeItem("vypaar_onboarding_draft"); // clear draft
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        localStorage.removeItem("vypaar_onboarding_draft");
         router.push("/onboarding/success");
-      } finally {
-        setIsSubmitting(false);
       }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message || "An unexpected error occurred", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -220,13 +259,12 @@ export default function OnboardingWizard() {
             {currentStep === 2 && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6 text-center">
                 <p className="text-black font-medium">Sent to: {formValues.workEmail}</p>
-                <div className="flex justify-center gap-3 my-8">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <input key={i} type="text" maxLength={1} className="w-12 h-14 text-center text-xl font-bold rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" />
-                  ))}
+                <div className="flex flex-col items-center justify-center gap-3 my-8">
+                  <input {...register("otp")} type="text" maxLength={6} placeholder="Enter 6-digit OTP" className="w-48 h-14 text-center text-xl font-bold tracking-[0.2em] rounded-xl border border-zinc-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all" />
+                  {otpError && <p className="text-red-500 text-sm font-semibold">{otpError}</p>}
                 </div>
                 <div className="flex flex-col gap-3 justify-center items-center">
-                  <button type="button" className="text-sm font-bold text-orange-500 hover:text-orange-600">Resend OTP</button>
+                  <button type="button" onClick={() => onSubmit(formValues)} className="text-sm font-bold text-orange-500 hover:text-orange-600">Resend OTP</button>
                   <button type="button" onClick={prevStep} className="text-sm font-bold text-zinc-500 hover:text-black">Change Email / Mobile</button>
                 </div>
               </motion.div>

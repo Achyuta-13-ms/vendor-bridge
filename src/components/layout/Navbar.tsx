@@ -1,37 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut, Shield } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Platform", href: "/#platform" },
-  { label: "Pricing", href: "/#pricing" },
-  { label: "About", href: "/#about" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Platform", href: "/platform" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
-const Navbar = () => {
+export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [session, setSession] = useState<{ id: string; phone: string } | null>(null);
+  const { data: session, status } = useSession();
   const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    setSession(raw ? JSON.parse(raw) : null);
-  }, [pathname]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("vendorSession");
-    localStorage.removeItem("vendorId");
-    setSession(null);
-    setMobileOpen(false);
-    router.push("/");
-  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
@@ -69,14 +56,16 @@ const Navbar = () => {
 
         {/* Desktop auth buttons */}
         <div className="hidden items-center gap-3 md:flex">
-          {session ? (
+          {status === "loading" ? (
+            <div className="h-9 w-24 bg-zinc-100 rounded-lg animate-pulse" />
+          ) : session ? (
             <>
               <Link href="/dashboard">
                 <Button variant="ghost" size="sm" className="gap-1.5 font-semibold">
                   <LayoutDashboard className="h-4 w-4" /> Dashboard
                 </Button>
               </Link>
-              <Button variant="outline" size="sm" className="gap-1.5 font-semibold" onClick={handleLogout}>
+              <Button variant="outline" size="sm" className="gap-1.5 font-semibold" onClick={() => signOut({ callbackUrl: "/" })}>
                 <LogOut className="h-4 w-4" /> Sign Out
               </Button>
             </>
@@ -103,43 +92,47 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-border bg-background md:hidden">
-          <div className="container flex flex-col gap-1 py-4 mx-auto px-4">
+        <div className="md:hidden border-t border-border bg-background px-4 py-4 space-y-4 shadow-lg absolute w-full">
+          <div className="flex flex-col gap-2">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start">
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start font-semibold ${
+                    pathname === link.href ? "text-primary bg-primary/5" : "text-muted-foreground"
+                  }`}
+                >
                   {link.label}
                 </Button>
               </Link>
             ))}
-            <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
-              {session ? (
-                <>
-                  <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full gap-2 rounded-xl font-bold">
-                      <LayoutDashboard className="h-4 w-4" /> Dashboard
-                    </Button>
-                  </Link>
-                  <Button variant="outline" className="w-full gap-2 rounded-xl font-bold" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4" /> Sign Out
+          </div>
+          <div className="h-px bg-border my-2" />
+          <div className="flex flex-col gap-3">
+            {session ? (
+              <>
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start font-semibold">
+                    <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
                   </Button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" onClick={() => setMobileOpen(false)}>
-                    <Button variant="outline" className="w-full rounded-lg font-bold">Login</Button>
-                  </Link>
-                  <Link href="/onboarding" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full rounded-lg font-bold bg-primary">Create Business Identity</Button>
-                  </Link>
-                </>
-              )}
-            </div>
+                </Link>
+                <Button variant="outline" className="w-full justify-start font-semibold" onClick={() => { setMobileOpen(false); signOut({ callbackUrl: "/" }); }}>
+                  <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" className="w-full font-semibold">Login</Button>
+                </Link>
+                <Link href="/onboarding" onClick={() => setMobileOpen(false)}>
+                  <Button className="w-full font-bold bg-primary text-primary-foreground hover:bg-primary/90">Create Business Identity</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
     </nav>
   );
-};
-
-export default Navbar;
+}

@@ -9,7 +9,7 @@ export default withAuth({
       console.log(`[Middleware] Route: ${req.nextUrl.pathname} | Token Role: ${token.role}`);
 
       // Check role for admin routes
-      if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/platform")) {
+      if (req.nextUrl.pathname.startsWith("/admin")) {
         return token.role === "ADMIN";
       }
 

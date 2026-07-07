@@ -3,34 +3,42 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
-import { verifyOTP } from "@/lib/auth-utils";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID || "mock-client-id",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "mock-client-secret",
       allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
-      name: "OTP",
+      name: "Email and Password",
       credentials: {
         email: { label: "Email", type: "email" },
-        otp: { label: "OTP", type: "text" }
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.otp) {
-          throw new Error("Email and OTP are required");
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
         }
 
-        try {
-          // Allow 30s window if it was already verified by the separate verify-otp API
-          const user = await verifyOTP(credentials.email, credentials.otp, { skipUsedCheckWindow: 30000 });
-          return user;
-        } catch (error: any) {
-          throw new Error(error.message || "Invalid verification code.");
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        });
+
+        if (!user || !user.password) {
+          throw new Error("No user found with this email");
         }
+
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isValid) {
+          throw new Error("Invalid password");
+        }
+
+        return user;
       }
     })
   ],
@@ -74,5 +82,5 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
     error: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-development",
 };
