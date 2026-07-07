@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       gstUrl,
       panUrl,
       bankUrl,
+      incUrl,
     } = body;
 
     // Upsert Vendor profile
@@ -78,6 +79,7 @@ export async function POST(request: Request) {
     if (gstUrl) docEntries.push({ type: 'GST', url: gstUrl });
     if (panUrl) docEntries.push({ type: 'PAN', url: panUrl });
     if (bankUrl) docEntries.push({ type: 'BANK', url: bankUrl });
+    if (incUrl) docEntries.push({ type: 'INCORPORATION', url: incUrl });
 
     for (const { type, url } of docEntries) {
       // Upsert document

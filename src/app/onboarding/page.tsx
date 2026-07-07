@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, UploadCloud, FileText, Upload, ChevronLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { FileUpload } from "@/components/ui/file-upload";
 import Link from "next/link";
 
 const onboardingSchema = z.object({
@@ -148,7 +149,25 @@ export default function OnboardingWizard() {
         nextStep();
       } else {
         // Final Submit
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const payload = {
+          ...data,
+          email: data.workEmail,
+          gstUrl: data.gstDoc,
+          panUrl: data.panDoc,
+          bankUrl: data.chequeDoc,
+          incUrl: data.incDoc,
+        };
+        const submitRes = await fetch("/api/onboarding/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const submitResult = await submitRes.json();
+        
+        if (!submitResult.success) {
+          throw new Error(submitResult.message || "Failed to submit application");
+        }
+
         localStorage.removeItem("vypaar_onboarding_draft");
         router.push("/onboarding/success");
       }
@@ -377,22 +396,32 @@ export default function OnboardingWizard() {
                   { id: "panDoc", label: "PAN Card", required: true },
                   { id: "incDoc", label: "Certificate of Incorporation", required: false },
                   { id: "chequeDoc", label: "Cancelled Cheque", required: true },
-                ].map((doc) => (
-                  <div key={doc.id} className="border border-zinc-200 border-dashed rounded-xl p-5 flex items-center justify-between hover:bg-zinc-50 transition-colors cursor-pointer group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center group-hover:bg-orange-50">
-                        <FileText className="w-5 h-5 text-zinc-400 group-hover:text-orange-500 transition-colors" />
+                ].map((doc) => {
+                  const currentValue = watch(doc.id as keyof OnboardingData);
+                  return (
+                    <div key={doc.id} className="border border-zinc-200 border-dashed rounded-xl p-5 flex flex-col justify-between hover:bg-zinc-50 transition-colors gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center group-hover:bg-orange-50">
+                          <FileText className="w-5 h-5 text-zinc-400 group-hover:text-orange-500 transition-colors" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-black text-sm">{doc.label} {!doc.required && <span className="text-zinc-400 font-normal">(Optional)</span>}</p>
+                          <p className="text-xs text-zinc-500 mt-0.5">PDF, JPG or PNG (Max 5MB)</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-black text-sm">{doc.label} {!doc.required && <span className="text-zinc-400 font-normal">(Optional)</span>}</p>
-                        <p className="text-xs text-zinc-500 mt-0.5">PDF, JPG or PNG (Max 5MB)</p>
-                      </div>
+                      
+                      <FileUpload 
+                        label={`Upload ${doc.label}`}
+                        path={`onboarding/${formValues.workEmail?.replace(/[^a-zA-Z0-9]/g, '_')}`}
+                        accept=".pdf,.png,.jpg,.jpeg"
+                        initialUrl={currentValue as string}
+                        onUpload={(url) => {
+                          setValue(doc.id as keyof OnboardingData, url);
+                        }}
+                      />
                     </div>
-                    <Button type="button" variant="outline" size="sm" className="rounded-lg shadow-none pointer-events-none">
-                      <Upload className="w-4 h-4 mr-2" /> Upload
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </motion.div>
             )}
 
@@ -430,10 +459,11 @@ export default function OnboardingWizard() {
                     <h3 className="font-bold text-black text-lg">Documents Uploaded</h3>
                     <button type="button" onClick={() => setCurrentStep(5)} className="text-sm font-bold text-orange-500">Edit</button>
                   </div>
-                  <div className="flex gap-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">GST</span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">PAN</span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">Cheque</span>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div><span className="text-zinc-500">GST Certificate</span><br/><span className="font-medium text-black">{formValues.gstDoc ? "✓ Uploaded" : "-"}</span></div>
+                    <div><span className="text-zinc-500">PAN Card</span><br/><span className="font-medium text-black">{formValues.panDoc ? "✓ Uploaded" : "-"}</span></div>
+                    <div><span className="text-zinc-500">Incorporation Cert</span><br/><span className="font-medium text-black">{formValues.incDoc ? "✓ Uploaded" : "-"}</span></div>
+                    <div><span className="text-zinc-500">Cancelled Cheque</span><br/><span className="font-medium text-black">{formValues.chequeDoc ? "✓ Uploaded" : "-"}</span></div>
                   </div>
                 </div>
 

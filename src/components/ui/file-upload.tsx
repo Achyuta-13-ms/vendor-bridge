@@ -25,12 +25,12 @@ export function FileUpload({ onUpload, accept = ".pdf,.jpg,.png", className, lab
 
   const processFile = useCallback(async (file: File) => {
     // Client-side validation
-    const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
     const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
     if (file.size > MAX_SIZE) {
       setStatus("error");
-      setErrorMessage("File too large. Please upload a file under 4 MB.");
+      setErrorMessage("File too large. Please upload a file under 5 MB.");
       return;
     }
 
