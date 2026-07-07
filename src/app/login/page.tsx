@@ -36,17 +36,25 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setLoading(true);
     try {
-      // Mock login for UI redesign
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate network request
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Simulate successful auth and store session
+      localStorage.setItem("vendorSession", JSON.stringify({
+        id: "mock-id-123",
+        email: values.email
+      }));
+      localStorage.setItem("vendorId", "mock-id-123");
       
       toast({
         title: "Login Successful",
+        description: "Redirecting to your dashboard...",
       });
       router.push("/dashboard");
     } catch (e: any) {
       toast({
         title: "Login Failed",
-        description: "Invalid credentials.",
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
     } finally {
@@ -113,7 +121,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-zinc-500">
           Don't have a Business Identity?{" "}
-          <Link href="/signup" className="font-bold text-black hover:underline">
+          <Link href="/onboarding" className="font-bold text-black hover:underline">
             Create one
           </Link>
         </p>

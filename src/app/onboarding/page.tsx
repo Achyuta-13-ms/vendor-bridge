@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, UploadCloud, FileText, Upload, ChevronLeft } from "lucide-react";
+import { CheckCircle2, UploadCloud, FileText, Upload, ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const onboardingSchema = z.object({
@@ -100,13 +100,23 @@ export default function OnboardingWizard() {
   const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 6));
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
-  const onSubmit = (data: OnboardingData) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (data: OnboardingData) => {
     if (currentStep < 6) {
       nextStep();
     } else {
-      // Final Submit
-      localStorage.removeItem("vypaar_onboarding_draft"); // clear draft
-      router.push("/onboarding/success");
+      setIsSubmitting(true);
+      try {
+        // Simulate network request
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Final Submit
+        localStorage.removeItem("vypaar_onboarding_draft"); // clear draft
+        router.push("/onboarding/success");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -394,11 +404,17 @@ export default function OnboardingWizard() {
 
             {/* Actions */}
             <div className="pt-6 border-t border-zinc-100 mt-8">
-              <Button type="submit" size="lg" className="w-full md:w-auto h-12 px-8 text-base">
-                {currentStep === 1 && "Continue"}
-                {currentStep === 2 && "Verify & Continue"}
-                {currentStep > 2 && currentStep < 6 && "Continue"}
-                {currentStep === 6 && "Submit for Verification"}
+              <Button type="submit" disabled={isSubmitting} size="lg" className="w-full md:w-auto h-12 px-8 text-base">
+                {isSubmitting ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait</>
+                ) : (
+                  <>
+                    {currentStep === 1 && "Continue"}
+                    {currentStep === 2 && "Verify & Continue"}
+                    {currentStep > 2 && currentStep < 6 && "Continue"}
+                    {currentStep === 6 && "Submit for Verification"}
+                  </>
+                )}
               </Button>
             </div>
 
