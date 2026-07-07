@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import DocumentManager from "@/components/dashboard/DocumentManager";
 
 const DEMO_KYC_VENDOR = {
   id: "v-demo-kyc",
@@ -118,7 +119,9 @@ export default function KYCPage() {
     }
   };
 
-  const kycProgress = (vendor.documents.filter((d: any) => d.verification?.status === "Verified").length / 3) * 100;
+  const requiredDocTypes = ["GST", "PAN", "BANK", "INCORPORATION"];
+  const verifiedDocsCount = vendor.documents.filter((d: any) => requiredDocTypes.includes(d.type) && d.verification?.status?.toLowerCase() === "verified").length;
+  const kycProgress = (verifiedDocsCount / 4) * 100;
 
   return (
     <motion.div 
@@ -162,38 +165,11 @@ export default function KYCPage() {
             </div>
 
             <div className="space-y-4">
-              {[
-                { type: "GST", label: "GST Certificate", desc: "Required for tax compliance" },
-                { type: "PAN", label: "Business PAN", desc: "Required for identity verification" },
-                { type: "BANK", label: "Cancelled Cheque", desc: "Required for settlement mapping" },
-              ].map((doc) => {
-                const status = getDocStatus(doc.type);
-                const isVerified = status === "Verified";
-                return (
-                  <div key={doc.type} className="flex items-center justify-between p-4 rounded-lg border bg-muted/10 group hover:border-primary/40 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center", isVerified ? "bg-blue-500/20 text-blue-600" : "bg-muted text-muted-foreground")}>
-                        <FileText className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <p className="font-bold">{doc.label}</p>
-                        <p className="text-xs text-muted-foreground">{doc.desc}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge className={cn("h-6 uppercase text-[10px] font-black", statusColor(status))}>
-                        {status}
-                      </Badge>
-                      {!isVerified && (
-                        <Button size="sm" variant="ghost" className="h-8 gap-1 font-bold group">
-                          {status === "Pending Upload" ? <Upload className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                          {status === "Pending Upload" ? "Upload" : "Re-upload"}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              <DocumentManager 
+                vendorId={vendor.id} 
+                documents={vendor.documents || []} 
+                onDocumentChange={() => fetchVendor((session?.user as any).id)} 
+              />
             </div>
           </CardContent>
         </Card>

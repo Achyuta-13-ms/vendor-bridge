@@ -18,12 +18,12 @@ export async function POST(request: Request) {
     }
 
     // Validation
-    const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
     const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { success: false, message: "File too large. Please upload a file under 4 MB." },
+        { success: false, message: "File too large. Please upload a file under 10 MB." },
         { status: 400 }
       );
     }
@@ -40,14 +40,27 @@ export async function POST(request: Request) {
       ? file.name.substring(file.name.lastIndexOf("."))
       : "";
 
-    const filename = `uploads/${safePath}/${crypto.randomUUID()}${ext}`;
+    const uuid = crypto.randomUUID();
+    const filename = `uploads/${safePath}/${uuid}${ext}`;
 
-    // DEMO FALLBACK: If no Vercel Blob token, return a local mock URL
+    // LOCAL STORAGE FALLBACK: If no Vercel Blob token, store to /public/uploads
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.warn("BLOB_READ_WRITE_TOKEN not found. Returning mock URL for demo.");
+      console.warn("BLOB_READ_WRITE_TOKEN not found. Saving file to local /public directory.");
+      const fs = require('fs/promises');
+      const path = require('path');
+      
+      const publicUploadsDir = path.join(process.cwd(), 'public', 'uploads', safePath);
+      await fs.mkdir(publicUploadsDir, { recursive: true });
+      
+      const filePath = path.join(publicUploadsDir, `${uuid}${ext}`);
+      
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      await fs.writeFile(filePath, buffer);
+      
       return NextResponse.json({
         success: true,
-        url: `https://placehold.co/600x400?text=${encodeURIComponent(file.name)}`,
+        url: `/uploads/${safePath}/${uuid}${ext}`,
         fileName: file.name,
       });
     }
