@@ -1,113 +1,151 @@
-import { ReactNode, useState } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import {
-  Shield, LayoutDashboard, FileText, Upload, BadgeCheck,
-  Settings, LogOut, Menu, X, User
-} from "lucide-react";
+"use client";
 
-const sidebarLinks = [
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  LayoutDashboard, 
+  Fingerprint, 
+  Files, 
+  ShieldCheck, 
+  GitPullRequest, 
+  Network, 
+  Activity, 
+  Settings,
+  Search,
+  Bell,
+  Menu,
+  X,
+  LogOut,
+  User
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const SIDEBAR_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Onboarding", href: "/dashboard/onboarding", icon: Upload },
-  { label: "Documents", href: "/dashboard/documents", icon: FileText },
-  { label: "Verification", href: "/dashboard/verification", icon: BadgeCheck },
-  { label: "Profile", href: "/dashboard/profile", icon: User },
+  { label: "Business Identity", href: "/dashboard/identity", icon: Fingerprint },
+  { label: "Documents", href: "/dashboard/documents", icon: Files },
+  { label: "Compliance", href: "/dashboard/compliance", icon: ShieldCheck },
+  { label: "Verification Requests", href: "/dashboard/requests", icon: GitPullRequest },
+  { label: "Connected Orgs", href: "/dashboard/organizations", icon: Network },
+  { label: "Activity", href: "/dashboard/activity", icon: Activity },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
-const DashboardLayout = ({ children }: { children: ReactNode }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, signOut } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.push("/");
-  };
-
-  const Sidebar = ({ mobile = false }: { mobile?: boolean }) => (
-    <div className={`flex flex-col h-full ${mobile ? "" : "w-60 border-r border-border"} bg-card`}>
-      <div className="flex items-center gap-3 p-4 border-b border-border bg-card">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-background shadow-sm border border-border/50 overflow-hidden">
-          <img 
-            src="/logo.png" 
-            alt="VS" 
-            className="h-full w-full object-cover" 
-          />
-        </div>
-        <span className="text-sm font-bold tracking-tight text-foreground">VyapaarSetu</span>
+  const SidebarContent = () => (
+    <>
+      <div className="h-16 flex items-center px-6 border-b border-zinc-200">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-white border border-zinc-200 shadow-sm flex items-center justify-center overflow-hidden">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+          </div>
+          <span className="font-bold text-lg text-black tracking-tight">VyapaarSetu</span>
+        </Link>
       </div>
 
-
-      <nav className="flex-1 p-3 space-y-0.5">
-        {sidebarLinks.map((link) => {
-          const isActive = pathname === link.href;
+      <div className="p-4 flex-1 overflow-y-auto space-y-1">
+        <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4 px-2 mt-4">Main Menu</div>
+        {SIDEBAR_ITEMS.map((item) => {
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => mobile && setSidebarOpen(false)}
-              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition-colors ${
-                isActive
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              <link.icon className="h-4 w-4" />
-              {link.label}
+            <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+              <div className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-medium transition-all ${
+                isActive 
+                  ? "bg-orange-50 text-orange-600 font-bold" 
+                  : "text-zinc-600 hover:bg-zinc-100 hover:text-black"
+              }`}>
+                <Icon className={`w-5 h-5 ${isActive ? "text-orange-500" : "text-zinc-400"}`} />
+                {item.label}
+              </div>
             </Link>
           );
         })}
-      </nav>
-
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-2 px-3 py-2 mb-2">
-          <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="h-3.5 w-3.5 text-primary" />
-          </div>
-          <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
-        </div>
-        <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground" onClick={handleSignOut}>
-          <LogOut className="h-4 w-4 mr-2" /> Sign Out
-        </Button>
       </div>
-    </div>
+
+      <div className="p-4 border-t border-zinc-200">
+        <Link href="/login">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-medium text-zinc-600 hover:bg-red-50 hover:text-red-600 transition-all cursor-pointer">
+            <LogOut className="w-5 h-5 text-zinc-400" />
+            Sign Out
+          </div>
+        </Link>
+      </div>
+    </>
   );
 
   return (
-    <div className="min-h-screen flex bg-background">
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex">
-        <Sidebar />
-      </div>
+    <div className="min-h-screen bg-[#FAFAFA] flex font-sans">
+      
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 bg-white border-r border-zinc-200 z-30">
+        <SidebarContent />
+      </aside>
 
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setSidebarOpen(false)} />
-          <div className="relative w-64 h-full">
-            <Sidebar mobile />
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 z-40 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.aside 
+              initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+              className="fixed inset-y-0 left-0 w-64 bg-white border-r border-zinc-200 z-50 flex flex-col md:hidden"
+            >
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen md:pl-64">
+        
+        {/* Top Bar */}
+        <header className="h-16 bg-white border-b border-zinc-200 sticky top-0 z-20 px-4 md:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button className="md:hidden text-zinc-500 hover:text-black" onClick={() => setMobileMenuOpen(true)}>
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="relative hidden sm:block">
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="pl-9 pr-4 py-2 w-64 bg-zinc-50 border border-zinc-200 rounded-[12px] text-sm outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+              />
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="flex items-center gap-3 h-14 border-b border-border bg-card px-4 md:px-6">
-          <button className="md:hidden text-foreground" onClick={() => setSidebarOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </button>
-          <h1 className="text-sm font-medium text-foreground">
-            {sidebarLinks.find((l) => l.href === pathname)?.label || "Dashboard"}
-          </h1>
+          <div className="flex items-center gap-4">
+            <button className="relative p-2 text-zinc-400 hover:text-black transition-colors rounded-full hover:bg-zinc-100">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-white" />
+            </button>
+            <div className="h-8 w-px bg-zinc-200 mx-2" />
+            <button className="flex items-center gap-2 hover:bg-zinc-50 p-1 pr-3 rounded-[12px] transition-colors border border-transparent hover:border-zinc-200">
+              <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center">
+                <User className="w-4 h-4 text-zinc-600" />
+              </div>
+              <span className="text-sm font-semibold text-black hidden sm:block">Acme Corp</span>
+            </button>
+          </div>
         </header>
-        <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
+
+        {/* Page Content */}
+        <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
+          {children}
+        </main>
       </div>
+
     </div>
   );
-};
-
-export default DashboardLayout;
+}

@@ -1,491 +1,271 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import {
-  CheckCircle2, Clock, AlertCircle, ArrowRight, LogOut,
-  RefreshCw, ShieldCheck, FileText, Building2, ChevronRight,
-  Upload, Eye, Sparkles, FileCheck, BadgeCheck, Globe
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { signOut } from "next-auth/react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  ShieldCheck, 
+  QrCode, 
+  CheckCircle2, 
+  AlertCircle, 
+  Clock, 
+  Download, 
+  Link as LinkIcon, 
+  RefreshCcw, 
+  FileUp,
+  Building,
+  Check,
+  ChevronRight
+} from "lucide-react";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface DocRecord {
-  id: string;
-  type: string;
-  url: string;
-  originalName?: string | null;
-  verification?: { status: string; rejectionReason?: string | null } | null;
-}
-
-interface VendorProfile {
-  id: string;
-  businessName: string | null;
-  businessType: string | null;
-  city: string | null;
-  state: string | null;
-  status: string;
-  phone: string | null;
-  email: string | null;
-  createdAt: string;
-  documents: DocRecord[];
-}
-
-const DEMO_OVERVIEW_VENDOR: VendorProfile = {
-  id: "v-demo-ov",
-  businessName: "Sharma Kirana Store",
-  businessType: "RETAIL",
-  city: "Mumbai",
-  state: "Maharashtra",
-  status: "ACTIVE",
-  phone: "+91 98765 43210",
-  email: "sharma@demo.in",
-  createdAt: new Date().toISOString(),
-  documents: [
-    { id: "d1", type: "GST", url: "#", verification: { status: "Verified" } },
-    { id: "d2", type: "PAN", url: "#", verification: { status: "Verified" } },
-    { id: "d3", type: "BANK", url: "#", verification: { status: "Verified" } },
-  ]
-};
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function computeProgress(vendor: VendorProfile | null): number {
-  if (!vendor) return 0;
-  let score = 0;
-  if (vendor.businessName) score += 20;
-  if (vendor.businessType) score += 10;
-  if (vendor.city) score += 10;
-  const docTypes = vendor.documents.map((d: DocRecord) => d.type);
-  if (docTypes.includes("GST")) score += 20;
-  if (docTypes.includes("PAN")) score += 20;
-  if (docTypes.includes("BANK")) score += 20;
-  return score;
-}
-
-function getDocStatus(vendor: VendorProfile | null, type: string) {
-  const doc = vendor?.documents.find((d: DocRecord) => d.type === type);
-  if (!doc) return "not_uploaded";
-  const status = (doc.verification?.status ?? "PENDING").toLowerCase();
-  
-  if (status === "verified") {
-    if (type === "GST" || type === "PAN") return "format verified";
-    return "verified";
-  }
-  if (status === "pending") return "under review";
-  return status;
-}
-
-function getNextAction(vendor: VendorProfile | null): { label: string; href: string; icon: any } | null {
-  if (!vendor) return { label: "Complete onboarding to get started", href: "/onboarding", icon: Building2 };
-  const missing = ["GST", "PAN", "BANK"].filter((t: string) => !vendor.documents.find((d: DocRecord) => d.type === t));
-  if (missing.length > 0) return { label: `Upload missing documents: ${missing.join(", ")}`, href: "/onboarding", icon: Upload };
-  
-  const status = vendor.status.toLowerCase();
-  if (status === "pending") return { label: "Awaiting document verification by our team", href: "#", icon: Clock };
-  
-  const rejected = vendor.documents.filter((d: DocRecord) => d.verification?.status === "REJECTED");
-  if (rejected.length > 0) return { label: "Some documents were rejected — re-upload required", href: "/onboarding", icon: AlertCircle };
-  return null;
-}
-
-const statusStyles = (s: string) => {
-  switch (s.toLowerCase()) {
-    case "verified": 
-    case "active":
-    case "format verified":
-      return "text-blue-600 bg-blue-500/10 border-blue-500/20";
-    case "pending":  
-    case "under review":
-      return "text-amber-600 bg-amber-500/10 border-amber-500/20";
-    case "rejected": 
-      return "text-red-600 bg-red-500/10 border-red-500/20";
-    default:         
-      return "text-muted-foreground bg-muted border-transparent";
-  }
-};
-
-const statusIcon = (s: string) => {
-  const status = s.toLowerCase();
-  switch (status) {
-    case "verified":
-    case "active":
-    case "format verified":
-      return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
-    case "pending":
-    case "under review":
-      return <Clock className="h-4 w-4 text-amber-500" />;
-    case "rejected": 
-      return <AlertCircle className="h-4 w-4 text-red-500" />;
-    default:         
-      return <Upload className="h-4 w-4 text-muted-foreground" />;
-  }
-};
-
-
-const DOC_META: Record<string, { label: string; desc: string }> = {
-  GST:  { label: "GST Certificate", desc: "Goods & Service Tax Registration" },
-  PAN:  { label: "Company PAN",     desc: "Permanent Account Number" },
-  BANK: { label: "Bank Proof",      desc: "Cancelled Cheque / Statement" },
-};
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-export default function DashboardHome() {
-  const router = useRouter();
-  const { data: session, status: authStatus } = useSession();
-  const { toast } = useToast();
-
-  const [vendor, setVendor] = useState<VendorProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchVendor = async (silent = false) => {
-    if (!silent) setLoading(true);
-    try {
-      const res = await fetch("/api/vendor/me");
-      const data = await res.json();
-      if (data.success) {
-        if (!data.vendor) {
-          router.push("/onboarding");
-          return;
-        }
-        setVendor(data.vendor);
-      }
-    } catch {
-      toast({ title: "Error fetching profile", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (authStatus === "unauthenticated") { router.push("/login"); return; }
-    if (authStatus === "authenticated") fetchVendor();
-
-    // Safety timeout
-    const timer = setTimeout(() => {
-      if (loading && !vendor) {
-        setLoading(false);
-        setVendor(DEMO_OVERVIEW_VENDOR);
-      }
-    }, 4000);
-
-    return () => clearTimeout(timer);
-  }, [authStatus]);
-
-  if (authStatus === "loading" || loading) {
-    return (
-      <div className="p-4 sm:p-8 max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-3">
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-8 sm:h-10 w-64" />
-            <Skeleton className="h-4 w-48" />
-          </div>
-          <Skeleton className="h-9 w-24 rounded-md" />
-        </div>
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <div className="space-y-4">
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-20 w-full rounded-xl" />
-          <Skeleton className="h-20 w-full rounded-xl" />
-          <Skeleton className="h-20 w-full rounded-xl" />
-        </div>
-      </div>
-    );
-  }
-
-  const progress = computeProgress(vendor);
-  const nextAction = getNextAction(vendor);
-  const docTypes = ["GST", "PAN", "BANK"];
-
+export default function DashboardPage() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-4 sm:p-8 max-w-3xl mx-auto space-y-6"
-    >
-      {/* ── Header ── */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-primary" />
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">VyapaarSetu</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {vendor?.businessName ? `Welcome, ${vendor.businessName}` : "Welcome!"}
-          </h1>
-          <div className="flex flex-wrap items-center gap-2 mt-1">
-            <p className="text-sm text-muted-foreground">
-              {session?.user?.email}
-            </p>
-            {vendor && (
-              <Badge className={cn("text-[9px] uppercase font-bold tracking-widest h-5", statusStyles(vendor.status === "ACTIVE" ? "verified" : "under review"))}>
-                {vendor.status === "ACTIVE" ? "Verified" : "Under Review"}
-              </Badge>
-            )}
-          </div>
+    <div className="space-y-8 pb-10">
+      
+      {/* SECTION 1: Welcome Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-black tracking-tight">Welcome back, Acme Corp</h1>
+          <p className="text-zinc-500 mt-1">Manage your verified business identity from one place.</p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="shrink-0 gap-1.5"
-          onClick={() => signOut({ callbackUrl: "/login" })}
-        >
-          <LogOut className="h-3.5 w-3.5" /> Sign out
+        <Button className="shrink-0 bg-black text-white hover:bg-black/90 font-semibold shadow-sm">
+          Complete Profile
         </Button>
       </div>
 
-      {/* ── Marketplace Ready Card ── */}
-      {vendor?.status === "ACTIVE" && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 shadow-glow-primary overflow-hidden relative group backdrop-blur-md hover:shadow-premium-card transition-all">
-            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-500">
-              <BadgeCheck className="h-24 w-24 text-primary" />
-            </div>
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-2 text-primary">
-                <Sparkles className="h-5 w-5 animate-pulse" />
-                <CardTitle className="text-base font-black uppercase tracking-widest">Marketplace Ready</CardTitle>
-              </div>
-              <CardDescription className="text-muted-foreground font-medium">
-                Your profile is verified and synchronized. You can now bridge to any marketplace.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <div className="bg-background/80 dark:bg-black/20 rounded-xl p-3 border border-primary/10 flex items-center justify-between gap-3 shadow-sm">
-                 <div className="flex items-center gap-2 min-w-0">
-                   <Globe className="h-4 w-4 text-primary shrink-0" />
-                   <p className="text-xs font-mono truncate text-muted-foreground">vyapaarsetu.in/profile/{vendor.id.substring(0, 8)}</p>
-                 </div>
-                 <Button 
-                   size="sm" 
-                   className="h-8 text-xs font-bold shadow-sm shrink-0" 
-                   onClick={() => {
-                     navigator.clipboard.writeText(`https://vyapaarsetu.in/profile/${vendor.id}`);
-                     toast({ title: "Link Copied!", description: "Share your business profile with anyone." });
-                   }}
-                 >
-                   Copy Link
-                 </Button>
-               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-
-
-      {/* ── Next Action Banner ── */}
-      {nextAction && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className={cn(
-            "flex items-center gap-4 p-4 rounded-xl border",
-            nextAction.href === "#"
-              ? "bg-amber-500/5 border-amber-500/20"
-              : "bg-primary/5 border-primary/20 cursor-pointer hover:bg-primary/10 transition-colors"
-          )}
-          onClick={() => nextAction.href !== "#" && router.push(nextAction.href)}
-        >
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <nextAction.icon className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold leading-tight">{nextAction.label}</p>
-            {nextAction.href !== "#" && (
-              <p className="text-xs text-primary font-medium mt-0.5">Tap to continue →</p>
-            )}
-          </div>
-          {nextAction.href !== "#" && <ChevronRight className="h-5 w-5 text-primary shrink-0" />}
-        </motion.div>
-      )}
-
-      {/* ── Profile Completion ── */}
-      <Card className="border border-border/50 shadow-premium-card backdrop-blur-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-bold">Profile Completion</CardTitle>
-            <span className="text-2xl font-extrabold text-primary">{progress}%</span>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Progress value={progress} className="h-3 rounded-full" />
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <ChecklistItem done={!!vendor?.businessName} label="Business name" />
-            <ChecklistItem done={!!vendor?.businessType} label="Business type" />
-            <ChecklistItem done={!!vendor?.city} label="Address added" />
-            <ChecklistItem done={docTypes.every((t: string) => !!vendor?.documents.find((d: DocRecord) => d.type === t))} label="All docs uploaded" />
-          </div>
-        </CardContent>
-        {progress < 100 && (
-          <CardFooter className="pt-0">
-            <Button variant="outline" className="w-full gap-2 group" onClick={() => router.push("/onboarding")}>
-              Complete Profile <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </CardFooter>
-        )}
-      </Card>
-
-      {/* ── Quick Tips ── */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-transparent shadow-sm backdrop-blur-sm">
-        <CardContent className="p-4 space-y-3">
-          <div className="flex items-center gap-2 text-primary">
-            <Sparkles className="h-4 w-4" />
-            <p className="text-sm font-bold">Quick Tips for Success</p>
-          </div>
-          <div className="grid gap-3">
-            {[
-              { t: "Complete KYC", d: "A 100% complete profile gets verified 2x faster.", icon: FileCheck },
-              { t: "Connect Platforms", d: "Link your Swiggy/Amazon ID to sync orders instantly.", icon: Globe },
-              { t: "Reusable ID", d: "Use your VyapaarSetu ID to onboard on new apps without KYC.", icon: BadgeCheck },
-            ].map((tip, i) => (
-              <div key={i} className="flex gap-3 items-start">
-                <div className="h-8 w-8 rounded-lg bg-background border flex items-center justify-center shrink-0">
-                  <tip.icon className="h-4 w-4 text-primary" />
-                </div>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        
+        {/* Left Column (Identity & Status) */}
+        <div className="xl:col-span-2 space-y-8">
+          
+          {/* SECTION 2: Business Identity Overview */}
+          <section>
+            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Business Identity</h2>
+            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+              <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
-                  <p className="text-xs font-bold">{tip.t}</p>
-                  <p className="text-[11px] text-muted-foreground">{tip.d}</p>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                      <Building className="w-5 h-5 text-orange-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-black">Acme Corp Ltd.</h3>
+                      <p className="text-xs font-mono text-zinc-500">ID: VYP-8829-XJ</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 border border-green-100 text-green-700 text-xs font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Identity Verified
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Trust Score: 99
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 border border-zinc-200 text-black text-xs font-bold">
+                      Compliance Active
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-3 shrink-0">
+                  <div className="p-2 bg-white border border-zinc-200 rounded-xl shadow-sm">
+                    <QrCode className="w-20 h-20 text-black" />
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full text-xs h-8">
+                    View Full Identity
+                  </Button>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </section>
 
-      {/* ── Verification Status ── */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">
-          Document Verification
-        </h2>
-        <div className="space-y-3">
-          {docTypes.map((type: string) => {
-            const statusRaw = getDocStatus(vendor, type);
-            const meta = DOC_META[type];
-            const doc = vendor?.documents.find((d: DocRecord) => d.type === type);
-            return (
-              <motion.div
-                key={type}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: docTypes.indexOf(type) * 0.07 }}
-              >
-                <Card className={cn(
-                  "border transition-all",
-                  statusRaw === "verified" ? "border-blue-500/20 bg-blue-500/5" :
-                  statusRaw === "rejected" ? "border-red-500/20 bg-red-500/5" :
-                  "border-border"
-                )}>
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
-                      statusRaw === "verified" ? "bg-blue-500/20" :
-                      statusRaw === "rejected" ? "bg-red-500/20" :
-                      "bg-muted"
-                    )}>
-                      {statusIcon(statusRaw)}
-                    </div>
+          {/* SECTION 3: Verification Status */}
+          <section>
+            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Verification Status</h2>
+            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm p-6 md:p-8">
+              <div className="relative">
+                {/* Horizontal line for desktop */}
+                <div className="hidden md:block absolute top-4 left-4 right-4 h-0.5 bg-zinc-100" />
+                {/* Active line */}
+                <div className="hidden md:block absolute top-4 left-4 w-[60%] h-0.5 bg-orange-500" />
 
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm">{meta.label}</p>
-                      <p className="text-xs text-muted-foreground">{meta.desc}</p>
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-2">
+                  {[
+                    { label: "Account Created", status: "complete" },
+                    { label: "Details Submitted", status: "complete" },
+                    { label: "Documents Uploaded", status: "complete" },
+                    { label: "Verification Complete", status: "active" },
+                    { label: "Identity Active", status: "pending" },
+                  ].map((step, i) => (
+                    <div key={i} className="relative z-10 flex md:flex-col items-center md:text-center gap-4 md:gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors ${
+                        step.status === "complete" ? "bg-black border-black text-white" :
+                        step.status === "active" ? "bg-white border-orange-500 shadow-[0_0_0_4px_#FFF7ED]" :
+                        "bg-white border-zinc-200"
+                      }`}>
+                        {step.status === "complete" ? <Check className="w-4 h-4" strokeWidth={3} /> :
+                         step.status === "active" ? <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" /> :
+                         null}
+                      </div>
+                      <span className={`text-xs font-bold leading-tight ${
+                        step.status === "pending" ? "text-zinc-400" : "text-black"
+                      }`}>
+                        {step.label}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge className={cn("text-[10px] font-bold uppercase px-2", statusStyles(statusRaw))}>
-                        {doc ? statusRaw : "Not uploaded"}
-                      </Badge>
-                      {doc && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => window.open(doc.url, "_blank")}
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                  {statusRaw === "rejected" && doc?.verification?.rejectionReason && (
-                    <div className="px-4 pb-4">
-                      <p className="text-xs text-red-600 bg-red-500/5 rounded-lg p-2 border border-red-500/10">
-                        ❌ {doc.verification.rejectionReason}
-                      </p>
-                    </div>
-                  )}
-                </Card>
-              </motion.div>
-            );
-          })}
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 5: Connected Organizations */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-black uppercase tracking-wider">Connected Organizations</h2>
+              <Button variant="outline" size="sm" className="h-8 text-xs font-semibold">Share Identity</Button>
+            </div>
+            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-zinc-50 border-b border-zinc-200 text-xs uppercase font-bold text-zinc-500">
+                    <tr>
+                      <th className="px-6 py-4">Organization</th>
+                      <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4">Access Granted</th>
+                      <th className="px-6 py-4">Last Accessed</th>
+                      <th className="px-6 py-4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
+                        No organizations connected yet.
+                      </td>
+                    </tr>
+                    {/* Placeholder for future rows */}
+                    {/* <tr className="border-b border-zinc-100 hover:bg-zinc-50">
+                      <td className="px-6 py-4 font-semibold text-black">HDFC Bank</td>
+                      <td className="px-6 py-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs font-bold">Active</span></td>
+                      <td className="px-6 py-4 text-zinc-600">Full Profile, KYC</td>
+                      <td className="px-6 py-4 text-zinc-600">2 days ago</td>
+                      <td className="px-6 py-4 text-right"><Button variant="ghost" size="sm">Manage</Button></td>
+                    </tr> */}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        {/* Right Column (Compliance, Activity, Actions) */}
+        <div className="space-y-8">
+          
+          {/* SECTION 4: Compliance Overview */}
+          <section>
+            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Compliance</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white border border-zinc-200 p-4 rounded-[16px] shadow-sm">
+                <div className="text-xs text-zinc-500 font-semibold mb-2">GST Status</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-green-700">
+                  <CheckCircle2 className="w-4 h-4" /> Verified
+                </div>
+              </div>
+              <div className="bg-white border border-zinc-200 p-4 rounded-[16px] shadow-sm">
+                <div className="text-xs text-zinc-500 font-semibold mb-2">PAN Status</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-green-700">
+                  <CheckCircle2 className="w-4 h-4" /> Verified
+                </div>
+              </div>
+              <div className="bg-white border border-zinc-200 p-4 rounded-[16px] shadow-sm">
+                <div className="text-xs text-zinc-500 font-semibold mb-2">Doc Expiry</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-orange-600">
+                  <Clock className="w-4 h-4" /> In 90 days
+                </div>
+              </div>
+              <div className="bg-white border border-zinc-200 p-4 rounded-[16px] shadow-sm">
+                <div className="text-xs text-zinc-500 font-semibold mb-2">Health</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-black">
+                  <ShieldCheck className="w-4 h-4 text-orange-500" /> Excellent
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 7: Quick Actions */}
+          <section>
+            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Quick Actions</h2>
+            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm p-2 flex flex-col">
+              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
+                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><LinkIcon className="w-4 h-4" /></div>
+                Create Share Link
+              </button>
+              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
+                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><Download className="w-4 h-4" /></div>
+                Download Identity PDF
+              </button>
+              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
+                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><QrCode className="w-4 h-4" /></div>
+                Generate QR Code
+              </button>
+              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
+                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><FileUp className="w-4 h-4" /></div>
+                Upload New Document
+              </button>
+              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
+                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><RefreshCcw className="w-4 h-4" /></div>
+                Request Verification Update
+              </button>
+            </div>
+          </section>
+
+          {/* SECTION 6: Recent Activity */}
+          <section>
+            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Recent Activity</h2>
+            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm p-6">
+              <div className="relative pl-4 space-y-6">
+                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-zinc-200" />
+                
+                <div className="relative flex items-start gap-4">
+                  <div className="w-4 h-4 rounded-full bg-black flex items-center justify-center shrink-0 z-10 mt-0.5 border-2 border-white shadow-sm" />
+                  <div>
+                    <p className="text-sm font-bold text-black leading-none mb-1">Verification Started</p>
+                    <p className="text-xs text-zinc-500">Just now</p>
+                  </div>
+                </div>
+
+                <div className="relative flex items-start gap-4">
+                  <div className="w-4 h-4 rounded-full bg-zinc-300 flex items-center justify-center shrink-0 z-10 mt-0.5 border-2 border-white shadow-sm" />
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-600 leading-none mb-1">Documents Uploaded</p>
+                    <p className="text-xs text-zinc-500">2 hours ago</p>
+                  </div>
+                </div>
+
+                <div className="relative flex items-start gap-4">
+                  <div className="w-4 h-4 rounded-full bg-zinc-300 flex items-center justify-center shrink-0 z-10 mt-0.5 border-2 border-white shadow-sm" />
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-600 leading-none mb-1">Business Profile Updated</p>
+                    <p className="text-xs text-zinc-500">3 hours ago</p>
+                  </div>
+                </div>
+                
+                <div className="relative flex items-start gap-4">
+                  <div className="w-4 h-4 rounded-full bg-zinc-300 flex items-center justify-center shrink-0 z-10 mt-0.5 border-2 border-white shadow-sm" />
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-600 leading-none mb-1">Account Created</p>
+                    <p className="text-xs text-zinc-500">Yesterday</p>
+                  </div>
+                </div>
+
+              </div>
+              <Button variant="link" className="w-full mt-4 text-orange-600 text-xs font-bold p-0 h-auto">View All Activity <ChevronRight className="w-3 h-3 ml-1" /></Button>
+            </div>
+          </section>
+
         </div>
       </div>
 
-      {/* ── Business Profile Summary ── */}
-      {vendor && (
-        <Card className="border border-primary/10 shadow-premium-card bg-gradient-to-br from-primary/10 via-primary/5 to-background backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-bold flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-primary" /> Business Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4 text-sm">
-            <ProfileField label="Business Type" value={vendor.businessType} />
-            <ProfileField label="Phone" value={vendor.phone} />
-            <ProfileField label="City" value={vendor.city} />
-            <ProfileField label="State" value={vendor.state} />
-            {vendor.email && <ProfileField label="Business Email" value={vendor.email} />}
-            <ProfileField label="Status" value={vendor.status} />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ── Quick Actions ── */}
-      <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" className="h-14 flex flex-col gap-1 text-xs" onClick={() => router.push("/onboarding")}>
-          <FileText className="h-5 w-5 text-primary" />
-          Update Documents
-        </Button>
-        <Button variant="outline" className="h-14 flex flex-col gap-1 text-xs" onClick={() => fetchVendor(true)}>
-          <RefreshCw className="h-5 w-5 text-primary" />
-          Refresh Status
-        </Button>
-      </div>
-    </motion.div>
-  );
-}
-
-function ChecklistItem({ done, label }: { done: boolean; label: string }) {
-  return (
-    <div className="flex items-center gap-2 text-sm">
-      {done
-        ? <CheckCircle2 className="h-4 w-4 text-blue-500 shrink-0" />
-        : <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30 shrink-0" />}
-      <span className={done ? "font-medium" : "text-muted-foreground"}>{label}</span>
-    </div>
-  );
-}
-
-
-function ProfileField({ label, value }: { label: string; value?: string | null }) {
-  return (
-    <div>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
-      <p className="font-semibold mt-0.5 truncate">{value || "—"}</p>
     </div>
   );
 }
