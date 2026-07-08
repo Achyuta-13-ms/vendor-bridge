@@ -1,111 +1,102 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { LogOut, Users, FileText, CheckCircle, Activity, Search, Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Users, CheckCircle2, AlertCircle, FileText, Activity } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function EnterpriseDashboard() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (status === "loading") {
-    return <div className="min-h-screen flex items-center justify-center bg-zinc-50">Loading...</div>;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("/api/enterprise/dashboard");
+        if (res.data.success) {
+          setData(res.data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div className="flex h-[400px] items-center justify-center">Loading Enterprise Dashboard...</div>;
   }
 
-  if (!session) {
-    router.push("/login");
-    return null;
+  if (!data) {
+    return <div className="flex h-[400px] items-center justify-center text-red-500">Failed to load dashboard data.</div>;
   }
+
+  const { kpis, recentVendors } = data;
+
+  const kpiCards = [
+    { title: "Businesses Invited", value: kpis.invited, icon: Users, color: "text-blue-500", bg: "bg-blue-50" },
+    { title: "Businesses Verified", value: kpis.verified, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-50" },
+    { title: "Pending Reviews", value: kpis.pending, icon: FileText, color: "text-orange-500", bg: "bg-orange-50" },
+    { title: "Compliance Alerts", value: kpis.complianceAlerts, icon: AlertCircle, color: "text-red-500", bg: "bg-red-50" },
+  ];
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-zinc-200 flex flex-col fixed h-full z-10">
-        <div className="p-6">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center overflow-hidden">
-              <span className="text-white font-bold text-xs">VS</span>
-            </div>
-            <span className="font-bold text-lg text-black tracking-tight">Enterprise</span>
-          </div>
-          
-          <nav className="space-y-1">
-            <a href="#" className="flex items-center gap-3 px-3 py-2 bg-orange-50 text-orange-600 font-bold rounded-lg">
-              <Activity className="w-5 h-5" /> Overview
-            </a>
-            <a href="#" className="flex items-center gap-3 px-3 py-2 text-zinc-600 hover:bg-zinc-50 font-medium rounded-lg">
-              <Users className="w-5 h-5" /> Vendors
-            </a>
-            <a href="#" className="flex items-center gap-3 px-3 py-2 text-zinc-600 hover:bg-zinc-50 font-medium rounded-lg">
-              <CheckCircle className="w-5 h-5" /> Verification Requests
-            </a>
-            <a href="#" className="flex items-center gap-3 px-3 py-2 text-zinc-600 hover:bg-zinc-50 font-medium rounded-lg">
-              <FileText className="w-5 h-5" /> API Keys
-            </a>
-          </nav>
-        </div>
-        
-        <div className="mt-auto p-4 border-t border-zinc-200">
-          <div className="flex items-center gap-3 px-3 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-zinc-200"></div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-bold truncate">{session.user?.email}</p>
-              <p className="text-xs text-zinc-500">Enterprise Admin</p>
-            </div>
-          </div>
-          <Button onClick={() => signOut({ callbackUrl: '/' })} variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 border-none shadow-none">
-            <LogOut className="w-4 h-4 mr-2" /> Sign Out
-          </Button>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Enterprise Overview</h1>
+        <p className="text-muted-foreground">Monitor onboarding and verification across your network.</p>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 ml-64 flex flex-col">
-        {/* Topbar */}
-        <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-8">
-          <div className="flex items-center gap-2 w-96">
-            <Search className="w-4 h-4 text-zinc-400" />
-            <input type="text" placeholder="Search vendors or IDs..." className="w-full outline-none text-sm" />
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-zinc-50 rounded-full relative">
-              <Bell className="w-5 h-5 text-zinc-600" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full"></span>
-            </button>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="flex-1 p-8">
-          <div className="max-w-5xl mx-auto">
-            <h1 className="text-2xl font-bold text-black mb-8">Enterprise Overview</h1>
-            
-            <div className="grid grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
-                <p className="text-zinc-500 text-sm font-medium mb-2">Total Verified Vendors</p>
-                <p className="text-3xl font-bold text-black">1,248</p>
+      {/* KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {kpiCards.map((kpi, index) => (
+          <Card key={index} className="shadow-sm border-zinc-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{kpi.title}</CardTitle>
+              <div className={`p-2 rounded-lg ${kpi.bg}`}>
+                <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
               </div>
-              <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
-                <p className="text-zinc-500 text-sm font-medium mb-2">Pending Verifications</p>
-                <p className="text-3xl font-bold text-orange-500">42</p>
-              </div>
-              <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
-                <p className="text-zinc-500 text-sm font-medium mb-2">API Requests (30d)</p>
-                <p className="text-3xl font-bold text-black">84.2k</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-              <h2 className="font-bold text-black mb-6">Recent Verifications</h2>
-              <div className="text-center py-12 text-zinc-500">
-                <Activity className="w-8 h-8 text-zinc-300 mx-auto mb-3" />
-                <p>No recent verification activity.</p>
-              </div>
-            </div>
-          </div>
-        </main>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{kpi.value}</div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
+
+      {/* Recent Activity */}
+      <Card className="shadow-sm border-zinc-200">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Activity className="h-5 w-5 text-orange-500" />
+            Recently Shared Identities
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {recentVendors.length === 0 ? (
+            <div className="text-sm text-muted-foreground text-center py-6">No recent identities shared.</div>
+          ) : (
+            <div className="space-y-4">
+              {recentVendors.map((ev: any) => (
+                <div key={ev.id} className="flex items-center justify-between p-4 border rounded-xl bg-zinc-50/50">
+                  <div>
+                    <p className="font-semibold">{ev.vendor?.businessName || "Unknown Business"}</p>
+                    <p className="text-xs text-muted-foreground">{ev.vendor?.businessType} • {ev.vendor?.city}</p>
+                  </div>
+                  <div>
+                    <Badge variant={ev.status === "APPROVED" ? "default" : "secondary"} className={ev.status === "APPROVED" ? "bg-green-100 text-green-700" : ""}>
+                      {ev.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

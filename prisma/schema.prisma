@@ -25,6 +25,7 @@ model User {
   apiKeys       ApiKey[]
   accounts      Account[]
   sessions      Session[]
+  enterpriseUsers EnterpriseUser[]
 }
 
 model Vendor {
@@ -58,6 +59,7 @@ model Vendor {
   orders        Order[]
   products      Product[]
   webhooks      WebhookConfig[]
+  enterpriseVendors EnterpriseVendor[]
 }
 
 model Document {
@@ -317,3 +319,58 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+
+model Enterprise {
+  id          String   @id @default(uuid())
+  name        String
+  logoUrl     String?
+  createdAt   DateTime @default(now())
+
+  users       EnterpriseUser[]
+  invitations EnterpriseInvitation[]
+  vendors     EnterpriseVendor[]
+}
+
+model EnterpriseUser {
+  id           String @id @default(uuid())
+  userId       String
+  enterpriseId String
+  role         String // ADMIN, REVIEWER, VIEWER
+
+  user       User       @relation(fields: [userId], references: [id])
+  enterprise Enterprise @relation(fields: [enterpriseId], references: [id])
+  
+  @@unique([userId, enterpriseId])
+}
+
+model EnterpriseInvitation {
+  id           String   @id @default(uuid())
+  enterpriseId String
+  businessName String
+  email        String
+  phone        String?
+  message      String?
+  status       String   @default("SENT") // SENT, ACCEPTED, EXPIRED, CANCELLED
+  token        String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  
+  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+}
+
+
+
+model EnterpriseVendor {
+  id           String @id @default(uuid())
+  enterpriseId String
+  vendorId     String
+  status       String @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt    DateTime @default(now())
+
+  enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  vendor       Vendor     @relation(fields: [vendorId], references: [id])
+
+  @@unique([enterpriseId, vendorId])
+}
+
