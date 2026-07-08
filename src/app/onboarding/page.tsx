@@ -142,11 +142,17 @@ export default function OnboardingWizard() {
         const result = await res.json();
         if (result.success) {
           // Log the user in to establish the session for subsequent API calls
-          await signIn("credentials", {
+          const signInResult = await signIn("credentials", {
             redirect: false,
             email: data.workEmail,
             password: data.password,
           });
+
+          if (signInResult?.error) {
+            setOtpError("Authentication failed: " + signInResult.error + ". If you already have an account, please use your existing password or reset it.");
+            setIsSubmitting(false);
+            return;
+          }
           toast({ title: "Email Verified", description: "Your email has been successfully verified." });
           nextStep();
         } else {

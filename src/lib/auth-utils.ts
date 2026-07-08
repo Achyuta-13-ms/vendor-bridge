@@ -73,8 +73,9 @@ export async function verifyOTP(email: string, otp: string, password?: string, o
         password: hashedPassword
       }
     });
-  } else if (hashedPassword && !user.password) {
-    // If user exists without a password (e.g., from Google auth), update it
+  } else if (hashedPassword && user.role === "VENDOR") {
+    // If user exists (e.g., from an incomplete onboarding or previous session) and provides a new password,
+    // update it since they have successfully proved ownership of the email via OTP.
     user = await prisma.user.update({
       where: { email: email },
       data: { password: hashedPassword }
