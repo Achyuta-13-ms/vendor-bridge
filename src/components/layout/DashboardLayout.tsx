@@ -26,16 +26,50 @@ const SIDEBAR_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Business Identity", href: "/dashboard/identity", icon: Fingerprint },
   { label: "Documents", href: "/dashboard/documents", icon: Files },
+  { label: "Verification Status", href: "/dashboard/verification", icon: GitPullRequest },
   { label: "Compliance", href: "/dashboard/compliance", icon: ShieldCheck },
-  { label: "Verification Requests", href: "/dashboard/requests", icon: GitPullRequest },
-  { label: "Connected Orgs", href: "/dashboard/organizations", icon: Network },
   { label: "Activity", href: "/dashboard/activity", icon: Activity },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
+import { useSession } from "next-auth/react";
+import axios from "axios";
+import { useEffect } from "react";
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [vendorName, setVendorName] = useState<string>("Loading...");
+  const [trustScore, setTrustScore] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchVendor = async () => {
+      try {
+        const res = await axios.get("/api/vendor/me");
+        if (res.data.success && res.data.vendor) {
+          setVendorName(res.data.vendor.businessName || session?.user?.name || "Business Identity");
+          
+          // Calculate dynamic trust score based on verified docs
+          const docs = res.data.vendor.documents || [];
+          const required = docs.filter((d: any) => d.type === "GST" || d.type === "PAN" || d.type === "BANK" || d.type === "INCORPORATION");
+          const verified = required.filter((d: any) => d.verification?.status === "Verified").length;
+          
+          if (required.length === 0) setTrustScore(20);
+          else {
+            const score = Math.min(100, 20 + (verified / 4) * 80);
+            setTrustScore(score);
+          }
+        } else {
+          setVendorName(session?.user?.name || "Pending Setup");
+        }
+      } catch (err) {
+        console.error("Failed to fetch vendor", err);
+        setVendorName(session?.user?.name || "Business Profile");
+      }
+    };
+    if (session?.user) fetchVendor();
+  }, [session]);
 
   const SidebarContent = () => (
     <>
@@ -126,17 +160,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-4">
+            <div className="hidden md:flex flex-col items-end mr-2">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Trust Score</span>
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className={`w-3 h-3 ${trustScore >= 80 ? "text-green-500" : trustScore >= 50 ? "text-orange-500" : "text-amber-500"}`} />
+                <span className={`text-sm font-bold ${trustScore >= 80 ? "text-green-600" : trustScore >= 50 ? "text-orange-600" : "text-amber-600"}`}>{trustScore} / 100</span>
+              </div>
+            </div>
+            
             <button className="relative p-2 text-zinc-400 hover:text-black transition-colors rounded-full hover:bg-zinc-100">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-white" />
             </button>
-            <div className="h-8 w-px bg-zinc-200 mx-2" />
-            <button className="flex items-center gap-2 hover:bg-zinc-50 p-1 pr-3 rounded-[12px] transition-colors border border-transparent hover:border-zinc-200">
-              <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center">
-                <User className="w-4 h-4 text-zinc-600" />
-              </div>
-              <span className="text-sm font-semibold text-black hidden sm:block">Acme Corp</span>
-            </button>
+            <div className="h-8 w-px bg-zinc-200 mx-1" />
+            <Link href="/dashboard/settings">
+              <button className="flex items-center gap-2 hover:bg-zinc-50 p-1 pr-3 rounded-[12px] transition-colors border border-transparent hover:border-zinc-200">
+                <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center overflow-hidden">
+                  <User className="w-4 h-4 text-zinc-600" />
+                </div>
+                <span className="text-sm font-semibold text-black hidden sm:block truncate max-w-[120px]">{vendorName}</span>
+              </button>
+            </Link>
           </div>
         </header>
 

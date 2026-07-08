@@ -3,25 +3,25 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { 
   ShieldCheck, 
   QrCode, 
   CheckCircle2, 
   AlertCircle, 
-  Clock, 
-  Download, 
-  Link as LinkIcon, 
-  RefreshCcw, 
-  FileUp,
-  Building,
-  Check,
-  ChevronRight
+  Clock,
+  Files,
+  Activity,
+  ChevronRight,
+  Building
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [vendor, setVendor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,267 +41,209 @@ export default function DashboardPage() {
     if (session?.user) fetchVendor();
   }, [session]);
 
-  const getStatus = (docs: any[]) => {
-    if (!docs || docs.length === 0) return "Pending";
-    const required = docs.filter((d: any) => d.type === "GST" || d.type === "PAN");
-    if (required.length < 2) return "Pending";
-    return required.every((d: any) => d.verification?.status === "Verified") ? "Verified" : "Pending";
+  const getDocs = () => vendor?.documents || [];
+  const getRequired = () => getDocs().filter((d: any) => ["GST", "PAN", "BANK", "INCORPORATION"].includes(d.type));
+  
+  const getIdentityStatus = () => {
+    if (!vendor) return "Pending Review";
+    if (vendor.status === "ACTIVE") return "Verified";
+    if (vendor.status === "REJECTED") return "Rejected";
+    
+    const required = getRequired();
+    if (required.length === 0) return "Requires Action";
+    const allVerified = required.length > 0 && required.every((d: any) => d.verification?.status === "Verified");
+    return allVerified ? "Verified" : "Pending Review";
   };
 
-  const status = vendor ? getStatus(vendor.documents) : "Pending";
+  const getTrustScore = () => {
+    const required = getRequired();
+    if (required.length === 0) return 20;
+    const verified = required.filter((d: any) => d.verification?.status === "Verified").length;
+    return Math.min(100, 20 + (verified / 4) * 80);
+  };
 
-  if (loading) return <div className="p-10 text-center animate-pulse">Loading dashboard...</div>;
+  const status = getIdentityStatus();
+  const score = getTrustScore();
+  const uploadedCount = getRequired().length;
+
+  if (loading) return <div className="p-10 text-center text-zinc-500 animate-pulse">Loading dashboard...</div>;
+
+  if (!vendor?.businessName) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+        <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center">
+          <Building className="w-10 h-10 text-orange-500" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-black text-black">Create your Business Identity</h1>
+          <p className="text-zinc-500 mt-2 max-w-md mx-auto">You haven't completed your business profile yet. Finish onboarding to unlock your dashboard.</p>
+        </div>
+        <Button onClick={() => router.push("/onboarding")} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-6 rounded-xl text-lg shadow-xl shadow-orange-500/20">
+          Complete Onboarding
+        </Button>
+      </div>
+    );
+  }
+
+  const lastUpdated = vendor.updatedAt ? formatDistanceToNow(new Date(vendor.updatedAt), { addSuffix: true }) : "Just now";
 
   return (
     <div className="space-y-8 pb-10">
-      
-      {/* SECTION 1: Welcome Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-black tracking-tight">Welcome back, {vendor?.businessName || session?.user?.name || "Vendor"}</h1>
-          <p className="text-zinc-500 mt-1">Manage your verified business identity from one place.</p>
+          <h1 className="text-3xl font-black text-black tracking-tight">Dashboard Overview</h1>
+          <p className="text-zinc-500 mt-1">Here is a summary of your Business Identity.</p>
         </div>
-        <Button className="shrink-0 bg-black text-white hover:bg-black/90 font-semibold shadow-sm">
-          Complete Profile
-        </Button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      {/* DASHBOARD OVERVIEW CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4">
         
-        {/* Left Column (Identity & Status) */}
-        <div className="xl:col-span-2 space-y-8">
-          
-          {/* SECTION 2: Business Identity Overview */}
-          <section>
-            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Business Identity</h2>
-            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-              <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
-                      <Building className="w-5 h-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-black">{vendor?.businessName || "Your Business"}</h3>
-                      <p className="text-xs font-mono text-zinc-500">ID: {vendor?.id?.split("-")[0] || "NEW"}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold ${
-                      status === "Verified" ? "bg-green-50 border-green-100 text-green-700" : "bg-amber-50 border-amber-100 text-amber-700"
-                    }`}>
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Identity {status}
-                    </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Trust Score: {status === "Verified" ? 99 : 45}
-                    </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 border border-zinc-200 text-black text-xs font-bold">
-                      Compliance {status === "Verified" ? "Active" : "Pending"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center gap-3 shrink-0">
-                  <div className="p-2 bg-white border border-zinc-200 rounded-xl shadow-sm">
-                    <QrCode className="w-20 h-20 text-black" />
-                  </div>
-                  <Button variant="outline" size="sm" className="w-full text-xs h-8">
-                    View Full Identity
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 3: Verification Status */}
-          <section>
-            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Verification Status</h2>
-            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm p-6 md:p-8">
-              <div className="relative">
-                {/* Horizontal line for desktop */}
-                <div className="hidden md:block absolute top-4 left-4 right-4 h-0.5 bg-zinc-100" />
-                {/* Active line */}
-                <div className="hidden md:block absolute top-4 left-4 w-[60%] h-0.5 bg-orange-500" />
-
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-2">
-                  {[
-                    { label: "Account Created", status: "complete" },
-                    { label: "Details Submitted", status: vendor?.businessName ? "complete" : "active" },
-                    { label: "Documents Uploaded", status: vendor?.documents?.length >= 2 ? "complete" : vendor?.businessName ? "active" : "pending" },
-                    { label: "Verification Complete", status: status === "Verified" ? "complete" : vendor?.documents?.length >= 2 ? "active" : "pending" },
-                    { label: "Identity Active", status: status === "Verified" ? "complete" : "pending" },
-                  ].map((step, i) => (
-                    <div key={i} className="relative z-10 flex md:flex-col items-center md:text-center gap-4 md:gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors ${
-                        step.status === "complete" ? "bg-black border-black text-white" :
-                        step.status === "active" ? "bg-white border-orange-500 shadow-[0_0_0_4px_#FFF7ED]" :
-                        "bg-white border-zinc-200"
-                      }`}>
-                        {step.status === "complete" ? <Check className="w-4 h-4" strokeWidth={3} /> :
-                         step.status === "active" ? <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" /> :
-                         null}
-                      </div>
-                      <span className={`text-xs font-bold leading-tight ${
-                        step.status === "pending" ? "text-zinc-400" : "text-black"
-                      }`}>
-                        {step.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 5: Connected Organizations */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-bold text-black uppercase tracking-wider">Connected Organizations</h2>
-              <Button variant="outline" size="sm" className="h-8 text-xs font-semibold">Share Identity</Button>
-            </div>
-            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-zinc-50 border-b border-zinc-200 text-xs uppercase font-bold text-zinc-500">
-                    <tr>
-                      <th className="px-6 py-4">Organization</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4">Access Granted</th>
-                      <th className="px-6 py-4">Last Accessed</th>
-                      <th className="px-6 py-4 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
-                        No organizations connected yet.
-                      </td>
-                    </tr>
-                    {/* Placeholder for future rows */}
-                    {/* <tr className="border-b border-zinc-100 hover:bg-zinc-50">
-                      <td className="px-6 py-4 font-semibold text-black">HDFC Bank</td>
-                      <td className="px-6 py-4"><span className="px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs font-bold">Active</span></td>
-                      <td className="px-6 py-4 text-zinc-600">Full Profile, KYC</td>
-                      <td className="px-6 py-4 text-zinc-600">2 days ago</td>
-                      <td className="px-6 py-4 text-right"><Button variant="ghost" size="sm">Manage</Button></td>
-                    </tr> */}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-
+        {/* Card 1: Identity Status */}
+        <div className="bg-white p-5 rounded-[16px] border border-zinc-200 shadow-sm flex flex-col justify-between">
+          <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Identity Status</div>
+          <div className="flex items-center gap-2">
+            {status === "Verified" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : 
+             status === "Requires Action" ? <AlertCircle className="w-5 h-5 text-amber-500" /> : 
+             <Clock className="w-5 h-5 text-blue-500" />}
+            <span className={`text-lg font-black ${
+              status === "Verified" ? "text-green-700" :
+              status === "Requires Action" ? "text-amber-700" :
+              "text-blue-700"
+            }`}>{status}</span>
+          </div>
         </div>
 
-        {/* Right Column (Compliance, Activity, Actions) */}
-        <div className="space-y-8">
-          
-          {/* SECTION 4: Compliance Overview */}
-          <section>
-            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Compliance</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white border border-zinc-200 p-4 rounded-[16px] shadow-sm">
-                <div className="text-xs text-zinc-500 font-semibold mb-2">GST Status</div>
-                <div className={`flex items-center gap-2 text-sm font-bold ${vendor?.documents?.some((d:any) => d.type === "GST" && d.verification?.status === "Verified") ? "text-green-700" : "text-amber-600"}`}>
-                  <CheckCircle2 className="w-4 h-4" /> {vendor?.documents?.some((d:any) => d.type === "GST" && d.verification?.status === "Verified") ? "Verified" : "Pending"}
-                </div>
-              </div>
-              <div className="bg-white border border-zinc-200 p-4 rounded-[16px] shadow-sm">
-                <div className="text-xs text-zinc-500 font-semibold mb-2">PAN Status</div>
-                <div className={`flex items-center gap-2 text-sm font-bold ${vendor?.documents?.some((d:any) => d.type === "PAN" && d.verification?.status === "Verified") ? "text-green-700" : "text-amber-600"}`}>
-                  <CheckCircle2 className="w-4 h-4" /> {vendor?.documents?.some((d:any) => d.type === "PAN" && d.verification?.status === "Verified") ? "Verified" : "Pending"}
-                </div>
-              </div>
-              <div className="bg-white border border-zinc-200 p-4 rounded-[16px] shadow-sm">
-                <div className="text-xs text-zinc-500 font-semibold mb-2">Doc Expiry</div>
-                <div className="flex items-center gap-2 text-sm font-bold text-orange-600">
-                  <Clock className="w-4 h-4" /> {status === "Verified" ? "Active" : "N/A"}
-                </div>
-              </div>
-              <div className="bg-white border border-zinc-200 p-4 rounded-[16px] shadow-sm">
-                <div className="text-xs text-zinc-500 font-semibold mb-2">Health</div>
-                <div className="flex items-center gap-2 text-sm font-bold text-black">
-                  <ShieldCheck className="w-4 h-4 text-orange-500" /> {status === "Verified" ? "Excellent" : "Needs Action"}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 7: Quick Actions */}
-          <section>
-            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Quick Actions</h2>
-            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm p-2 flex flex-col">
-              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><LinkIcon className="w-4 h-4" /></div>
-                Create Share Link
-              </button>
-              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><Download className="w-4 h-4" /></div>
-                Download Identity PDF
-              </button>
-              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><QrCode className="w-4 h-4" /></div>
-                Generate QR Code
-              </button>
-              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><FileUp className="w-4 h-4" /></div>
-                Upload New Document
-              </button>
-              <button className="flex items-center gap-3 w-full p-3 text-sm font-semibold text-black hover:bg-zinc-50 rounded-xl transition-colors text-left">
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0"><RefreshCcw className="w-4 h-4" /></div>
-                Request Verification Update
-              </button>
-            </div>
-          </section>
-
-          {/* SECTION 6: Recent Activity */}
-          <section>
-            <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Recent Activity</h2>
-            <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm p-6">
-              <div className="relative pl-4 space-y-6">
-                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-zinc-200" />
-                
-                <div className="relative flex items-start gap-4">
-                  <div className="w-4 h-4 rounded-full bg-black flex items-center justify-center shrink-0 z-10 mt-0.5 border-2 border-white shadow-sm" />
-                  <div>
-                    <p className="text-sm font-bold text-black leading-none mb-1">Verification Started</p>
-                    <p className="text-xs text-zinc-500">Just now</p>
-                  </div>
-                </div>
-
-                <div className="relative flex items-start gap-4">
-                  <div className="w-4 h-4 rounded-full bg-zinc-300 flex items-center justify-center shrink-0 z-10 mt-0.5 border-2 border-white shadow-sm" />
-                  <div>
-                    <p className="text-sm font-semibold text-zinc-600 leading-none mb-1">Documents Uploaded</p>
-                    <p className="text-xs text-zinc-500">2 hours ago</p>
-                  </div>
-                </div>
-
-                <div className="relative flex items-start gap-4">
-                  <div className="w-4 h-4 rounded-full bg-zinc-300 flex items-center justify-center shrink-0 z-10 mt-0.5 border-2 border-white shadow-sm" />
-                  <div>
-                    <p className="text-sm font-semibold text-zinc-600 leading-none mb-1">Business Profile Updated</p>
-                    <p className="text-xs text-zinc-500">3 hours ago</p>
-                  </div>
-                </div>
-                
-                <div className="relative flex items-start gap-4">
-                  <div className="w-4 h-4 rounded-full bg-zinc-300 flex items-center justify-center shrink-0 z-10 mt-0.5 border-2 border-white shadow-sm" />
-                  <div>
-                    <p className="text-sm font-semibold text-zinc-600 leading-none mb-1">Account Created</p>
-                    <p className="text-xs text-zinc-500">Yesterday</p>
-                  </div>
-                </div>
-
-              </div>
-              <Button variant="link" className="w-full mt-4 text-orange-600 text-xs font-bold p-0 h-auto">View All Activity <ChevronRight className="w-3 h-3 ml-1" /></Button>
-            </div>
-          </section>
-
+        {/* Card 2: Trust Score */}
+        <div className="bg-white p-5 rounded-[16px] border border-zinc-200 shadow-sm flex flex-col justify-between">
+          <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Trust Score</div>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className={`w-5 h-5 ${score >= 80 ? "text-green-500" : "text-amber-500"}`} />
+            <span className="text-lg font-black text-black">{score} <span className="text-zinc-400 text-sm font-semibold">/ 100</span></span>
+          </div>
         </div>
+
+        {/* Card 3: Documents */}
+        <div className="bg-white p-5 rounded-[16px] border border-zinc-200 shadow-sm flex flex-col justify-between">
+          <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Documents</div>
+          <div className="flex items-center gap-2">
+            <Files className="w-5 h-5 text-zinc-400" />
+            <span className="text-lg font-black text-black">{uploadedCount} of 4 <span className="text-zinc-400 text-sm font-semibold">Uploaded</span></span>
+          </div>
+        </div>
+
+        {/* Card 4: Compliance Status */}
+        <div className="bg-white p-5 rounded-[16px] border border-zinc-200 shadow-sm flex flex-col justify-between">
+          <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Compliance Status</div>
+          <div className="flex items-center gap-2">
+            {score === 100 ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <AlertCircle className="w-5 h-5 text-orange-500" />}
+            <span className={`text-lg font-black ${score === 100 ? "text-green-700" : "text-orange-700"}`}>
+              {score === 100 ? "Compliant" : "Action Required"}
+            </span>
+          </div>
+        </div>
+
+        {/* Card 5: Last Updated */}
+        <div className="bg-white p-5 rounded-[16px] border border-zinc-200 shadow-sm flex flex-col justify-between">
+          <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Last Updated</div>
+          <div className="flex items-center gap-2 text-black">
+            <Activity className="w-5 h-5 text-zinc-400" />
+            <span className="text-lg font-bold truncate">{lastUpdated}</span>
+          </div>
+        </div>
+
       </div>
 
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pt-4">
+        
+        {/* Quick Links Section */}
+        <section>
+          <h2 className="text-sm font-bold text-black uppercase tracking-wider mb-4">Quick Navigation</h2>
+          <div className="bg-white border border-zinc-200 rounded-[16px] shadow-sm flex flex-col overflow-hidden">
+            <Link href="/dashboard/identity" className="flex items-center justify-between p-4 border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center"><QrCode className="w-5 h-5 text-orange-500" /></div>
+                <div>
+                  <h3 className="font-bold text-black">Business Identity Card</h3>
+                  <p className="text-xs text-zinc-500">View and share your digital identity</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-zinc-300" />
+            </Link>
+            <Link href="/dashboard/documents" className="flex items-center justify-between p-4 border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center"><Files className="w-5 h-5 text-zinc-600" /></div>
+                <div>
+                  <h3 className="font-bold text-black">Manage Documents</h3>
+                  <p className="text-xs text-zinc-500">View, replace, or delete uploaded files</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-zinc-300" />
+            </Link>
+            <Link href="/dashboard/verification" className="flex items-center justify-between p-4 border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center"><Clock className="w-5 h-5 text-blue-500" /></div>
+                <div>
+                  <h3 className="font-bold text-black">Verification Timeline</h3>
+                  <p className="text-xs text-zinc-500">Track your application status</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-zinc-300" />
+            </Link>
+            <Link href="/dashboard/compliance" className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center"><ShieldCheck className="w-5 h-5 text-green-600" /></div>
+                <div>
+                  <h3 className="font-bold text-black">Compliance Matrix</h3>
+                  <p className="text-xs text-zinc-500">Check GST, PAN, and Bank statuses</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-zinc-300" />
+            </Link>
+          </div>
+        </section>
+
+        {/* Business Identity Preview */}
+        <section>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-sm font-bold text-black uppercase tracking-wider">Identity Preview</h2>
+            <Link href="/dashboard/identity" className="text-xs font-bold text-orange-600 hover:underline">View Full Card</Link>
+          </div>
+          <div className="bg-black text-white p-6 rounded-[20px] shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <div className="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">Business Name</div>
+                <div className="text-2xl font-black">{vendor.businessName}</div>
+              </div>
+              <div className="bg-white p-2 rounded-xl">
+                <QrCode className="w-12 h-12 text-black" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1">Business ID</div>
+                <div className="font-mono text-sm">{vendor.id.split("-")[0].toUpperCase()}</div>
+              </div>
+              <div>
+                <div className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1">Entity Type</div>
+                <div className="text-sm font-semibold">{vendor.businessType || "Company"}</div>
+              </div>
+              <div>
+                <div className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1">Trust Score</div>
+                <div className="flex items-center gap-1.5 text-sm font-bold text-green-400">
+                  <ShieldCheck className="w-4 h-4" /> {score}/100
+                </div>
+              </div>
+              <div>
+                <div className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1">Status</div>
+                <div className="text-sm font-semibold">{status}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
     </div>
   );
 }
