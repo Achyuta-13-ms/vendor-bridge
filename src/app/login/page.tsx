@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -55,12 +55,16 @@ export default function LoginPage() {
           title: "Login Successful",
           description: "Redirecting to your dashboard...",
         });
+        const session = await getSession();
+        const role = (session?.user as any)?.role;
         
-        // Mock set session for legacy UI components depending on localStorage
-        localStorage.setItem("vendorSession", JSON.stringify({ email: values.email }));
-        localStorage.setItem("vendorId", "session-active");
-        
-        router.push("/dashboard");
+        if (role === "ADMIN") {
+          router.push("/admin/dashboard");
+        } else if (role === "PLATFORM") {
+          router.push("/platform/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (e: any) {
       toast({

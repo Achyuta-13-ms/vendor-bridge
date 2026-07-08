@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Loader2, Mail, Phone, Linkedin, CheckCircle2 } from "lucide-react";
+import PublicLayout from "@/components/layout/PublicLayout";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -53,6 +54,7 @@ export default function ContactPage() {
   };
 
   return (
+    <PublicLayout>
     <div className="min-h-screen bg-zinc-50 pt-32 pb-24 px-4">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16">
         
@@ -157,5 +159,6 @@ export default function ContactPage() {
 
       </div>
     </div>
+    </PublicLayout>
   );
 }

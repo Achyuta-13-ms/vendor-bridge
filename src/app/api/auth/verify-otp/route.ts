@@ -5,13 +5,13 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    const { email, otp } = await request.json();
+    const { email, otp, password } = await request.json();
     
     if (!email || !otp) {
       return NextResponse.json({ success: false, message: 'Email and OTP are required' }, { status: 400 });
     }
 
-    const user = await verifyOTP(email, otp);
+    const user = await verifyOTP(email, otp, password);
 
     return NextResponse.json({ 
       success: true, 

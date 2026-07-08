@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Fingerprint, Activity, Network, ArrowRight } from "lucide-react";
+import PublicLayout from "@/components/layout/PublicLayout";
 
 export default function PlatformPage() {
   return (
+    <PublicLayout>
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4">
@@ -97,5 +99,6 @@ export default function PlatformPage() {
         </div>
       </section>
     </div>
+    </PublicLayout>
   );
 }

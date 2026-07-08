@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import { 
   TrendingUp, 
@@ -55,17 +56,16 @@ const chartConfig: ChartConfig = {
 };
 
 export default function AnalyticsPage() {
+  const { data: session } = useSession();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState("7");
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      fetchAnalytics(session.id, range);
+    if ((session?.user as any)?.id) {
+      fetchAnalytics((session?.user as any).id, range);
     }
-  }, [range]);
+  }, [session, range]);
 
   const fetchAnalytics = async (userId: string, r: string) => {
     setLoading(true);

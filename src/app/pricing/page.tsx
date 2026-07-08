@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import PublicLayout from "@/components/layout/PublicLayout";
 
 const plans = [
   {
@@ -38,6 +39,7 @@ const plans = [
 
 export default function PricingPage() {
   return (
+    <PublicLayout>
     <div className="min-h-screen bg-zinc-50 pt-32 pb-24 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
@@ -101,5 +103,6 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+    </PublicLayout>
   );
 }

@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import crypto from "crypto";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const destPath = (formData.get("path") as string) || "documents";
@@ -18,12 +25,12 @@ export async function POST(request: Request) {
     }
 
     // Validation
-    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
     const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { success: false, message: "File too large. Please upload a file under 10 MB." },
+        { success: false, message: "File too large. Please upload a file under 5 MB." },
         { status: 400 }
       );
     }

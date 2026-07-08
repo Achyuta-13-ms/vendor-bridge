@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import axios from "axios";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const resetSchema = z.object({
@@ -32,13 +33,16 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (values: ResetFormValues) => {
     setLoading(true);
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setSubmitted(true);
-    } catch (e) {
+      const res = await axios.post("/api/auth/forgot-password", { email: values.email });
+      if (res.data.success) {
+        setSubmitted(true);
+      } else {
+        throw new Error(res.data.message);
+      }
+    } catch (e: any) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: e.response?.data?.message || e.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {

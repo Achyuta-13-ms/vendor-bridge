@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import Script from "next/script";
 import { 
@@ -16,20 +17,19 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 
 export default function PlatformPage() {
+  const { data: session } = useSession();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [vendorSession, setVendorSession] = useState<any>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      setVendorSession(session);
-      fetchUsage(session.id);
-    } else {
+    if ((session?.user as any)?.id) {
+      setVendorSession(session?.user);
+      fetchUsage((session?.user as any).id);
+    } else if (session === null) {
       setLoading(false);
     }
-  }, []);
+  }, [session]);
 
   const fetchUsage = async (userId: string) => {
     setLoading(true);

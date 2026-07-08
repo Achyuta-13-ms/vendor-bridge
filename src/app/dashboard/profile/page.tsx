@@ -21,20 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
-const DEMO_VENDOR = {
-  id: "v-demo-88",
-  businessName: "Founder's Choice Foods",
-  businessType: "RETAIL",
-  city: "Bangalore",
-  state: "Karnataka",
-  addressLine1: "12, Indiranagar 100ft Rd",
-  status: "ACTIVE",
-  createdAt: new Date().toISOString(),
-  user: {
-    email: "founder@vyapaarsetu.in",
-    phone: "+91 99887 76655"
-  }
-};
+
 
 export default function ProfilePage() {
   const { toast } = useToast();
@@ -43,42 +30,27 @@ export default function ProfilePage() {
   
   const [vendor, setVendor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     if (authStatus === "unauthenticated") {
       router.push("/login");
-    } else if (authStatus === "authenticated" && (session?.user as any)?.id) {
-      fetchVendor((session?.user as any).id);
+    } else if (authStatus === "authenticated") {
+      fetchVendor();
     }
+  }, [authStatus, session, router]);
 
-    // Safety timeout
-    const timer = setTimeout(() => {
-      if (loading && !vendor) {
-        setLoading(false);
-        setVendor(DEMO_VENDOR);
-        setIsDemo(true);
-      }
-    }, 3500);
-
-    return () => clearTimeout(timer);
-  }, [authStatus, session]);
-
-  const fetchVendor = async (userId: string) => {
+  const fetchVendor = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/vendor?userId=${userId}`);
+      const res = await axios.get(`/api/vendor/me`);
       if (res.data.success && res.data.vendor) {
         setVendor(res.data.vendor);
-        setIsDemo(false);
       } else {
-        setVendor(DEMO_VENDOR);
-        setIsDemo(true);
+        setVendor(null);
       }
     } catch (err) {
       console.error("Profile fetch error:", err);
-      setVendor(DEMO_VENDOR);
-      setIsDemo(true);
+      setVendor(null);
     } finally {
       setLoading(false);
     }
@@ -95,7 +67,15 @@ export default function ProfilePage() {
     );
   }
 
-  if (!vendor) return <div className="p-10 animate-pulse bg-muted/20 h-screen" />;
+  if (!vendor && !loading) {
+    return (
+      <div className="p-10 text-center">
+        <h2 className="text-xl font-bold text-black mb-2">No Profile Found</h2>
+        <p className="text-zinc-500 mb-6">Please complete your onboarding to view your profile.</p>
+        <Button onClick={() => router.push('/onboarding')}>Complete Profile</Button>
+      </div>
+    );
+  }
 
   return (
     <motion.div 
@@ -113,9 +93,8 @@ export default function ProfilePage() {
             </Avatar>
             <div className="mt-14 text-center space-y-1">
               <h2 className="text-xl font-black">{vendor.businessName}</h2>
-              <p className="text-sm text-muted-foreground font-medium">{vendor.businessType}</p>
+              <p className="text-sm text-muted-foreground font-medium">{vendor.businessType || "Unknown Type"}</p>
               <Badge variant="outline" className="mt-2 bg-blue-500/5 text-blue-600 border-blue-500/20 uppercase text-[10px] font-black">
-
                 {vendor.status} Profile
               </Badge>
             </div>
@@ -139,21 +118,21 @@ export default function ProfilePage() {
                   <Mail className="h-4 w-4 text-primary" />
                   <div>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase">Email Address</p>
-                    <p className="font-medium">{vendor.user.email}</p>
+                    <p className="font-medium">{vendor.user?.email || session?.user?.email || "Not provided"}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-primary" />
                   <div>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase">Phone Number</p>
-                    <p className="font-medium">{vendor.user.phone || "Not provided"}</p>
+                    <p className="font-medium">{vendor.user?.phone || "Not provided"}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <MapPin className="h-4 w-4 text-primary" />
                   <div>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase">Headquarters</p>
-                    <p className="font-medium">{vendor.addressLine1}, {vendor.city}</p>
+                    <p className="font-medium">{[vendor.addressLine1, vendor.city].filter(Boolean).join(", ") || "Not provided"}</p>
                   </div>
                 </div>
               </div>

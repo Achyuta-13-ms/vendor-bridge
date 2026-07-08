@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import { 
   Terminal, 
@@ -31,6 +32,7 @@ interface Item {
 
 export default function SimulatorPage() {
   const { toast } = useToast();
+  const { data: session } = useSession();
   const [vendorId, setVendorId] = useState<string>("");
   const [platforms, setPlatforms] = useState<any[]>([]);
   const [selectedPlatform, setSelectedPlatform] = useState<string>("swiggy");
@@ -40,13 +42,11 @@ export default function SimulatorPage() {
   const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      setVendorId(session.id);
+    if ((session?.user as any)?.id) {
+      setVendorId((session?.user as any).id);
     }
     fetchPlatforms();
-  }, []);
+  }, [session]);
 
   const fetchPlatforms = async () => {
     try {

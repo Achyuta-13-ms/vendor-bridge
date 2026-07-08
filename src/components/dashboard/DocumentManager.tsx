@@ -49,11 +49,11 @@ export default function DocumentManager({ vendorId, documents, onDocumentChange 
 
   const handleFileSelect = async (type: string, file: File) => {
     // Validate File
-    const MAX_SIZE = 10 * 1024 * 1024;
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
     const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
     if (file.size > MAX_SIZE) {
-      toast({ title: "Error", description: "File size exceeds 10MB limit.", variant: "destructive" });
+      toast({ title: "Error", description: "File size exceeds 5MB limit.", variant: "destructive" });
       return;
     }
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -237,7 +237,7 @@ export default function DocumentManager({ vendorId, documents, onDocumentChange 
                 </div>
                 <p className="font-bold text-black mb-1">{docType.label}</p>
                 <p className="text-xs text-zinc-500 text-center max-w-[250px]">{docType.desc}</p>
-                <Badge variant="outline" className="mt-4 text-[10px] bg-white">PDF, PNG, JPG (Max 10MB)</Badge>
+                <Badge variant="outline" className="mt-4 text-[10px] bg-white">PDF, PNG, JPG (Max 5MB)</Badge>
               </>
             )}
             <input 

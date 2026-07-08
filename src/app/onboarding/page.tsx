@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, UploadCloud, FileText, Upload, ChevronLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { FileUpload } from "@/components/ui/file-upload";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 const onboardingSchema = z.object({
@@ -136,10 +137,16 @@ export default function OnboardingWizard() {
         const res = await fetch("/api/auth/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: data.workEmail, otp: data.otp }),
+          body: JSON.stringify({ email: data.workEmail, otp: data.otp, password: data.password }),
         });
         const result = await res.json();
         if (result.success) {
+          // Log the user in to establish the session for subsequent API calls
+          await signIn("credentials", {
+            redirect: false,
+            email: data.workEmail,
+            password: data.password,
+          });
           toast({ title: "Email Verified", description: "Your email has been successfully verified." });
           nextStep();
         } else {

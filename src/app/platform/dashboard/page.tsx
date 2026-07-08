@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import { Users, CheckCircle2, Activity, Zap, Search, Bell, Settings, LayoutDashboard, FileText, Webhook, Key, Copy, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +43,7 @@ function getOverallStatus(docs: Document[]) {
 }
 
 export default function PlatformDashboard() {
+  const { data: session } = useSession();
   const [vendors, setVendors] = useState<VendorRecord[]>([]);
   const [filtered, setFiltered] = useState<VendorRecord[]>([]);
   const [query, setQuery] = useState("");
@@ -72,15 +74,17 @@ export default function PlatformDashboard() {
 
   useEffect(() => {
     fetchVendors();
-    fetchApiKeys();
   }, []);
 
-  const fetchApiKeys = async () => {
+  useEffect(() => {
+    if ((session?.user as any)?.id) {
+      fetchApiKeys((session?.user as any).id);
+    }
+  }, [session]);
+
+  const fetchApiKeys = async (userId: string) => {
     try {
-      const raw = localStorage.getItem("vendorSession");
-      if (!raw) return;
-      const session = JSON.parse(raw);
-      const res = await axios.get(`/api/platform/api-key?userId=${session.id}`);
+      const res = await axios.get(`/api/platform/api-key?userId=${userId}`);
       if (res.data.success) setApiKeys(res.data.apiKeys);
     } catch {
       toast.error("Failed to load API Keys.");
@@ -88,15 +92,13 @@ export default function PlatformDashboard() {
   };
 
   const handleGenerateKey = async () => {
+    if (!(session?.user as any)?.id) return toast.error("Not logged in");
     setGeneratingKey(true);
     try {
-      const raw = localStorage.getItem("vendorSession");
-      if (!raw) return toast.error("Not logged in");
-      const session = JSON.parse(raw);
-      const res = await axios.post("/api/platform/api-key", { userId: session.id, name: "Production Key" });
+      const res = await axios.post("/api/platform/api-key", { userId: (session?.user as any).id, name: "Production Key" });
       if (res.data.success) {
         toast.success("API Key Generated Successfully");
-        fetchApiKeys();
+        fetchApiKeys((session?.user as any).id);
       }
     } catch {
       toast.error("Failed to generate API Key");

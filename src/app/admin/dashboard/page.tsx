@@ -19,6 +19,7 @@ interface AdminMetrics {
 
 export default function AdminDashboard() {
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [recentVendors, setRecentVendors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function AdminDashboard() {
       const data = await res.json();
       if (data.success) {
         setMetrics(data.metrics);
+        setRecentVendors(data.vendors?.slice(0, 5) || []);
       } else {
         throw new Error(data.message);
       }
@@ -178,27 +180,29 @@ export default function AdminDashboard() {
         
         <Card className="border-none shadow-sm overflow-hidden">
           <div className="divide-y">
-            {[
-              { type: "Vendor Signup", name: "Modern Retailers", time: "2m ago", status: "PENDING" },
-              { type: "Doc Upload", name: "Global Exports", time: "15m ago", status: "ACTIVE" },
-              { type: "Verification", name: "Sunrise Foods", time: "1h ago", status: "ACTIVE" },
-            ].map((activity, i) => (
-              <div key={i} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <RefreshCw className="h-4 w-4 text-primary" />
+            {recentVendors.length === 0 ? (
+              <div className="p-4 text-center text-sm text-muted-foreground">No recent activity</div>
+            ) : (
+              recentVendors.map((vendor, i) => (
+                <div key={vendor.id || i} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <RefreshCw className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">{vendor.businessName || vendor.user?.name || "Unknown Vendor"}</p>
+                      <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">
+                        {vendor.documents?.length > 0 ? "Doc Upload" : "Vendor Signup"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold">{activity.name}</p>
-                    <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">{activity.type}</p>
+                  <div className="text-right">
+                    <p className="text-xs font-medium">{new Date(vendor.createdAt).toLocaleDateString()}</p>
+                    <Badge variant="outline" className="text-[9px] h-4 uppercase">{vendor.status}</Badge>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs font-medium">{activity.time}</p>
-                  <Badge variant="outline" className="text-[9px] h-4 uppercase">{activity.status}</Badge>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
       </motion.div>

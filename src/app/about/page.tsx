@@ -1,5 +1,8 @@
+import PublicLayout from "@/components/layout/PublicLayout";
+
 export default function AboutPage() {
   return (
+    <PublicLayout>
     <div className="min-h-screen bg-white pt-32 pb-24 px-4">
       <div className="max-w-3xl mx-auto space-y-16">
         
@@ -65,5 +68,6 @@ export default function AboutPage() {
 
       </div>
     </div>
+    </PublicLayout>
   );
 }

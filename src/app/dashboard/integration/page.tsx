@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import { 
   Globe, 
@@ -35,18 +36,17 @@ interface Connection {
 
 export default function IntegrationPage() {
   const { toast } = useToast();
+  const { data: session } = useSession();
   const [vendor, setVendor] = useState<any>(null);
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
   const [linkingId, setLinkingId] = useState<string | null>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      fetchData(session.id);
+    if ((session?.user as any)?.id) {
+      fetchData((session?.user as any).id);
     }
-  }, []);
+  }, [session]);
 
   const fetchData = async (userId: string) => {
     try {

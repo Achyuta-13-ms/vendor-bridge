@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
-export async function verifyOTP(email: string, otp: string, options: { skipUsedCheckWindow?: number } = {}) {
+export async function verifyOTP(email: string, otp: string, password?: string, options: { skipUsedCheckWindow?: number } = {}) {
   const session = await prisma.otpSession.findUnique({
     where: { identifier: email }
   });
@@ -53,6 +53,12 @@ export async function verifyOTP(email: string, otp: string, options: { skipUsedC
     data: { isUsed: true }
   });
 
+  // Hash password if provided
+  let hashedPassword = null;
+  if (password) {
+    hashedPassword = await bcrypt.hash(password, 10);
+  }
+
   // Upsert user
   let user = await prisma.user.findUnique({
     where: { email: email }
@@ -63,8 +69,15 @@ export async function verifyOTP(email: string, otp: string, options: { skipUsedC
       data: {
         email: email,
         name: email.split('@')[0],
-        role: "VENDOR"
+        role: "VENDOR",
+        password: hashedPassword
       }
+    });
+  } else if (hashedPassword && !user.password) {
+    // If user exists without a password (e.g., from Google auth), update it
+    user = await prisma.user.update({
+      where: { email: email },
+      data: { password: hashedPassword }
     });
   }
 

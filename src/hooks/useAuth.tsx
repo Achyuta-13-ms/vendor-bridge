@@ -58,9 +58,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           return { error: new Error(signInResult.error) };
         }
 
-        // 3. Store in localStorage for compatibility with existing signup logic
+        // 3. (Legacy localStorage sync removed)
         const userData = res.data.user;
-        localStorage.setItem("vendorSession", JSON.stringify(userData));
         
         return { success: true, user: userData, error: null };
       }

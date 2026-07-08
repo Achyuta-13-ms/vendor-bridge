@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import { 
   Webhook, 
@@ -48,6 +49,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function WebhooksPage() {
   const { toast } = useToast();
+  const { data: session } = useSession();
   const [configs, setConfigs] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,13 +64,11 @@ export default function WebhooksPage() {
   });
 
   useEffect(() => {
-    const raw = localStorage.getItem("vendorSession");
-    if (raw) {
-      const session = JSON.parse(raw);
-      setUserId(session.id);
-      fetchData(session.id);
+    if ((session?.user as any)?.id) {
+      setUserId((session?.user as any).id);
+      fetchData((session?.user as any).id);
     }
-  }, []);
+  }, [session]);
 
   const fetchData = async (uid: string) => {
     setLoading(true);

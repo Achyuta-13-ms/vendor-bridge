@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Bell, 
   Lock, 
@@ -19,7 +19,27 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 
+import { useSession } from "next-auth/react";
+import axios from "axios";
+
 export default function SettingsPage() {
+  const { data: session } = useSession();
+  const [vendor, setVendor] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchVendor = async () => {
+      try {
+        const res = await axios.get("/api/vendor/me");
+        if (res.data.success) {
+          setVendor(res.data.vendor);
+        }
+      } catch (err) {
+        console.error("Failed to fetch vendor", err);
+      }
+    };
+    if (session?.user) fetchVendor();
+  }, [session]);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -56,11 +76,11 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="grid gap-2">
                 <Label htmlFor="name">Business Display Name</Label>
-                <Input id="name" placeholder="Vendor Name" defaultValue="Vendora Hub" />
+                <Input id="name" placeholder="Vendor Name" defaultValue={vendor?.businessName || "Vendora Hub"} key={vendor?.businessName || "name"} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Support Email</Label>
-                <Input id="email" type="email" placeholder="support@vendor.com" />
+                <Input id="email" type="email" placeholder="support@vendor.com" defaultValue={vendor?.user?.email || session?.user?.email || ""} key={vendor?.user?.email || session?.user?.email || "email"} />
               </div>
               <Button>Save Identity</Button>
             </CardContent>
