@@ -40,12 +40,12 @@ async function main() {
   const adminUser = await prisma.user.create({
     data: {
       name: 'Platform Admin',
-      email: 'admin@vendorflow.demo',
+      email: 'admin@vyapaarsetu.demo',
       phone: '9999999999',
       role: 'ADMIN',
     },
   });
-  console.log('Admin user created: admin@vendorflow.demo');
+  console.log('Admin user created: admin@vyapaarsetu.demo');
 
   // 4. Realistic Indian Business Data
   const demoVendors = [
@@ -184,7 +184,7 @@ async function main() {
 
   console.log('Demo seed completed successfully.');
   console.log('--- DEMO CREDENTIALS ---');
-  console.log('Admin: admin@vendorflow.demo');
+  console.log('Admin: admin@vyapaarsetu.demo');
   console.log('Vendor: vendor1@demo.in');
   console.log('OTP: Use "123456" for all (mocked in dev/demo flow if needed, otherwise check logs)');
 }
