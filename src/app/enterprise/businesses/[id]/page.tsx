@@ -166,6 +166,9 @@ export default function BusinessProfile({ params }: { params: Promise<{ id: stri
                             <Eye className="w-4 h-4 mr-2" /> View
                           </a>
                         </Button>
+                        <Button variant="outline" size="sm" onClick={() => alert("Request sent to vendor.")}>
+                          Request Update
+                        </Button>
                       </div>
                     </div>
                   ))}

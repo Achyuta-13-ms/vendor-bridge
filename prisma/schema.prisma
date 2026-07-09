@@ -60,6 +60,10 @@ model Vendor {
   products      Product[]
   webhooks      WebhookConfig[]
   enterpriseVendors EnterpriseVendor[]
+  
+  businessIdentity BusinessIdentity?
+  sharingProfiles  SharingProfile[]
+  sharedLinks      SharedLink[]
 }
 
 model Document {
@@ -374,3 +378,69 @@ model EnterpriseVendor {
   @@unique([enterpriseId, vendorId])
 }
 
+
+model BusinessIdentity {
+  id              String   @id @default(uuid())
+  vendorId        String   @unique
+  businessId      String   @unique // VS-XXXXXXXX format
+  profileDescription String?
+  isPublic        Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  vendor          Vendor   @relation(fields: [vendorId], references: [id])
+}
+
+model SharingProfile {
+  id                String   @id @default(uuid())
+  vendorId          String
+  name              String   // e.g., "Public", "Enterprise", "Private"
+  
+  // Toggles for what to share
+  shareBusinessDetails Boolean @default(true)
+  shareGST             Boolean @default(false)
+  sharePAN             Boolean @default(false) // Will be masked on client/server
+  shareAddress         Boolean @default(true)
+  shareContact         Boolean @default(false)
+  shareDocuments       Boolean @default(false)
+  shareCompliance      Boolean @default(true)
+  shareCertificates    Boolean @default(false)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  vendor            Vendor   @relation(fields: [vendorId], references: [id])
+  sharedLinks       SharedLink[]
+}
+
+model SharedLink {
+  id               String   @id @default(uuid())
+  vendorId         String
+  sharingProfileId String
+  token            String   @unique // The secure share token
+  
+  linkType         String   @default("PERMANENT") // PERMANENT, 30_DAYS, 7_DAYS, SINGLE_USE
+  expiresAt        DateTime?
+  isActive         Boolean  @default(true)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  vendor           Vendor         @relation(fields: [vendorId], references: [id])
+  sharingProfile   SharingProfile @relation(fields: [sharingProfileId], references: [id])
+  accessLogs       AccessLog[]
+}
+
+model AccessLog {
+  id             String   @id @default(uuid())
+  sharedLinkId   String
+  
+  accessorIp     String?
+  organization   String?  // Name of the enterprise viewing it, if known
+  purpose        String?  // Provided by the viewer or assumed
+  
+  accessedAt     DateTime @default(now())
+
+  sharedLink     SharedLink @relation(fields: [sharedLinkId], references: [id])
+}
