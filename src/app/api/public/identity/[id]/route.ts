@@ -109,7 +109,7 @@ export async function GET(
       }
 
       if (!identity.isPublic) {
-        return NextResponse.json({ success: false, message: "This Business Identity is private." }, { status: 403 });
+        return NextResponse.json({ success: false, message: "This Business Identity is currently private." }, { status: 403 });
       }
 
       const vendor = identity.vendor;
