@@ -43,10 +43,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Render PDF stream
     const pdfStream = await renderToStream(React.createElement(IdentityPDFTemplate, { data: identity, qrCodeDataUrl }) as any);
 
-    // Convert Node stream to Buffer for NextResponse
+    // Convert Node stream to Buffer for NextResponse in a fully type-safe manner
     const chunks: Buffer[] = [];
     for await (const chunk of pdfStream) {
-      chunks.push(Buffer.from(chunk));
+      if (typeof chunk === "string") {
+        const strChunk: string = chunk;
+        chunks.push(Buffer.from(strChunk));
+      } else {
+        const bufChunk: Uint8Array = chunk;
+        chunks.push(Buffer.from(bufChunk));
+      }
     }
     const pdfBuffer = Buffer.concat(chunks);
 
