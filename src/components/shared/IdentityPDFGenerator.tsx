@@ -7,14 +7,36 @@ import { Button } from "@/components/ui/button";
 export default function IdentityPDFGenerator({ identityData, sharedLinkId }: { identityData: any, sharedLinkId?: string }) {
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownload = () => {
-    setIsDownloading(true);
-    // Since this is a file stream download, we can simply redirect the browser to the API route
-    // Or we can use an anchor tag with the download attribute. Using window.location works for streaming.
-    window.location.href = `/api/identity/download/${identityData.businessId}`;
-    
-    // Reset state after a short delay to re-enable button
-    setTimeout(() => setIsDownloading(false), 2000);
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+      
+      const response = await fetch(`/api/identity/download/${identityData.businessId}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `VyapaarSetu_Identity_${identityData.businessId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("PDF Download Error:", error);
+      alert("Failed to download PDF. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (

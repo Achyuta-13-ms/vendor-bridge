@@ -43,8 +43,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Render PDF stream
     const pdfStream = await renderToStream(React.createElement(IdentityPDFTemplate, { data: identity, qrCodeDataUrl }) as any);
 
-    // Return file stream as response
-    return new NextResponse(pdfStream as any, {
+    // Convert Node stream to Buffer for NextResponse
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of pdfStream) {
+      chunks.push(chunk);
+    }
+    const pdfBuffer = Buffer.concat(chunks);
+
+    // Return file buffer as response
+    return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="VyapaarSetu_Identity_${identity.businessId}.pdf"`,
